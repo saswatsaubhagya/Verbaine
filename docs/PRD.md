@@ -58,7 +58,7 @@ Apple's on-device model changes the economics. Every Apple Silicon Mac on macOS 
 | Non-native English professional | Writes 30–50 Slack messages and 10 emails a day; second-guesses grammar and tone before sending | Fix grammar and make it sound natural in one keystroke, without leaving Slack |
 | Engineer / IC | Terse, rushed messages; long threads to catch up on | Improve clarity, summarize a pasted thread, turn notes into a tidy update |
 | Manager / lead | Writes announcements and feedback; tone matters | Rewrite as professional / friendly / concise; shorten without losing meaning |
-| Privacy-constrained user (legal, finance, health, regulated enterprise) | Company policy forbids cloud AI on work text | An assistant that provably never sends text off the machine by default |
+| Privacy-constrained user (legal, finance, health, regulated enterprise) | Company policy forbids cloud AI on work text | Runs entirely on-device; text leaves the Mac only if you configure a custom endpoint yourself |
 
 **Primary persona for v1:** the non-native English professional on Slack and Mail. Every v1 decision is judged against their flow first.
 

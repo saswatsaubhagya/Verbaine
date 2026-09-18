@@ -72,7 +72,7 @@ struct OpenAICompatibleProvider: InferenceProvider {
                     let request = try makeRequest(instructions: instructions, prompt: prompt)
                     let (bytes, response) = try await session.bytes(
                         for: request,
-                        delegate: RedirectGuardDelegate(originalHost: request.url?.host())
+                        delegate: RedirectGuardDelegate(originalURL: request.url)
                     )
 
                     if let http = response as? HTTPURLResponse, http.statusCode != 200 {
@@ -140,15 +140,40 @@ struct OpenAICompatibleProvider: InferenceProvider {
 /// what protects the request body too, and that body is the user's selected text: `URLSession`
 /// carries the body across a redirect exactly as it carries headers, so stripping only the key
 /// would still hand a hostile or mistyped base URL the user's own text on a 307/308. A `nil`
-/// original host (a malformed base URL) never matches anything, including another `nil` host —
-/// there being no host to compare against is always a refusal, not a free pass.
+/// original URL (a malformed base URL) never matches anything, including another URL with no
+/// host — there being nothing to compare against is always a refusal, not a free pass.
 ///
 /// Factored out as a pure function, independent of `URLSessionTaskDelegate`, so the decision is
 /// testable without a socket.
 enum RedirectPolicy {
-    static func allowsRedirect(originalHost: String?, to request: URLRequest) -> Bool {
-        guard let originalHost, let redirectedHost = request.url?.host() else { return false }
-        return redirectedHost == originalHost
+    /// The whole origin has to match, not just the host: a same-host redirect that downgrades
+    /// `https` to `http`, or moves to a different port, is a different endpoint and must not
+    /// receive the key or the body either. (App Transport Security happens to block the plaintext
+    /// hop today, but a guard that depends on something else to hold is not a guard.) Hosts are
+    /// compared case-insensitively — DNS names are case-insensitive, so refusing a
+    /// case-differing redirect to the same origin fails closed for no reason.
+    static func allowsRedirect(original: URL?, to request: URLRequest) -> Bool {
+        guard let original, let redirected = request.url,
+              let originalHost = original.host(), let redirectedHost = redirected.host(),
+              let originalScheme = original.scheme?.lowercased(),
+              let redirectedScheme = redirected.scheme?.lowercased()
+        else { return false }
+
+        return redirectedHost.lowercased() == originalHost.lowercased()
+            && redirectedScheme == originalScheme
+            && effectivePort(of: redirected) == effectivePort(of: original)
+    }
+
+    /// The port the request actually goes to: the explicit one, or the scheme's default when the
+    /// URL leaves it out — so `https://h/x` and `https://h:443/x` are one origin, and
+    /// `https://h:8443/x` is not.
+    private static func effectivePort(of url: URL) -> Int? {
+        if let port = url.port { return port }
+        switch url.scheme?.lowercased() {
+        case "https": return 443
+        case "http": return 80
+        default: return nil
+        }
     }
 }
 
@@ -156,10 +181,10 @@ enum RedirectPolicy {
 /// per request — it is one small, stateless piece of glue, not a reason to restructure the
 /// provider around a session-wide delegate.
 private final class RedirectGuardDelegate: NSObject, URLSessionTaskDelegate, @unchecked Sendable {
-    private let originalHost: String?
+    private let originalURL: URL?
 
-    init(originalHost: String?) {
-        self.originalHost = originalHost
+    init(originalURL: URL?) {
+        self.originalURL = originalURL
     }
 
     /// Returning `nil` refuses the redirect outright: `URLSession` hands back the redirect
@@ -172,6 +197,6 @@ private final class RedirectGuardDelegate: NSObject, URLSessionTaskDelegate, @un
         willPerformHTTPRedirection response: HTTPURLResponse,
         newRequest request: URLRequest
     ) async -> URLRequest? {
-        RedirectPolicy.allowsRedirect(originalHost: originalHost, to: request) ? request : nil
+        RedirectPolicy.allowsRedirect(original: originalURL, to: request) ? request : nil
     }
 }
