@@ -49,7 +49,7 @@ Execute in order. Each task is one Claude Code session or prompt; commit at the 
 - Guard: before pasting, re-read frontmost app bundle id and focused element; abort with `.focusChanged` error if either differs from capture time.
 - Done when: select text in Slack → debug menu "Improve selection" → text replaced in Slack; ⌘Z in Slack restores the original.
 
-**T0.6 Spike report** — ✅ done (`PENDING`)
+**T0.6 Spike report** — ✅ done (`2b1b161`)
 
 - Write `docs/SPIKE.md`: measured latency per action on the test Mac, token counts for 5 sample messages, which apps worked with AX vs clipboard, any failures.
 - Done when: file committed and each of T0.2–T0.5 has a pass/fail line.
