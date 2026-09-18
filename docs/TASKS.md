@@ -70,7 +70,7 @@ Execute in order. Each task is one Claude Code session or prompt; commit at the 
 - Unit test: every instruction's `tokenCount` ≤ 120.
 - Done when: tests pass.
 
-**T1.3 Token budget service**
+**T1.3 Token budget service** — ✅ done (`cba3c84`; build + test pass, 1,659-token single-pass rewrite limit at contextSize 4096)
 
 - Implement `TokenBudget`: given action + input, compute `fitsInOnePass: Bool` using `contextSize`, instruction tokens, wrapper tokens, output reserve (input×1.3 for rewrites, 400 for summarize/shorten) and 150 margin.
 - Expose `maxSinglePassInputTokens(for action:)`.
