@@ -21,6 +21,9 @@ struct DebugMenu: View {
             Button("Capture selection (T0.4)") {
                 Task { await Self.logCapture() }
             }
+            Button("Improve selection (T0.5)") {
+                Task { await Self.improveSelection() }
+            }
         }
     }
 
@@ -36,6 +39,22 @@ struct DebugMenu: View {
                 """)
         } catch {
             log.error("capture failed: \(String(describing: error))")
+        }
+    }
+
+    /// The whole hero flow end to end: capture, model, paste back.
+    @MainActor
+    private static func improveSelection() async {
+        do {
+            let selection = try await SelectionCapture.capture()
+            let result = try await ModelService.shared.respond(
+                instructions: "Correct the spelling and grammar. Return only the corrected text, no preamble.",
+                prompt: selection.text
+            )
+            try await WriteBackService.replace(selection: selection, with: result)
+            log.debug("replaced \(selection.text) with \(result)")
+        } catch {
+            log.error("improve failed: \(String(describing: error))")
         }
     }
 

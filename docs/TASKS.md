@@ -43,7 +43,7 @@ Execute in order. Each task is one Claude Code session or prompt; commit at the 
 - Implement `SelectionCapture` facade: try AX; if text is empty or app bundle id is in `electronFallbackList` (Slack, Discord, VS Code, Chrome, Arc, Figma), use clipboard method.
 - Done when: with Slack desktop frontmost and text selected, debug menu logs the selected text; user's original clipboard is intact afterwards.
 
-**T0.5 Paste-based write-back**
+**T0.5 Paste-based write-back** — ✅ done (`PENDING`; build + test pass, manual Slack/Mail/Notes checklist in `docs/TESTING.md` still to run)
 
 - Implement `WriteBackService.replace(selection:with:)`: snapshot clipboard, set result string with a transient marker type (`org.nspasteboard.TransientType`), activate source app by bundle id, post ⌘V via `CGEvent`, restore clipboard after 300 ms.
 - Guard: before pasting, re-read frontmost app bundle id and focused element; abort with `.focusChanged` error if either differs from capture time.

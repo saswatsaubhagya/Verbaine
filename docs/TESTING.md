@@ -49,3 +49,20 @@ Before each run, copy a marker string (e.g. `MARKER-123`) so the clipboard resto
 - [ ] With Slack frontmost and **nothing** selected, it logs `emptySelection` or `clipboardCopyTimedOut`, and the clipboard marker still pastes.
 - [ ] Copy an image (not text) as the marker, then capture from Slack: after capture, ⌘V still pastes the image.
 - [ ] With TextEdit frontmost and nothing selected, it logs `emptySelection` (AX path returned nothing, ⌘C copied nothing) and the clipboard is intact.
+
+## T0.5 — Paste-based write-back
+
+Needs Accessibility permission and Apple Intelligence enabled.
+Watch the log with `log stream --predicate 'subsystem == "com.saswat.polish"' --level debug`.
+
+Before each run, copy a marker string (e.g. `MARKER-123`) so the clipboard restore is checkable.
+
+- [ ] With Slack frontmost and a message with a grammar error selected, Debug → "Improve selection (T0.5)" replaces the selected text in place with the corrected version.
+- [ ] ⌘Z in Slack immediately after restores the original text (one undo, not several).
+- [ ] After the replace, ⌘V in any app still pastes `MARKER-123` — the original clipboard survived.
+- [ ] A clipboard manager (if installed) does not record the rewrite — the transient type was honoured.
+- [ ] Same in Mail (`com.apple.mail`) with text selected in a draft: replace works and ⌘Z restores.
+- [ ] Same in Notes (`com.apple.Notes`, AX path, so the focused-element guard is live).
+- [ ] Select text in Notes, trigger the item, then click into a **different** Notes note (or a different app) while the model is running: the log shows `focusChanged`, nothing is pasted, and the clipboard marker is intact.
+- [ ] Select text in Slack, then quit Slack while the model is running: the log shows `sourceAppGone` and nothing is pasted.
+- [ ] With nothing selected anywhere, the item logs a capture error and no paste happens.

@@ -1,5 +1,4 @@
 import AppKit
-import Carbon.HIToolbox
 import os
 
 /// Captures the frontmost app's selection by copying it: snapshot the clipboard, press ⌘C for
@@ -25,11 +24,11 @@ enum ClipboardSelectionReader {
         guard let app = NSWorkspace.shared.frontmostApplication else { throw .noFrontmostApp }
 
         let pasteboard = NSPasteboard.general
-        let snapshot = Snapshot(of: pasteboard)
+        let snapshot = PasteboardSnapshot(of: pasteboard)
         defer { snapshot.restore(to: pasteboard) }
 
         let changeCountBeforeCopy = pasteboard.changeCount
-        postCommandC()
+        SyntheticKeystroke.postCommandC()
 
         guard let text = await waitForCopiedText(on: pasteboard, after: changeCountBeforeCopy) else {
             throw .clipboardCopyTimedOut
@@ -64,50 +63,5 @@ enum ClipboardSelectionReader {
         }
         log.debug("no pasteboard change within \(timeout.description)")
         return nil
-    }
-
-    /// Synthesizes ⌘C into the system event stream, which the frontmost app receives as if the
-    /// user had typed it. Needs the same Accessibility trust as reading.
-    private static func postCommandC() {
-        // A private source keeps our synthetic modifiers out of the user's real keyboard state,
-        // so a physically held key does not get mixed into the chord.
-        let source = CGEventSource(stateID: .privateState)
-        let c = CGKeyCode(kVK_ANSI_C)
-
-        for isDown in [true, false] {
-            guard let event = CGEvent(keyboardEventSource: source, virtualKey: c, keyDown: isDown) else {
-                log.error("could not create ⌘C event")
-                return
-            }
-            event.flags = .maskCommand
-            event.post(tap: .cghidEventTap)
-        }
-    }
-
-    /// A copy of the pasteboard's contents, deep enough to survive `clearContents()`.
-    ///
-    /// `NSPasteboardItem`s belonging to the pasteboard are invalidated when it is cleared, so
-    /// every type's data is copied into fresh items up front.
-    private struct Snapshot {
-        private let items: [NSPasteboardItem]
-
-        init(of pasteboard: NSPasteboard) {
-            items = (pasteboard.pasteboardItems ?? []).map { original in
-                let copy = NSPasteboardItem()
-                for type in original.types {
-                    if let data = original.data(forType: type) {
-                        copy.setData(data, forType: type)
-                    }
-                }
-                return copy
-            }
-        }
-
-        /// Puts the snapshot back. An empty snapshot still clears, so our copy never lingers.
-        func restore(to pasteboard: NSPasteboard) {
-            pasteboard.clearContents()
-            guard !items.isEmpty else { return }
-            pasteboard.writeObjects(items)
-        }
     }
 }
