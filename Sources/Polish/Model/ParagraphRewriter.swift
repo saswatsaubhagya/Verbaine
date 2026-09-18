@@ -64,7 +64,9 @@ struct ParagraphRewriter: Sendable {
         var done: [String] = []
         for (index, part) in parts.enumerated() {
             try Task.checkCancellation()
-            let rewritten = try await generator.respond(instructions: action.instructions, prompt: part)
+            let rewritten = try await ContextRetry.run(part) {
+                try await generator.respond(instructions: action.instructions, prompt: $0)
+            }
             done.append(rewritten.trimmingCharacters(in: .whitespacesAndNewlines))
             await onPart(Progress(part: index + 1, total: parts.count, text: done.joined(separator: "\n\n")))
         }

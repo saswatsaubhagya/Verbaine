@@ -57,10 +57,13 @@ struct MapReduceSummarizer: Sendable {
         var carry = ""
         for (index, chunk) in chunks.enumerated() {
             try Task.checkCancellation()
-            let summary = try await generator.respond(
-                instructions: Prompts.summarizeChunk,
-                prompt: carry.isEmpty ? chunk : "Earlier:\n\(carry)\n\nText:\n\(chunk)"
-            ).trimmingCharacters(in: .whitespacesAndNewlines)
+            // Retry halves the chunk, not the prompt: the carried summary rides along with each half.
+            let summary = try await ContextRetry.run(chunk) { piece in
+                try await generator.respond(
+                    instructions: Prompts.summarizeChunk,
+                    prompt: carry.isEmpty ? piece : "Earlier:\n\(carry)\n\nText:\n\(piece)"
+                )
+            }.trimmingCharacters(in: .whitespacesAndNewlines)
             summaries.append(summary)
             carry = try await capped(summary, to: Self.carryTokens)
             await onPart(Progress(part: index + 1, total: total, text: summaries.joined(separator: "\n\n")))
@@ -76,8 +79,9 @@ struct MapReduceSummarizer: Sendable {
         }
 
         try Task.checkCancellation()
-        let result = try await generator.respond(instructions: action.instructions, prompt: combined)
-            .trimmingCharacters(in: .whitespacesAndNewlines)
+        let result = try await ContextRetry.run(combined) {
+            try await generator.respond(instructions: action.instructions, prompt: $0)
+        }.trimmingCharacters(in: .whitespacesAndNewlines)
         await onPart(Progress(part: total, total: total, text: result))
         return result
     }
@@ -107,13 +111,11 @@ struct MapReduceSummarizer: Sendable {
         var reduced: [String] = []
         for group in groups {
             try Task.checkCancellation()
-            // ponytail: a pair of summaries over budget would still be sent; the T2.5
-            // contextSizeExceeded retry is the backstop, and four-sentence summaries make it moot.
+            // A pair of summaries over budget would still be sent; `ContextRetry` is the backstop.
             reduced.append(
-                try await generator.respond(
-                    instructions: Prompts.summarizeChunk,
-                    prompt: group.joined(separator: "\n\n")
-                ).trimmingCharacters(in: .whitespacesAndNewlines)
+                try await ContextRetry.run(group.joined(separator: "\n\n")) {
+                    try await generator.respond(instructions: Prompts.summarizeChunk, prompt: $0)
+                }.trimmingCharacters(in: .whitespacesAndNewlines)
             )
         }
         return reduced
