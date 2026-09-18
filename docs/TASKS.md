@@ -150,7 +150,7 @@ Execute in order. Each task is one Claude Code session or prompt; commit at the 
 - Custom actions appear in the popover grid after built-ins.
 - Done when: a saved "Rewrite as release note" action runs from its hotkey.
 
-**T3.2 Per-action hotkeys and silent mode**
+**T3.2 Per-action hotkeys and silent mode** — ✅ done (`ed73daf`; build + test pass, 115 tests; Slack checklist in `docs/TESTING.md` still to run on device)
 
 - Any action can have a hotkey; when fired, run immediately and Replace without showing the popover unless an error or over-budget condition occurs; show toast.
 - Done when: ⌃⌥G fixes grammar and replaces in Slack with no popover.
