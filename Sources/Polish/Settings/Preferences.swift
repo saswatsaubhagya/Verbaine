@@ -57,4 +57,45 @@ enum Preferences {
             .filter { !$0.isEmpty && seen.insert($0).inserted }
         defaults.set(cleaned, forKey: fallbackAppsKey)
     }
+
+    // MARK: Per-app default tone
+
+    static let defaultTonesKey = "tone.appDefaults"
+
+    /// Bundle id → the tone `Change tone` should offer first in that app.
+    static let builtInDefaultTones: [String: Tone] = [
+        "com.tinyspeck.slackmacgap": .friendly,      // Slack
+        "com.hnc.Discord": .friendly,
+        "com.apple.mail": .professional,
+        "com.microsoft.Outlook": .professional,
+        "com.atlassian.jira": .direct,
+        "com.linear": .direct,
+    ]
+
+    /// An empty stored map is a real choice (the user cleared it), so only a missing key falls
+    /// back to the built-ins — same rule as the fallback-app list above.
+    static func defaultTones(_ defaults: UserDefaults = .standard) -> [String: Tone] {
+        guard let stored = defaults.dictionary(forKey: defaultTonesKey) as? [String: String] else {
+            return builtInDefaultTones
+        }
+        // ponytail: unknown raw values are dropped rather than migrated — an older/newer build's
+        // tone name just means "no preset for this app".
+        return stored.compactMapValues(Tone.init(rawValue:))
+    }
+
+    static func setDefaultTones(_ tones: [String: Tone], _ defaults: UserDefaults = .standard) {
+        defaults.set(tones.mapValues(\.rawValue), forKey: defaultTonesKey)
+    }
+
+    /// The tone to preselect for the app the selection came from.
+    static func defaultTone(forBundleID bundleID: String?, _ defaults: UserDefaults = .standard) -> Tone {
+        bundleID.flatMap { defaultTones(defaults)[$0] } ?? .professional
+    }
+
+    /// `Tone.allCases` with that app's preset first, so the popover's menu can preselect it by
+    /// ordering alone — no selection state to thread through the UI.
+    static func tones(forBundleID bundleID: String?, _ defaults: UserDefaults = .standard) -> [Tone] {
+        let preferred = defaultTone(forBundleID: bundleID, defaults)
+        return [preferred] + Tone.allCases.filter { $0 != preferred }
+    }
 }

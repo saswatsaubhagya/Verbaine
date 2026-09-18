@@ -12,7 +12,7 @@ struct SettingsView: View {
             AboutSettings()
                 .tabItem { Label("About", systemImage: "info.circle") }
         }
-        .frame(width: 460, height: 320)
+        .frame(width: 460, height: 420)
     }
 }
 
@@ -66,6 +66,8 @@ private struct GeneralSettings: View {
 private struct AppsSettings: View {
     @State private var apps = Preferences.fallbackApps()
     @State private var selection: String?
+    @State private var tones = Preferences.defaultTones()
+    @State private var toneSelection: String?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -76,6 +78,7 @@ private struct AppsSettings: View {
 
             List(apps, id: \.self, selection: $selection) { Text($0) }
                 .border(.separator)
+                .frame(height: 80)
 
             HStack {
                 Button("Add…", action: addFromChooser)
@@ -84,8 +87,69 @@ private struct AppsSettings: View {
                 Spacer()
                 Button("Reset") { save(Preferences.defaultFallbackApps) }
             }
+
+            Divider()
+
+            Text("Change tone offers this tone first in these apps.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+
+            List(tones.keys.sorted(), id: \.self, selection: $toneSelection) { bundleID in
+                HStack {
+                    Text(bundleID)
+                    Spacer()
+                    Picker("", selection: toneBinding(bundleID)) {
+                        ForEach(Tone.allCases) { Text($0.title).tag($0) }
+                    }
+                    .labelsHidden()
+                    .frame(width: 130)
+                }
+            }
+            .border(.separator)
+            .frame(height: 80)
+
+            HStack {
+                Button("Add…", action: addToneFromChooser)
+                Button("Remove") { removeTone(toneSelection) }
+                    .disabled(toneSelection == nil)
+                Spacer()
+                Button("Reset") { saveTones(Preferences.builtInDefaultTones) }
+            }
         }
         .padding(20)
+    }
+
+    /// Writes straight through on every change — there is no Save button in this window.
+    private func toneBinding(_ bundleID: String) -> Binding<Tone> {
+        Binding(
+            get: { tones[bundleID] ?? .professional },
+            set: { saveTones(tones.merging([bundleID: $0]) { _, new in new }) }
+        )
+    }
+
+    private func addToneFromChooser() {
+        // ponytail: same chooser as above, deliberately duplicated rather than factored out —
+        // two call sites, and the factored version needs a closure parameter to be worth it.
+        let panel = NSOpenPanel()
+        panel.allowedContentTypes = [.application]
+        panel.directoryURL = URL(fileURLWithPath: "/Applications")
+        panel.prompt = "Add"
+        guard panel.runModal() == .OK,
+              let url = panel.url,
+              let bundleID = Bundle(url: url)?.bundleIdentifier
+        else { return }
+        saveTones(tones.merging([bundleID: .professional]) { old, _ in old })
+    }
+
+    private func removeTone(_ bundleID: String?) {
+        guard let bundleID else { return }
+        toneSelection = nil
+        saveTones(tones.filter { $0.key != bundleID })
+    }
+
+    private func saveTones(_ newTones: [String: Tone]) {
+        Preferences.setDefaultTones(newTones)
+        tones = Preferences.defaultTones()
     }
 
     /// An open panel over /Applications rather than a text field: typing a bundle ID by hand is

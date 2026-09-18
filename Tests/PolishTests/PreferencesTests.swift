@@ -58,6 +58,47 @@ func fallbackListDrivesCapturePath() {
     #expect(!SelectionCapture.prefersClipboard(bundleID: "com.apple.Notes", fallbackApps: []))
 }
 
+@Test("per-app tones start at the built-ins, then round-trip")
+func defaultTonesPersist() {
+    let defaults = scratchDefaults()
+    #expect(Preferences.defaultTones(defaults) == Preferences.builtInDefaultTones)
+    #expect(Preferences.defaultTone(forBundleID: "com.tinyspeck.slackmacgap", defaults) == .friendly)
+    #expect(Preferences.defaultTone(forBundleID: "com.apple.mail", defaults) == .professional)
+    #expect(Preferences.defaultTone(forBundleID: "com.linear", defaults) == .direct)
+
+    Preferences.setDefaultTones(["com.apple.Notes": .apologetic], defaults)
+    #expect(Preferences.defaultTones(defaults) == ["com.apple.Notes": .apologetic])
+    #expect(Preferences.defaultTone(forBundleID: "com.apple.Notes", defaults) == .apologetic)
+}
+
+@Test("an unmapped or unknown app falls back to professional")
+func unmappedAppUsesProfessional() {
+    let defaults = scratchDefaults()
+    #expect(Preferences.defaultTone(forBundleID: "com.apple.TextEdit", defaults) == .professional)
+    #expect(Preferences.defaultTone(forBundleID: nil, defaults) == .professional)
+
+    // A tone name written by an older or newer build must not crash the picker.
+    defaults.set(["com.apple.Notes": "shakespearean"], forKey: Preferences.defaultTonesKey)
+    #expect(Preferences.defaultTone(forBundleID: "com.apple.Notes", defaults) == .professional)
+}
+
+@Test("an emptied tone map stays empty instead of reverting")
+func emptyToneMapPersists() {
+    let defaults = scratchDefaults()
+    Preferences.setDefaultTones([:], defaults)
+    #expect(Preferences.defaultTones(defaults) == [:])
+}
+
+@Test("the tone menu lists the app's preset first and every tone once")
+func tonesPreselectTheMappedTone() {
+    let defaults = scratchDefaults()
+    let slack = Preferences.tones(forBundleID: "com.tinyspeck.slackmacgap", defaults)
+    #expect(slack.first == .friendly)
+    #expect(Set(slack) == Set(Tone.allCases))
+    #expect(slack.count == Tone.allCases.count)
+    #expect(Preferences.tones(forBundleID: nil, defaults).first == .professional)
+}
+
 @Test("hotkey round-trips through defaults and reads back as symbols")
 func hotkeyPersists() {
     let defaults = scratchDefaults()
