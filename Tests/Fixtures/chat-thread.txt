@@ -1,0 +1,120 @@
+ben: Ruiz reviewed the migration plan and flagged one table, i.e.
+chi: Restoring the preload brought the median back under one second.
+dev: Support asked for a clearer error when a document is too long.
+ana: Each shift gains a second responder for the first week, then drops back to one.
+ben: Nothing in the error budget moved, so we opened the gate the rest of the way.
+chi: Ruiz reviewed the migration plan and flagged one table, i.e.
+dev: The cause was a font preload we dropped during cleanup; it was not the CDN.
+ana: We now show the estimated length and how many parts the work will take.
+ben: The on-call rotation changes next month.
+chi: Rollout was staged over four hours, with the first cohort at five percent.
+dev: Ruiz reviewed the migration plan and flagged one table, i.e.
+ana: Customers in the EU saw slower first paint after the change.
+ben: It just spins, one agent wrote, and then nothing happens.
+chi: Anyone who wants to swap should do it before the schedule locks.
+dev: The release went out on Tuesday, ahead of the window we promised the support team.
+ana: Ruiz reviewed the migration plan and flagged one table, i.e.
+ben: Restoring the preload brought the median back under one second.
+chi: Support asked for a clearer error when a document is too long.
+dev: Each shift gains a second responder for the first week, then drops back to one.
+ana: Nothing in the error budget moved, so we opened the gate the rest of the way.
+ben: Ruiz reviewed the migration plan and flagged one table, i.e.
+chi: The cause was a font preload we dropped during cleanup; it was not the CDN.
+dev: We now show the estimated length and how many parts the work will take.
+ana: The on-call rotation changes next month.
+ben: Rollout was staged over four hours, with the first cohort at five percent.
+chi: Ruiz reviewed the migration plan and flagged one table, i.e.
+dev: Customers in the EU saw slower first paint after the change.
+ana: It just spins, one agent wrote, and then nothing happens.
+ben: Anyone who wants to swap should do it before the schedule locks.
+chi: The release went out on Tuesday, ahead of the window we promised the support team.
+dev: Ruiz reviewed the migration plan and flagged one table, i.e.
+ana: Restoring the preload brought the median back under one second.
+ben: Support asked for a clearer error when a document is too long.
+chi: Each shift gains a second responder for the first week, then drops back to one.
+dev: Nothing in the error budget moved, so we opened the gate the rest of the way.
+ana: Ruiz reviewed the migration plan and flagged one table, i.e.
+ben: The cause was a font preload we dropped during cleanup; it was not the CDN.
+chi: We now show the estimated length and how many parts the work will take.
+dev: The on-call rotation changes next month.
+ana: Rollout was staged over four hours, with the first cohort at five percent.
+ben: Ruiz reviewed the migration plan and flagged one table, i.e.
+chi: Customers in the EU saw slower first paint after the change.
+dev: It just spins, one agent wrote, and then nothing happens.
+ana: Anyone who wants to swap should do it before the schedule locks.
+ben: The release went out on Tuesday, ahead of the window we promised the support team.
+chi: Ruiz reviewed the migration plan and flagged one table, i.e.
+dev: Restoring the preload brought the median back under one second.
+ana: Support asked for a clearer error when a document is too long.
+ben: Each shift gains a second responder for the first week, then drops back to one.
+chi: Nothing in the error budget moved, so we opened the gate the rest of the way.
+dev: Ruiz reviewed the migration plan and flagged one table, i.e.
+ana: The cause was a font preload we dropped during cleanup; it was not the CDN.
+ben: We now show the estimated length and how many parts the work will take.
+chi: The on-call rotation changes next month.
+dev: Rollout was staged over four hours, with the first cohort at five percent.
+ana: Ruiz reviewed the migration plan and flagged one table, i.e.
+ben: Customers in the EU saw slower first paint after the change.
+chi: It just spins, one agent wrote, and then nothing happens.
+dev: Anyone who wants to swap should do it before the schedule locks.
+ana: The release went out on Tuesday, ahead of the window we promised the support team.
+ben: Ruiz reviewed the migration plan and flagged one table, i.e.
+chi: Restoring the preload brought the median back under one second.
+dev: Support asked for a clearer error when a document is too long.
+ana: Each shift gains a second responder for the first week, then drops back to one.
+ben: Nothing in the error budget moved, so we opened the gate the rest of the way.
+chi: Ruiz reviewed the migration plan and flagged one table, i.e.
+dev: The cause was a font preload we dropped during cleanup; it was not the CDN.
+ana: We now show the estimated length and how many parts the work will take.
+ben: The on-call rotation changes next month.
+chi: Rollout was staged over four hours, with the first cohort at five percent.
+dev: Ruiz reviewed the migration plan and flagged one table, i.e.
+ana: Customers in the EU saw slower first paint after the change.
+ben: It just spins, one agent wrote, and then nothing happens.
+chi: Anyone who wants to swap should do it before the schedule locks.
+dev: The release went out on Tuesday, ahead of the window we promised the support team.
+ana: Ruiz reviewed the migration plan and flagged one table, i.e.
+ben: Restoring the preload brought the median back under one second.
+chi: Support asked for a clearer error when a document is too long.
+dev: Each shift gains a second responder for the first week, then drops back to one.
+ana: Nothing in the error budget moved, so we opened the gate the rest of the way.
+ben: Ruiz reviewed the migration plan and flagged one table, i.e.
+chi: The cause was a font preload we dropped during cleanup; it was not the CDN.
+dev: We now show the estimated length and how many parts the work will take.
+ana: The on-call rotation changes next month.
+ben: Rollout was staged over four hours, with the first cohort at five percent.
+chi: Ruiz reviewed the migration plan and flagged one table, i.e.
+dev: Customers in the EU saw slower first paint after the change.
+ana: It just spins, one agent wrote, and then nothing happens.
+ben: Anyone who wants to swap should do it before the schedule locks.
+chi: The release went out on Tuesday, ahead of the window we promised the support team.
+dev: Ruiz reviewed the migration plan and flagged one table, i.e.
+ana: Restoring the preload brought the median back under one second.
+ben: Support asked for a clearer error when a document is too long.
+chi: Each shift gains a second responder for the first week, then drops back to one.
+dev: Nothing in the error budget moved, so we opened the gate the rest of the way.
+ana: Ruiz reviewed the migration plan and flagged one table, i.e.
+ben: The cause was a font preload we dropped during cleanup; it was not the CDN.
+chi: We now show the estimated length and how many parts the work will take.
+dev: The on-call rotation changes next month.
+ana: Rollout was staged over four hours, with the first cohort at five percent.
+ben: Ruiz reviewed the migration plan and flagged one table, i.e.
+chi: Customers in the EU saw slower first paint after the change.
+dev: It just spins, one agent wrote, and then nothing happens.
+ana: Anyone who wants to swap should do it before the schedule locks.
+ben: The release went out on Tuesday, ahead of the window we promised the support team.
+chi: Ruiz reviewed the migration plan and flagged one table, i.e.
+dev: Restoring the preload brought the median back under one second.
+ana: Support asked for a clearer error when a document is too long.
+ben: Each shift gains a second responder for the first week, then drops back to one.
+chi: Nothing in the error budget moved, so we opened the gate the rest of the way.
+dev: Ruiz reviewed the migration plan and flagged one table, i.e.
+ana: The cause was a font preload we dropped during cleanup; it was not the CDN.
+ben: We now show the estimated length and how many parts the work will take.
+chi: The on-call rotation changes next month.
+dev: Rollout was staged over four hours, with the first cohort at five percent.
+ana: Ruiz reviewed the migration plan and flagged one table, i.e.
+ben: Customers in the EU saw slower first paint after the change.
+chi: It just spins, one agent wrote, and then nothing happens.
+dev: Anyone who wants to swap should do it before the schedule locks.
+ana: The release went out on Tuesday, ahead of the window we promised the support team.

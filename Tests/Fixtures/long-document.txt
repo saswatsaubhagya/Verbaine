@@ -1,0 +1,79 @@
+Section 1. Dr. Ruiz reviewed the migration plan and flagged one table, i.e. the events table, as the risk. It holds about 2.1 billion rows and no partition key. We agreed to backfill in batches rather than take the write lock.
+
+Section 2. Customers in the EU saw slower first paint after the change. The cause was a font preload we dropped during cleanup; it was not the CDN. Restoring the preload brought the median back under one second.
+
+Section 3. Support asked for a clearer error when a document is too long. It just spins, one agent wrote, and then nothing happens. We now show the estimated length and how many parts the work will take.
+
+Section 4. The on-call rotation changes next month. Each shift gains a second responder for the first week, then drops back to one. Anyone who wants to swap should do it before the schedule locks.
+
+Section 5. The release went out on Tuesday, ahead of the window we promised the support team. Rollout was staged over four hours, with the first cohort at five percent. Nothing in the error budget moved, so we opened the gate the rest of the way.
+
+Section 6. Dr. Ruiz reviewed the migration plan and flagged one table, i.e. the events table, as the risk. It holds about 2.1 billion rows and no partition key. We agreed to backfill in batches rather than take the write lock.
+
+Section 7. Customers in the EU saw slower first paint after the change. The cause was a font preload we dropped during cleanup; it was not the CDN. Restoring the preload brought the median back under one second.
+
+Section 8. Support asked for a clearer error when a document is too long. It just spins, one agent wrote, and then nothing happens. We now show the estimated length and how many parts the work will take.
+
+Section 9. The on-call rotation changes next month. Each shift gains a second responder for the first week, then drops back to one. Anyone who wants to swap should do it before the schedule locks.
+
+Section 10. The release went out on Tuesday, ahead of the window we promised the support team. Rollout was staged over four hours, with the first cohort at five percent. Nothing in the error budget moved, so we opened the gate the rest of the way.
+
+Section 11. Dr. Ruiz reviewed the migration plan and flagged one table, i.e. the events table, as the risk. It holds about 2.1 billion rows and no partition key. We agreed to backfill in batches rather than take the write lock.
+
+Section 12. Customers in the EU saw slower first paint after the change. The cause was a font preload we dropped during cleanup; it was not the CDN. Restoring the preload brought the median back under one second.
+
+Section 13. Support asked for a clearer error when a document is too long. It just spins, one agent wrote, and then nothing happens. We now show the estimated length and how many parts the work will take.
+
+Section 14. The on-call rotation changes next month. Each shift gains a second responder for the first week, then drops back to one. Anyone who wants to swap should do it before the schedule locks.
+
+Section 15. The release went out on Tuesday, ahead of the window we promised the support team. Rollout was staged over four hours, with the first cohort at five percent. Nothing in the error budget moved, so we opened the gate the rest of the way.
+
+Section 16. Dr. Ruiz reviewed the migration plan and flagged one table, i.e. the events table, as the risk. It holds about 2.1 billion rows and no partition key. We agreed to backfill in batches rather than take the write lock.
+
+Section 17. Customers in the EU saw slower first paint after the change. The cause was a font preload we dropped during cleanup; it was not the CDN. Restoring the preload brought the median back under one second.
+
+Section 18. Support asked for a clearer error when a document is too long. It just spins, one agent wrote, and then nothing happens. We now show the estimated length and how many parts the work will take.
+
+Section 19. The on-call rotation changes next month. Each shift gains a second responder for the first week, then drops back to one. Anyone who wants to swap should do it before the schedule locks.
+
+Section 20. The release went out on Tuesday, ahead of the window we promised the support team. Rollout was staged over four hours, with the first cohort at five percent. Nothing in the error budget moved, so we opened the gate the rest of the way.
+
+Section 21. Dr. Ruiz reviewed the migration plan and flagged one table, i.e. the events table, as the risk. It holds about 2.1 billion rows and no partition key. We agreed to backfill in batches rather than take the write lock.
+
+Section 22. Customers in the EU saw slower first paint after the change. The cause was a font preload we dropped during cleanup; it was not the CDN. Restoring the preload brought the median back under one second.
+
+Section 23. Support asked for a clearer error when a document is too long. It just spins, one agent wrote, and then nothing happens. We now show the estimated length and how many parts the work will take.
+
+Section 24. The on-call rotation changes next month. Each shift gains a second responder for the first week, then drops back to one. Anyone who wants to swap should do it before the schedule locks.
+
+Section 25. The release went out on Tuesday, ahead of the window we promised the support team. Rollout was staged over four hours, with the first cohort at five percent. Nothing in the error budget moved, so we opened the gate the rest of the way.
+
+Section 26. Dr. Ruiz reviewed the migration plan and flagged one table, i.e. the events table, as the risk. It holds about 2.1 billion rows and no partition key. We agreed to backfill in batches rather than take the write lock.
+
+Section 27. Customers in the EU saw slower first paint after the change. The cause was a font preload we dropped during cleanup; it was not the CDN. Restoring the preload brought the median back under one second.
+
+Section 28. Support asked for a clearer error when a document is too long. It just spins, one agent wrote, and then nothing happens. We now show the estimated length and how many parts the work will take.
+
+Section 29. The on-call rotation changes next month. Each shift gains a second responder for the first week, then drops back to one. Anyone who wants to swap should do it before the schedule locks.
+
+Section 30. The release went out on Tuesday, ahead of the window we promised the support team. Rollout was staged over four hours, with the first cohort at five percent. Nothing in the error budget moved, so we opened the gate the rest of the way.
+
+Section 31. Dr. Ruiz reviewed the migration plan and flagged one table, i.e. the events table, as the risk. It holds about 2.1 billion rows and no partition key. We agreed to backfill in batches rather than take the write lock.
+
+Section 32. Customers in the EU saw slower first paint after the change. The cause was a font preload we dropped during cleanup; it was not the CDN. Restoring the preload brought the median back under one second.
+
+Section 33. Support asked for a clearer error when a document is too long. It just spins, one agent wrote, and then nothing happens. We now show the estimated length and how many parts the work will take.
+
+Section 34. The on-call rotation changes next month. Each shift gains a second responder for the first week, then drops back to one. Anyone who wants to swap should do it before the schedule locks.
+
+Section 35. The release went out on Tuesday, ahead of the window we promised the support team. Rollout was staged over four hours, with the first cohort at five percent. Nothing in the error budget moved, so we opened the gate the rest of the way.
+
+Section 36. Dr. Ruiz reviewed the migration plan and flagged one table, i.e. the events table, as the risk. It holds about 2.1 billion rows and no partition key. We agreed to backfill in batches rather than take the write lock.
+
+Section 37. Customers in the EU saw slower first paint after the change. The cause was a font preload we dropped during cleanup; it was not the CDN. Restoring the preload brought the median back under one second.
+
+Section 38. Support asked for a clearer error when a document is too long. It just spins, one agent wrote, and then nothing happens. We now show the estimated length and how many parts the work will take.
+
+Section 39. The on-call rotation changes next month. Each shift gains a second responder for the first week, then drops back to one. Anyone who wants to swap should do it before the schedule locks.
+
+Section 40. The release went out on Tuesday, ahead of the window we promised the support team. Rollout was staged over four hours, with the first cohort at five percent. Nothing in the error budget moved, so we opened the gate the rest of the way.
