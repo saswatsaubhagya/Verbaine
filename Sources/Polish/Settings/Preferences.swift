@@ -160,3 +160,43 @@ extension Preferences {
         return builtIn.sorted { $0.action.id < $1.action.id } + custom
     }
 }
+
+// MARK: Inference provider
+
+extension Preferences {
+    static let providerKindKey = "model.provider"
+    static let remoteBaseURLKey = "model.remote.baseURL"
+    static let remoteModelKey = "model.remote.model"
+    static let remoteContextSizeKey = "model.remote.contextSize"
+
+    /// Unknown raw values fall back to the on-device model: the safe direction, because it is the
+    /// one that cannot send anything off the Mac.
+    static func providerKind(_ defaults: UserDefaults = .standard) -> InferenceProviderKind {
+        defaults.string(forKey: providerKindKey).flatMap(InferenceProviderKind.init(rawValue:)) ?? .apple
+    }
+
+    static func setProviderKind(_ kind: InferenceProviderKind, _ defaults: UserDefaults = .standard) {
+        defaults.set(kind.rawValue, forKey: providerKindKey)
+    }
+
+    static func remoteConfig(_ defaults: UserDefaults = .standard) -> RemoteConfig {
+        RemoteConfig(
+            baseURL: defaults.string(forKey: remoteBaseURLKey) ?? "",
+            model: defaults.string(forKey: remoteModelKey) ?? "",
+            contextSize: (defaults.object(forKey: remoteContextSizeKey) as? Int)
+                .map { max(TokenBudget.minimumViableContextSize, $0) }
+                ?? RemoteConfig.defaultContextSize
+        )
+    }
+
+    static func setRemoteConfig(_ config: RemoteConfig, _ defaults: UserDefaults = .standard) {
+        defaults.set(config.baseURL.trimmingCharacters(in: .whitespaces), forKey: remoteBaseURLKey)
+        defaults.set(config.model.trimmingCharacters(in: .whitespaces), forKey: remoteModelKey)
+        // Floored, not just made positive: a window under this leaves the chunkers no room at
+        // all and every action comes back empty. See `TokenBudget.minimumViableContextSize`.
+        defaults.set(
+            max(TokenBudget.minimumViableContextSize, config.contextSize),
+            forKey: remoteContextSizeKey
+        )
+    }
+}

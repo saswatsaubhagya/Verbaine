@@ -212,10 +212,13 @@ func summaryCancellationStops() async throws {
     #expect(await generator.seen().count == 2)
 }
 
-@Test("empty input asks the model nothing")
+@Test("empty input asks the model nothing, and is a failure rather than an empty summary")
 func emptyInput() async throws {
+    // Capture refuses an empty selection long before this, so reaching here at all is a bug;
+    // M3 is that it must not read as a finished, empty result the user can press Replace on.
     let generator = RecordingGenerator()
-    let result = try await summarizer(generator: generator).run("   \n  ", action: .summarize) { _ in }
-    #expect(result.isEmpty)
+    await #expect(throws: UserFacingError.emptyResult) {
+        _ = try await summarizer(generator: generator).run("   \n  ", action: .summarize) { _ in }
+    }
     #expect(await generator.seen().isEmpty)
 }

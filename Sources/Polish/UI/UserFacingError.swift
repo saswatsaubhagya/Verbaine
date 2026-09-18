@@ -17,6 +17,8 @@ struct UserFacingError: Error, Equatable {
         case copyResult
         case accessibilitySettings
         case intelligenceSettings
+        /// The endpoint the user configured needs fixing — open Settings at the Model tab.
+        case modelSettings
         case dismiss
     }
 
@@ -33,6 +35,10 @@ struct UserFacingError: Error, Equatable {
             self = UserFacingError(error)
         case let error as WriteBackError:
             self = UserFacingError(error)
+        case let error as RemoteError:
+            self = UserFacingError(error)
+        case is URLError:
+            self = UserFacingError(RemoteError.unreachable)
         default:
             self = Self.model(error) ?? UserFacingError(
                 message: "Something went wrong. Try that again.",
@@ -111,6 +117,73 @@ struct UserFacingError: Error, Equatable {
                 message: "This Mac cannot run Apple Intelligence, so Polish cannot rewrite text.",
                 remedy: .dismiss
             )
+        case .remoteNotConfigured:
+            self.init(
+                message: "Add a base URL, model name and API key in Settings to use a custom endpoint.",
+                remedy: .modelSettings
+            )
+        }
+    }
+
+    /// A remote endpoint's failure. The endpoint is the user's own, so every message says which of
+    /// the four fields in Settings to go and look at.
+    init(_ error: RemoteError) {
+        switch error {
+        case .notConfigured:
+            self.init(
+                message: "Add a base URL, model name and API key in Settings to use a custom endpoint.",
+                remedy: .modelSettings
+            )
+        case .unauthorized:
+            self.init(
+                message: "Your endpoint rejected the API key. Check it in Settings.",
+                remedy: .modelSettings
+            )
+        case .modelNotFound:
+            self.init(
+                message: "Your endpoint does not recognise that model name. Check it in Settings.",
+                remedy: .modelSettings
+            )
+        case .rateLimited:
+            self.init(
+                message: "Your provider is rate-limiting this key. Try again shortly.",
+                remedy: .retry
+            )
+        case .serverError:
+            self.init(
+                message: "Your endpoint returned an error. Try again shortly.",
+                remedy: .retry
+            )
+        case .unreachable:
+            self.init(
+                message: "Polish could not reach your endpoint. Check your connection and the base URL.",
+                remedy: .modelSettings
+            )
+        case .contextLengthExceeded:
+            self = Self.tooLong
+        case .malformedResponse:
+            self.init(
+                message: "Your endpoint sent a reply Polish could not read.",
+                remedy: .retry
+            )
+        case .answerTruncated:
+            self.init(
+                message: "Your endpoint stopped at its own output limit, so this answer is "
+                    + "cut off. Raise that limit for your endpoint, or select less text.",
+                remedy: .modelSettings
+            )
+        case .incompleteStream:
+            self.init(
+                message: "Your endpoint closed the connection before it finished answering, so "
+                    + "nothing here is complete.",
+                remedy: .retry
+            )
+        case .unexpectedRedirect:
+            self.init(
+                message: "Your endpoint tried to redirect this request to a different address, "
+                    + "which Polish refused for safety. Check the base URL in Settings.",
+                remedy: .modelSettings
+            )
         }
     }
 
@@ -178,6 +251,12 @@ struct UserFacingError: Error, Equatable {
         message: "The on-device model does not handle this language yet.",
         remedy: .copyOriginal
     )
+    /// M3: a generation that came back with nothing at all. Showing it as a result would let the
+    /// user press Replace and paste emptiness over their own selection.
+    static let emptyResult = UserFacingError(
+        message: "The model returned nothing for this selection, so there is nothing to paste.",
+        remedy: .copyOriginal
+    )
     private static let confused = UserFacingError(
         message: "The model could not finish this rewrite.",
         remedy: .retry
@@ -193,6 +272,7 @@ extension UserFacingError.Remedy {
         case .copyResult: "Copy result"
         case .accessibilitySettings: "Open Settings"
         case .intelligenceSettings: "Open Settings"
+        case .modelSettings: "Open Settings"
         case .dismiss: nil
         }
     }
@@ -204,6 +284,12 @@ enum SettingsPane {
         // ponytail: same deal as the Accessibility pane — no API, stable URL, fails soft by
         // opening Settings at the top.
         open("x-apple.systempreferences:com.apple.Siri-Settings.extension")
+    }
+
+    /// Polish's own Settings window, for the remedies that point at the Model tab.
+    static func openPolishSettings() {
+        NSApp.activate(ignoringOtherApps: true)
+        NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
     }
 
     private static func open(_ string: String) {

@@ -14,6 +14,10 @@ enum ModelAvailability: Equatable, Sendable {
     case modelDownloading
     /// This Mac cannot run the model at all. Nothing fixes this.
     case unsupportedDevice
+    /// A custom endpoint is selected but its URL, model name or key is missing. Only a remote
+    /// provider ever reports this; `init(_:)` below never produces it, because the framework has
+    /// no such concept.
+    case remoteNotConfigured
 
     init(_ availability: SystemLanguageModel.Availability) {
         switch availability {

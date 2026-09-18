@@ -10,7 +10,7 @@ struct DebugMenu: View {
     var body: some View {
         Menu("Debug") {
             Button("Model availability") {
-                Self.log.debug("availability: \(String(describing: ModelService.shared.availability))")
+                Self.log.debug("availability: \(String(describing: Inference.current.availability))")
             }
             Button("Fix grammar sample (T0.2)") {
                 Task { await Self.runGrammarSample() }
@@ -67,7 +67,7 @@ struct DebugMenu: View {
     private static func improveSelection() async {
         do {
             let selection = try await SelectionCapture.capture()
-            let result = try await ModelService.shared.respond(
+            let result = try await Inference.current.respond(
                 instructions: "Correct the spelling and grammar. Return only the corrected text, no preamble.",
                 prompt: selection.text
             )
@@ -105,7 +105,7 @@ struct DebugMenu: View {
 
         let start = ContinuousClock.now
         do {
-            let result = try await ModelService.shared.respond(
+            let result = try await Inference.current.respond(
                 instructions: "Correct the spelling and grammar. Return only the corrected text, no preamble.",
                 prompt: sample
             )

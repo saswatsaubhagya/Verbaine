@@ -73,6 +73,8 @@ enum PopoverController {
                     AccessibilityPermission.openSettingsPane()
                 case .intelligenceSettings:
                     SettingsPane.openAppleIntelligence()
+                case .modelSettings:
+                    SettingsPane.openPolishSettings()
                 case .retry, .copyOriginal, .copyResult, .dismiss:
                     // Nothing to retry or copy out here: the action never started, or the text
                     // it would hand back is already where the user left it.

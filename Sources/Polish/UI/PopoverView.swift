@@ -11,6 +11,11 @@ struct PopoverView: View {
             switch model.phase {
             case .actions:
                 actionGrid
+                if Inference.current.isRemote {
+                    Label("via \(Inference.current.displayName) · cloud", systemImage: "cloud")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
             case .running, .result:
                 resultPanes
                 footer
@@ -39,6 +44,9 @@ struct PopoverView: View {
             model.onClose()
         case .intelligenceSettings:
             SettingsPane.openAppleIntelligence()
+            model.onClose()
+        case .modelSettings:
+            SettingsPane.openPolishSettings()
             model.onClose()
         case .dismiss:
             model.onClose()

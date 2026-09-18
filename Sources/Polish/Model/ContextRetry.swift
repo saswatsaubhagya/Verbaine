@@ -8,8 +8,8 @@ import FoundationModels
 /// model's own accounting are not the same code, and "never truncate silently" means a miss has to
 /// cost a retry, not the user's text.
 enum ContextRetry {
-    /// True if `error` is the framework's "prompt did not fit the window" error, in either of the
-    /// two vocabularies `UserFacingError` maps.
+    /// True if `error` is the framework's "prompt did not fit the window" error, in any of the
+    /// three vocabularies `UserFacingError` maps.
     static func isContextSizeExceeded(_ error: any Error) -> Bool {
         if #available(macOS 27.0, *), let error = error as? LanguageModelError {
             if case .contextSizeExceeded = error { return true }
@@ -17,6 +17,7 @@ enum ContextRetry {
         if let error = error as? LanguageModelSession.GenerationError {
             if case .exceededContextWindowSize = error { return true }
         }
+        if let error = error as? RemoteError, error == .contextLengthExceeded { return true }
         return false
     }
 

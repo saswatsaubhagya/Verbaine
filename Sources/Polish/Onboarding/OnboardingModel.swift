@@ -27,6 +27,8 @@ final class OnboardingModel {
     /// Re-reads the two permissions. Called on a timer while the window is open, because the
     /// user grants both in System Settings and nothing notifies us when they do.
     func refresh() {
+        // Deliberately not `Inference.current`: onboarding is about Apple Intelligence being on,
+        // and a configured remote endpoint must not make that step look finished.
         availability = ModelService.shared.availability
         isTrusted = AccessibilityPermission.isTrusted
     }

@@ -53,6 +53,7 @@ enum DebugErrors {
         ("Model off: Intelligence disabled", .intelligenceDisabled),
         ("Model off: downloading", .modelDownloading),
         ("Model off: unsupported Mac", .unsupportedDevice),
+        ("Remote not configured", .remoteNotConfigured),
     ]
 }
 #endif

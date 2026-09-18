@@ -8,7 +8,7 @@ T0.1–T0.3 done: menu-bar app scaffolded, `ModelService` talks to the on-device
 
 ## Product
 
-**Polish** — macOS menu-bar app that rewrites/summarizes text selected in *any* app (Slack, Mail, Chrome, Notes) using Apple's on-device Foundation Models. No network, no account, no cloud.
+**Polish** — macOS menu-bar app that rewrites/summarizes text selected in *any* app (Slack, Mail, Chrome, Notes) using Apple's on-device Foundation Models by default. No network, no account, no cloud — unless the user configures their own endpoint, and the menu bar and popover say so whenever that's active.
 
 ## Working method
 
@@ -32,11 +32,12 @@ Both must pass before a task is done. Target folders are file-system synchronize
 - All prompts live in `Sources/Polish/Model/Prompts.swift`, one static string per action, each ≤120 tokens.
 - One fresh `LanguageModelSession` per action — no history carried between calls.
 - UI-only tasks add a manual checklist to `docs/TESTING.md`; tasks with logic add unit tests.
+- The remote API key lives in the Keychain only, keyed by endpoint host. Never in `UserDefaults`, never in a log line, never in a user-facing message.
 
 ## Architecture (four layers)
 
 1. **Capture** (`Capture/`) — `SelectionCapture` facade tries the Accessibility API (`kAXSelectedTextAttribute`) first, falls back to simulated ⌘C + pasteboard read for Electron/Chromium apps (Slack, Discord, VS Code, Chrome, Arc, Figma — an editable list). The clipboard method must snapshot and restore the user's clipboard.
-2. **Model** (`Model/`) — `ModelService` actor over `SystemLanguageModel.default`; `TokenBudget` decides single-pass vs chunked; `TextChunker` (NLTokenizer) splits on paragraph then sentence boundaries, never mid-sentence. Rewrites go paragraph-by-paragraph; summaries use map-reduce with the previous chunk's summary carried forward.
+2. **Model** (`Model/`) — `InferenceProvider` is the seam: `ModelService` (actor over `SystemLanguageModel.default`, the default) and `OpenAICompatibleProvider` (`Model/Remote/`, the user's own endpoint) both conform, and `Inference.current` resolves one per call from `Preferences`. `TokenBudget` decides single-pass vs chunked; `TextChunker` (NLTokenizer) splits on paragraph then sentence boundaries, never mid-sentence. Rewrites go paragraph-by-paragraph; summaries use map-reduce with the previous chunk's summary carried forward. Remote token counts are a chars/4 estimate against a user-declared window — exact counting only exists for the on-device model.
 3. **UI** (`UI/`) — non-activating `NSPanel` hosting SwiftUI, positioned at the selection's AX bounds. Streaming result with word-level diff against the original.
 4. **Write-back** (`WriteBack/`) — Replace works by pasting, not `AXValue` writes: put result on the pasteboard (transient type), re-activate the source app, post ⌘V via `CGEvent`, restore clipboard after ~300 ms. This is what makes Replace work in Slack/browsers and keeps the host app's ⌘Z intact. Before pasting, re-verify frontmost app and focused element match capture time; abort otherwise.
 

@@ -7,7 +7,7 @@ import os
 /// One fresh `LanguageModelSession` per request, deliberately: no transcript is carried between
 /// actions, so each action gets the whole context window and nothing a user wrote earlier can
 /// leak into a later rewrite.
-actor ModelService {
+actor ModelService: InferenceProvider {
     static let shared = ModelService()
 
     private let model = SystemLanguageModel.default
@@ -22,6 +22,11 @@ actor ModelService {
     nonisolated var contextSize: Int {
         model.contextSize
     }
+
+    /// The on-device model is the reason this app exists: nothing it is given leaves the Mac.
+    nonisolated var isRemote: Bool { false }
+
+    nonisolated var displayName: String { "Apple on-device" }
 
     func tokenCount(for text: String) async throws -> Int {
         try await model.tokenCount(for: text)
@@ -46,7 +51,7 @@ actor ModelService {
     /// Streams one action's answer. Each element is the whole answer so far, not a delta —
     /// `ResponseStream` emits cumulative snapshots, and the result pane rebinds the whole string
     /// anyway. Cancelling the iteration cancels the generation.
-    func stream(instructions: String, prompt: String) -> AsyncThrowingStream<String, any Error> {
+    nonisolated func stream(instructions: String, prompt: String) -> AsyncThrowingStream<String, any Error> {
         AsyncThrowingStream { continuation in
             let task = Task {
                 do {

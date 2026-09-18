@@ -7,6 +7,8 @@ struct SettingsView: View {
         TabView {
             GeneralSettings()
                 .tabItem { Label("General", systemImage: "gearshape") }
+            ModelSettings()
+                .tabItem { Label("Model", systemImage: "cpu") }
             AppsSettings()
                 .tabItem { Label("Apps", systemImage: "app.badge") }
             CustomActionsSettings()

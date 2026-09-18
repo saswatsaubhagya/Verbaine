@@ -59,7 +59,7 @@ final class ServicesProvider: NSObject {
         Task {
             do {
                 box.value = .success(
-                    try await ModelService.shared.respond(instructions: instructions, prompt: text)
+                    try await Inference.current.respond(instructions: instructions, prompt: text)
                 )
             } catch {
                 box.value = .failure(error)

@@ -7,6 +7,11 @@ import Foundation
 /// Rules for editing: no examples (they cost tokens the input needs), no "you are a…" persona, and
 /// every prompt ends by forbidding a preamble, because a 3B model volunteers one otherwise.
 enum Prompts {
+    /// The per-instruction ceiling `PromptsTests` enforces. Named here because `TokenBudget`
+    /// needs the worst-case instruction cost to work out the smallest context window that still
+    /// leaves room for an answer.
+    static let maxInstructionTokens = 120
+
     static let fixGrammar = """
         Correct only the spelling, grammar and punctuation of the user's text. \
         Keep the wording, tone and length as they are. Do not rephrase, explain or add anything. \

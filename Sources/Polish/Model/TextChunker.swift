@@ -18,7 +18,7 @@ struct TextChunker: Sendable {
         self.counter = counter
     }
 
-    init(service: ModelService = .shared) {
+    init(service: any InferenceProvider = Inference.current) {
         self.init(counter: service)
     }
 

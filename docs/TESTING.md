@@ -275,3 +275,30 @@ window on screen.
 - [ ] With nothing selected, ⌃⌥G shows the empty-capture message rather than doing nothing.
 - [ ] Click away to another app between pressing ⌃⌥G and the replace landing — the focus-changed message appears and nothing is pasted into the wrong app.
 - [ ] Quit and relaunch: the recorded shortcuts still fire.
+
+## T3.7 — Model settings
+
+- [ ] Settings → Model defaults to "Apple on-device" on a fresh install.
+- [ ] Picking "Custom endpoint" reveals Base URL, API key, Model and Context size.
+- [ ] Choosing a preset fills the Base URL field and leaves the other fields alone.
+- [ ] Typed values survive closing and reopening Settings.
+- [ ] The API key field is masked, and the key does not appear in `defaults read com.saswat.polish`.
+- [ ] Switching back to "Apple on-device" hides the fields but keeps the stored values.
+
+## T3.9 — Remote visibility
+
+- [ ] With Apple on-device selected, the menu-bar icon is the outline wand and the popover shows no badge.
+- [ ] Switching to a configured custom endpoint changes the menu-bar icon immediately, with no restart.
+- [ ] The popover shows `via <model> · cloud` under the action grid, and only then.
+- [ ] A rewrite against the remote endpoint streams into the result pane, and the word-level diff highlights as it does on-device.
+- [ ] Replace still pastes into Slack, and ⌘Z in Slack still restores the original.
+- [ ] Switching back to Apple on-device takes effect on the very next action.
+- [ ] `codesign -d --entitlements - build/.../Polish.app` lists `com.apple.security.network.client` and no `network.server`.
+- [ ] A custom endpoint whose base URL redirects to a different host is refused rather than followed: the request fails with the "check the base URL in Settings" message, and the API key is not sent onward.
+
+## Final review fix wave (M1–M5)
+
+- [ ] Point the endpoint at a local model with a small output cap (llama.cpp / Ollama `num_predict`), run Improve on two paragraphs: the popover shows the "stopped at its own output limit" message with an Open Settings button, not a finished-looking cut-off result, and Replace is not offered.
+- [ ] Kill the endpoint process part-way through a streaming answer: the popover shows the "closed the connection before it finished answering" message rather than committing the fragment.
+- [ ] Settings → Model: type `128` in Context size and tab out — the field snaps to 851, and the caption under it says so.
+- [ ] With that floored value, Summarize still runs normally instead of producing a blank result.
