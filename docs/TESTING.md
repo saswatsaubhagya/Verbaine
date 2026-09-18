@@ -12,3 +12,13 @@ Record the result and the date next to each run.
 - [ ] The menu lists "Improve selection", "Settings…", "Quit Polish".
 - [ ] "Settings…" opens the placeholder Settings window.
 - [ ] "Quit Polish" (or ⌘Q with the menu open) terminates the app and removes the menu bar icon.
+
+## T0.2 — Foundation Models hello world
+
+Needs Apple Intelligence enabled (Settings → Apple Intelligence & Siri). Watch the log with
+`log stream --predicate 'subsystem == "com.saswat.polish"' --level debug` while clicking.
+
+- [ ] Debug → "Model availability" logs `ready` on a machine with Apple Intelligence on.
+- [ ] Debug → "Fix grammar sample (T0.2)" logs `contextSize=… tokens=…` for the sample.
+- [ ] The same item logs `I has a apple -> I have an apple.` (or equivalent correction).
+- [ ] The logged elapsed time is under 3 s.

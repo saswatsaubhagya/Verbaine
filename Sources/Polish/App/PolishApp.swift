@@ -9,6 +9,10 @@ struct PolishApp: App {
             Button("Improve selection") {}
                 .disabled(true)
             Divider()
+#if DEBUG
+            DebugMenu()
+            Divider()
+#endif
             SettingsLink { Text("Settings…") }
             Button("Quit Polish") { NSApplication.shared.terminate(nil) }
                 .keyboardShortcut("q")

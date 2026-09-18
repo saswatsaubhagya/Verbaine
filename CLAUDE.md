@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Status
 
-T0.1 done: `Polish.xcodeproj` scaffolded (menu-bar app, builds, one smoke test passes). Next task is T0.2 in `docs/TASKS.md`.
+T0.1 and T0.2 done: menu-bar app scaffolded, `ModelService` talks to the on-device model (measured 0.93 s for a 5-token grammar fix). Next task is T0.3 in `docs/TASKS.md`.
 
 ## Product
 
@@ -16,7 +16,7 @@ T0.1 done: `Polish.xcodeproj` scaffolded (menu-bar app, builds, one smoke test p
 
 ## Build & test
 
-Xcode 26, macOS 26.0 deployment target, Apple Silicon only. There is no SwiftPM package — the `.xcodeproj` is the build system:
+Xcode 26, macOS 26.4 deployment target, Apple Silicon only. (26.4, not 26.0: `SystemLanguageModel.tokenCount(for:)` is 26.4+, and the architecture depends on measuring rather than estimating tokens.) There is no SwiftPM package — the `.xcodeproj` is the build system:
 
 ```sh
 xcodebuild -project Polish.xcodeproj -scheme Polish -destination 'platform=macOS' build

@@ -7,7 +7,7 @@ Execute in order. Each task is one Claude Code session or prompt; commit at the 
 - Swift 6 strict concurrency, SwiftUI + AppKit, Xcode 26, deployment target macOS 26.0.
 - No third-party dependencies unless a task names one.
 - Every task adds or updates unit tests where logic exists; UI-only tasks add a manual test checklist to `docs/TESTING.md`.
-- Never hard-code 4096; always read `SystemLanguageModel.default.contextSize`.
+- Never hard-code 4096; always read `SystemLanguageModel.default.contextSize`. It reports 4096 on the current test Mac, but that is a measurement, not a constant.
 - All prompts live in `Sources/Polish/Model/Prompts.swift`, one static string per action.
 - Run both `xcodebuild` commands from `README.md` (build and test) before declaring a task done.
 
