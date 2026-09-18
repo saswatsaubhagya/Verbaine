@@ -12,7 +12,7 @@ final class PopoverPanel: NSPanel {
 enum PopoverController {
     private static var panel: PopoverPanel?
 
-    static func show(selection: Selection) {
+    static func show(selection: Selection, run action: Action? = nil) {
         close()
 
         let model = PopoverModel(selection: selection)
@@ -21,6 +21,8 @@ enum PopoverController {
             close()
             UndoToast.show(near: selection)
         }
+
+        if let action { model.run(action) }
 
         present(PopoverView(model: model), near: selection, fallbackSize: NSSize(width: 460, height: 320))
     }

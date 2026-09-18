@@ -4,7 +4,7 @@ import os
 /// The user's global shortcut, as Carbon wants it: a virtual key code plus Carbon modifier mask.
 /// Carbon is still the only API that gets a key event when another app is frontmost without
 /// asking for Input Monitoring on top of Accessibility, so `RegisterEventHotKey` it is.
-struct Hotkey: Equatable, Sendable {
+struct Hotkey: Hashable, Codable, Sendable {
     var keyCode: UInt32
     /// `controlKey`, `optionKey`, `cmdKey`, `shiftKey` OR'd together.
     var modifiers: UInt32
@@ -84,6 +84,11 @@ final class HotkeyManager {
     private var hotKeyRef: EventHotKeyRef?
     private var handlerRef: EventHandlerRef?
     private var onFire: (() -> Void)?
+    /// Per-action shortcuts (T3.1), keyed by the Carbon hot-key id they were registered under.
+    private var extraRefs: [UInt32: EventHotKeyRef] = [:]
+    private var extraHandlers: [UInt32: () -> Void] = [:]
+    /// Ids 2 and up: 1 is the app-wide shortcut above.
+    private var nextExtraID: UInt32 = 2
 
     private init() {}
 
@@ -102,10 +107,7 @@ final class HotkeyManager {
         self.onFire = onFire
         unregister()
 
-        if handlerRef == nil {
-            var spec = EventTypeSpec(eventClass: OSType(kEventClassKeyboard), eventKind: UInt32(kEventHotKeyPressed))
-            InstallEventHandler(GetApplicationEventTarget(), hotkeyHandler, 1, &spec, nil, &handlerRef)
-        }
+        installHandler()
 
         let id = EventHotKeyID(signature: Self.signature, id: 1)
         let status = RegisterEventHotKey(hotkey.keyCode, hotkey.modifiers, id, GetApplicationEventTarget(), 0, &hotKeyRef)
@@ -117,19 +119,72 @@ final class HotkeyManager {
         return true
     }
 
+    /// Replaces every per-action shortcut with `entries`. Returns the ones Carbon refused, so
+    /// Settings can say which combination is taken.
+    @discardableResult
+    func setExtraHotkeys(_ entries: [(hotkey: Hotkey, onFire: () -> Void)]) -> [Hotkey] {
+        for ref in extraRefs.values { UnregisterEventHotKey(ref) }
+        extraRefs.removeAll()
+        extraHandlers.removeAll()
+        installHandler()
+
+        var refused: [Hotkey] = []
+        for entry in entries {
+            let id = nextExtraID
+            nextExtraID += 1
+            var ref: EventHotKeyRef?
+            let status = RegisterEventHotKey(
+                entry.hotkey.keyCode,
+                entry.hotkey.modifiers,
+                EventHotKeyID(signature: Self.signature, id: id),
+                GetApplicationEventTarget(),
+                0,
+                &ref
+            )
+            guard status == noErr, let ref else {
+                Self.log.error("RegisterEventHotKey failed for custom action: \(status)")
+                refused.append(entry.hotkey)
+                continue
+            }
+            extraRefs[id] = ref
+            extraHandlers[id] = entry.onFire
+        }
+        return refused
+    }
+
     func unregister() {
         if let hotKeyRef { UnregisterEventHotKey(hotKeyRef) }
         hotKeyRef = nil
     }
 
-    fileprivate func fire() {
-        Self.log.debug("hotkey fired")
-        onFire?()
+    private func installHandler() {
+        guard handlerRef == nil else { return }
+        var spec = EventTypeSpec(eventClass: OSType(kEventClassKeyboard), eventKind: UInt32(kEventHotKeyPressed))
+        InstallEventHandler(GetApplicationEventTarget(), hotkeyHandler, 1, &spec, nil, &handlerRef)
+    }
+
+    fileprivate func fire(id: UInt32) {
+        Self.log.debug("hotkey \(id) fired")
+        if id == 1 {
+            onFire?()
+        } else {
+            extraHandlers[id]?()
+        }
     }
 }
 
 /// Carbon calls this on the main run loop, so the hop to `HotkeyManager` is isolation-safe.
-private let hotkeyHandler: EventHandlerUPP = { _, _, _ in
-    MainActor.assumeIsolated { HotkeyManager.shared.fire() }
+private let hotkeyHandler: EventHandlerUPP = { _, event, _ in
+    var id = EventHotKeyID()
+    GetEventParameter(
+        event,
+        EventParamName(kEventParamDirectObject),
+        EventParamType(typeEventHotKeyID),
+        nil,
+        MemoryLayout<EventHotKeyID>.size,
+        nil,
+        &id
+    )
+    MainActor.assumeIsolated { HotkeyManager.shared.fire(id: id.id) }
     return noErr
 }

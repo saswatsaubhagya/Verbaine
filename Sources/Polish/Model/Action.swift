@@ -19,6 +19,8 @@ enum Action: Hashable, Sendable, Identifiable {
     case shorten
     case changeTone(Tone)
     case expand
+    /// A user-written action from Settings → Actions (T3.1).
+    case custom(CustomAction)
 
     /// The popover grid, in order. Change tone appears once and opens a sub-menu over `Tone.allCases`.
     static let grid: [Action] = [.fixGrammar, .improve, .summarize, .shorten, .changeTone(.professional), .expand]
@@ -31,6 +33,7 @@ enum Action: Hashable, Sendable, Identifiable {
         case .shorten: "shorten"
         case .changeTone(let tone): "changeTone.\(tone.rawValue)"
         case .expand: "expand"
+        case .custom(let action): "custom.\(action.id.uuidString)"
         }
     }
 
@@ -42,6 +45,7 @@ enum Action: Hashable, Sendable, Identifiable {
         case .shorten: "Shorten"
         case .changeTone: "Change tone"
         case .expand: "Expand"
+        case .custom(let action): action.name
         }
     }
 
@@ -49,10 +53,23 @@ enum Action: Hashable, Sendable, Identifiable {
     /// (T1.3) sizes the output reserve from this.
     var isRewrite: Bool {
         switch self {
-        case .fixGrammar, .improve, .changeTone, .expand: true
+        // A custom action counts as a rewrite: its output reserve is the larger of the two, and
+        // there is no way to know from the user's wording which way it goes.
+        case .fixGrammar, .improve, .changeTone, .expand, .custom: true
         case .summarize, .shorten: false
         }
     }
 
     var instructions: String { Prompts.instructions(for: self) }
+
+    /// The button the result pane makes the default. Built-ins replace; a custom action decides.
+    var defaultButton: CustomAction.DefaultButton {
+        if case .custom(let action) = self { return action.defaultButton }
+        return .replace
+    }
+
+    /// The grid, followed by the user's own actions.
+    static func grid(customActions: [CustomAction] = Preferences.customActions()) -> [Action] {
+        grid + customActions.map(Action.custom)
+    }
 }

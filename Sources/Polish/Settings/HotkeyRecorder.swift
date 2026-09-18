@@ -8,7 +8,14 @@ import SwiftUI
 /// window is frontmost whenever this view is on screen, so a local monitor sees every key down
 /// with a fraction of the code.
 struct HotkeyRecorder: View {
-    @Binding var hotkey: Hotkey
+    /// `nil` means "no shortcut" — a custom action may have none.
+    @Binding var hotkey: Hotkey?
+    /// What the second button does: restore `reset` (the app-wide shortcut) or clear the binding
+    /// (a custom action's, which is optional).
+    var reset: Hotkey? = .standard
+    /// Tries the combination for real before it is kept. The app-wide shortcut re-registers here;
+    /// a custom action's is registered in bulk when Settings saves the list.
+    var register: (Hotkey) -> Bool = { HotkeyManager.shared.update(hotkey: $0) }
     /// Set when `RegisterEventHotKey` refused the combination the user pressed.
     @State private var conflict = false
     @State private var monitor: Any?
@@ -18,16 +25,17 @@ struct HotkeyRecorder: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             HStack {
-                Button(isRecording ? "Press keys…" : hotkey.displayString) {
+                Button(isRecording ? "Press keys…" : (hotkey?.displayString ?? "None")) {
                     isRecording ? stop() : start()
                 }
                 .frame(minWidth: 90)
 
-                Button("Reset") {
+                Button(reset == nil ? "Clear" : "Reset") {
                     stop()
-                    apply(.standard)
+                    conflict = false
+                    if let reset { apply(reset) } else { hotkey = nil }
                 }
-                .disabled(hotkey == .standard)
+                .disabled(hotkey == reset)
             }
 
             if isRecording {
@@ -71,13 +79,13 @@ struct HotkeyRecorder: View {
     /// Re-registers first: an unavailable combination must not be saved, or the app relaunches
     /// with a hotkey that never fires.
     private func apply(_ candidate: Hotkey) {
-        guard HotkeyManager.shared.update(hotkey: candidate) else {
+        guard register(candidate) else {
             conflict = true
-            HotkeyManager.shared.update(hotkey: hotkey)
+            if let hotkey { _ = register(hotkey) }
             return
         }
         conflict = false
-        candidate.save()
+        if reset != nil { candidate.save() }
         hotkey = candidate
     }
 

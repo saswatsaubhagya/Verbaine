@@ -9,6 +9,8 @@ struct SettingsView: View {
                 .tabItem { Label("General", systemImage: "gearshape") }
             AppsSettings()
                 .tabItem { Label("Apps", systemImage: "app.badge") }
+            CustomActionsSettings()
+                .tabItem { Label("Actions", systemImage: "wand.and.stars") }
             AboutSettings()
                 .tabItem { Label("About", systemImage: "info.circle") }
         }
@@ -24,7 +26,9 @@ private struct GeneralSettings: View {
 
     var body: some View {
         Form {
-            LabeledContent("Shortcut") { HotkeyRecorder(hotkey: $hotkey) }
+            LabeledContent("Shortcut") {
+                HotkeyRecorder(hotkey: Binding(get: { hotkey }, set: { hotkey = $0 ?? .standard }))
+            }
 
             Picker("Summarize as", selection: $summaryStyle) {
                 ForEach(SummaryStyle.allCases) { Text($0.title).tag($0) }
@@ -202,5 +206,122 @@ private struct AboutSettings: View {
                 .padding(.top, 4)
         }
         .padding(30)
+    }
+}
+
+/// Settings → Actions: the user's own actions, each a name, an instruction and how it finishes.
+/// Edits write straight through, like the other tabs — there is no Save button in this window.
+private struct CustomActionsSettings: View {
+    @State private var actions = Preferences.customActions()
+    @State private var selection: CustomAction.ID?
+    @State private var error: String?
+
+    private var selected: Binding<CustomAction>? {
+        guard let index = actions.firstIndex(where: { $0.id == selection }) else { return nil }
+        return Binding(get: { actions[index] }, set: { edited in
+            var updated = actions
+            updated[index] = edited
+            save(updated)
+        })
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Your own actions appear in the popover after the built-in ones.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+
+            List(actions, selection: $selection) { action in
+                HStack {
+                    Text(action.name.isEmpty ? "Untitled" : action.name)
+                    Spacer()
+                    if let hotkey = action.hotkey {
+                        Text(hotkey.displayString).foregroundStyle(.secondary)
+                    }
+                }
+                .tag(action.id)
+            }
+            .border(.separator)
+            .frame(height: 100)
+
+            HStack {
+                Button("Add", action: add)
+                Button("Remove") { remove(selection) }
+                    .disabled(selection == nil)
+            }
+
+            if let selected {
+                editor(selected)
+            } else {
+                Spacer()
+            }
+        }
+        .padding(20)
+    }
+
+    @ViewBuilder
+    private func editor(_ action: Binding<CustomAction>) -> some View {
+        Divider()
+
+        Form {
+            TextField("Name", text: action.name)
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Instruction").font(.caption).foregroundStyle(.secondary)
+                TextEditor(text: action.instruction)
+                    .font(.callout)
+                    .frame(height: 64)
+                    .border(.separator)
+                Text("What the model should do with the selected text, e.g. “Rewrite this as a release note.” Up to \(CustomAction.maxInstructionTokens) tokens.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+
+            Picker("Default button", selection: action.defaultButton) {
+                ForEach(CustomAction.DefaultButton.allCases) { Text($0.title).tag($0) }
+            }
+            .pickerStyle(.segmented)
+
+            LabeledContent("Shortcut") {
+                HotkeyRecorder(hotkey: action.hotkey, reset: nil, register: { _ in true })
+            }
+
+            if let error {
+                Text(error).font(.caption).foregroundStyle(.red)
+            }
+        }
+        .formStyle(.grouped)
+    }
+
+    private func add() {
+        var updated = actions
+        let new = CustomAction(name: "New action", instruction: "")
+        updated.append(new)
+        save(updated)
+        selection = new.id
+    }
+
+    private func remove(_ id: CustomAction.ID?) {
+        guard let id else { return }
+        selection = nil
+        save(actions.filter { $0.id != id })
+    }
+
+    /// Saves first, then validates the edited action and reports what is wrong with it — typing a
+    /// name one character at a time would otherwise be a stream of "give the action a name".
+    private func save(_ updated: [CustomAction]) {
+        Preferences.setCustomActions(updated)
+        actions = Preferences.customActions()
+        AppDelegate.registerCustomActionHotkeys()
+
+        guard let edited = updated.first(where: { $0.id == selection }) else {
+            error = nil
+            return
+        }
+        Task {
+            let tokens = await CustomAction.tokenCount(of: edited.instruction)
+            error = CustomAction.validationError(name: edited.name, instruction: edited.instruction, tokens: tokens)
+        }
     }
 }

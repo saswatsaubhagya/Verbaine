@@ -58,6 +58,15 @@ enum Prompts {
         Return only the prose, with no preamble.
         """
 
+    /// A custom action's own wording plus the one rule every prompt here ends on. The user's text
+    /// is validated at ≤ 300 tokens in Settings, not here.
+    static func custom(_ action: CustomAction) -> String {
+        """
+        \(action.instruction.trimmingCharacters(in: .whitespacesAndNewlines)) \
+        Return only the resulting text, with no preamble.
+        """
+    }
+
     static func changeTone(_ tone: Tone) -> String {
         """
         Rewrite the user's text so it sounds \(toneClause(tone)). \
@@ -76,6 +85,7 @@ enum Prompts {
         case .shorten: shorten
         case .changeTone(let tone): changeTone(tone)
         case .expand: expand
+        case .custom(let action): custom(action)
         }
     }
 

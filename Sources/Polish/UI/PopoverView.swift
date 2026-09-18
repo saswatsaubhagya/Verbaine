@@ -3,6 +3,8 @@ import SwiftUI
 /// The popover's two steps: pick an action, then read the result next to the original.
 struct PopoverView: View {
     @Bindable var model: PopoverModel
+    /// Read once when the popover opens; Settings is not open at the same time.
+    @State private var customActions = Preferences.customActions()
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -63,7 +65,7 @@ struct PopoverView: View {
             }
 
             LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 3), spacing: 8) {
-                ForEach(Action.grid) { action in
+                ForEach(Action.grid(customActions: customActions)) { action in
                     if case .changeTone = action {
                         Menu(action.title) {
                             // The app's preset tone first (T3.3), the rest after it.
@@ -151,13 +153,18 @@ struct PopoverView: View {
             }
             Button("Retry") { model.retry() }
                 .disabled(model.action == nil)
+            // A custom action picks which of the two is ⏎ (T3.1); built-ins always replace.
             Button("Copy") { model.copy() }
-                .keyboardShortcut("c")
+                .keyboardShortcut(defaultButton == .copy ? KeyboardShortcut.defaultAction : KeyboardShortcut("c"))
                 .disabled(model.output.isEmpty)
             Button("Replace") { model.replace() }
-                .keyboardShortcut(.defaultAction)
+                .keyboardShortcut(defaultButton == .replace ? KeyboardShortcut.defaultAction : KeyboardShortcut("r"))
                 .disabled(model.output.isEmpty || isRunning)
         }
+    }
+
+    private var defaultButton: CustomAction.DefaultButton {
+        model.action?.defaultButton ?? .replace
     }
 
     private var isRunning: Bool {

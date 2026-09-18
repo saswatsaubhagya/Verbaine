@@ -99,3 +99,23 @@ enum Preferences {
         return [preferred] + Tone.allCases.filter { $0 != preferred }
     }
 }
+
+// MARK: Custom actions
+
+extension Preferences {
+    static let customActionsKey = "actions.custom"
+
+    /// JSON rather than a plist dictionary: `CustomAction` is `Codable` and nests an optional
+    /// `Hotkey`, which `UserDefaults` cannot store on its own.
+    static func customActions(_ defaults: UserDefaults = .standard) -> [CustomAction] {
+        guard let data = defaults.data(forKey: customActionsKey),
+              let actions = try? JSONDecoder().decode([CustomAction].self, from: data)
+        else { return [] }
+        return actions
+    }
+
+    static func setCustomActions(_ actions: [CustomAction], _ defaults: UserDefaults = .standard) {
+        guard let data = try? JSONEncoder().encode(actions) else { return }
+        defaults.set(data, forKey: customActionsKey)
+    }
+}

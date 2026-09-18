@@ -240,3 +240,20 @@ appear, run `/System/Library/CoreServices/pbs -flush` and log out and back in.
 - [ ] With nothing selected the items are greyed out; with a selection of whitespace only, the system beep/alert says "Select some text first."
 - [ ] A very long selection (the 3,000-word document from T2.2) fails with the over-long message rather than hanging or silently truncating — Services runs single-pass only.
 - [ ] While a Services action runs, the app's own ⌃⌥P popover still opens afterwards — nothing is left wedged.
+
+## T3.1 Custom actions — manual
+
+The store, the prompt composition and the validation rules are unit-tested (`CustomActionTests`);
+what only the running app proves is the Settings editor, the grid and the global shortcut.
+
+- [ ] Settings → **Actions** → **Add** creates "New action"; name it "Rewrite as release note", instruction "Rewrite the user's text as a one-paragraph release note for end users.", default button **Copy**.
+- [ ] Paste an instruction longer than 300 tokens (~1,300 characters) — the editor shows "That instruction is N tokens; the limit is 300." Shorten it and the message clears.
+- [ ] Clearing the name shows "Give the action a name."; clearing the instruction shows "Write what the action should do."
+- [ ] **Shortcut** → record ⌃⌥R; the list row shows "⌃⌥R". **Clear** removes it and the row shows no shortcut.
+- [ ] Select text in Notes, ⌃⌥P — "Rewrite as release note" appears in the grid after **Expand**; running it returns a release note.
+- [ ] With that action's result on screen, ⏎ copies (the action's default button) rather than replacing; **Replace** still works from the mouse.
+- [ ] Quit and relaunch Polish: the action is still there, with its shortcut.
+- [ ] Select text in Slack and press ⌃⌥R — the popover opens with the action already running, no grid step. (T3.1 done-when.)
+- [ ] Give a second custom action a different shortcut; both fire their own action. Give one a shortcut already owned by another app — Settings says the combination is taken and the old one is kept.
+- [ ] **Remove** deletes the action; its shortcut stops firing without a relaunch.
+- [ ] A 15,000-token selection greys out the custom action along with Improve/Shorten/Tone/Expand.
