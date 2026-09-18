@@ -17,6 +17,10 @@ enum PopoverController {
 
         let model = PopoverModel(selection: selection)
         model.onClose = { close() }
+        model.onReplaced = {
+            close()
+            UndoToast.show(near: selection)
+        }
 
         let panel = PopoverPanel(
             contentRect: .zero,
@@ -33,7 +37,7 @@ enum PopoverController {
         panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
         panel.contentView = NSHostingView(rootView: PopoverView(model: model))
         panel.setContentSize(panel.contentView?.fittingSize ?? NSSize(width: 460, height: 320))
-        panel.setFrameTopLeftPoint(origin(for: selection, size: panel.frame.size))
+        panel.setFrameTopLeftPoint(topLeft(for: selection, size: panel.frame.size))
         panel.makeKeyAndOrderFront(nil)
 
         Self.panel = panel
@@ -44,9 +48,10 @@ enum PopoverController {
         panel = nil
     }
 
-    /// Top-left corner for the panel: just below the selection, or the mouse when the app does not
+    /// Top-left corner for a panel: just below the selection, or the mouse when the app does not
     /// report bounds. AX rects use a top-left screen origin, AppKit a bottom-left one.
-    private static func origin(for selection: Selection, size: NSSize) -> NSPoint {
+    /// Shared with the undo toast, which appears where the popover was.
+    static func topLeft(for selection: Selection, size: NSSize) -> NSPoint {
         guard let bounds = selection.bounds, let primary = NSScreen.screens.first else {
             let mouse = NSEvent.mouseLocation
             return NSPoint(x: mouse.x, y: mouse.y)

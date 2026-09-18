@@ -45,6 +45,24 @@ enum WriteBackService {
         snapshot.restore(to: pasteboard)
     }
 
+    /// Takes a replace back by asking the source app to undo it (T1.5).
+    ///
+    /// Pressing ⌘Z rather than pasting the original back: after our ⌘V nothing is selected any
+    /// more, so a second paste would append the original instead of replacing the result. The
+    /// paste sits on the host app's own undo stack — that is the whole point of pasting — so its
+    /// undo is both exact and free.
+    ///
+    /// ponytail: one ⌘Z. Apps that split a paste into several undo steps would need more; no
+    /// such app has turned up in the T0.5 checklist, and counting them needs per-app knowledge.
+    static func undoReplace(selection: Selection) async throws(WriteBackError) {
+        guard AccessibilityPermission.isTrusted else { throw .accessibilityNotTrusted }
+
+        try await activateSourceAppIfNeeded(selection)
+        try verifyFocusUnchanged(selection)
+
+        SyntheticKeystroke.postCommandZ()
+    }
+
     /// Brings the source app back to the front if Polish (or its popover) took focus, and waits
     /// for the switch to land — ⌘V posted mid-switch goes to whoever is frontmost at that
     /// instant, which may still be us.

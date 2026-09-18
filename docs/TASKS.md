@@ -85,7 +85,7 @@ Execute in order. Each task is one Claude Code session or prompt; commit at the 
 - Buttons: Replace (⏎), Copy (⌘C), Retry, close (Esc). Loading state, error state.
 - Done when: full flow works in Notes: select → hotkey → Improve → Replace.
 
-**T1.5 Undo buffer and toast**
+**T1.5 Undo buffer and toast** — ✅ done (`PENDING`; build + test pass, 33 tests)
 
 - `UndoBuffer` keeps (original, result, selection metadata) for 60 s.
 - After Replace, show a small toast "Replaced · Undo" for 4 s; clicking it or pressing ⌘Z while popover focused runs write-back with the original.

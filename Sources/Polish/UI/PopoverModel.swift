@@ -20,8 +20,10 @@ final class PopoverModel {
     private(set) var phase: Phase = .actions
     private(set) var output = ""
     private(set) var action: Action?
-    /// Set after a successful Replace so the view can dismiss; T1.5 turns this into the toast.
+    /// Dismisses the popover: Esc, Copy, or a failure the user closes.
     var onClose: () -> Void = {}
+    /// Dismisses the popover and hands over to the undo toast (T1.5).
+    var onReplaced: () -> Void = {}
 
     private var generation: Task<Void, Never>?
 
@@ -69,7 +71,8 @@ final class PopoverModel {
         Task {
             do {
                 try await WriteBackService.replace(selection: selection, with: text)
-                onClose()
+                UndoBuffer.shared.record(original: selection.text, result: text, selection: selection)
+                onReplaced()
             } catch {
                 Self.log.error("replace failed: \(String(describing: error))")
                 phase = .failed(error.localizedDescription)

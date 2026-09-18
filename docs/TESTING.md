@@ -98,3 +98,18 @@ Watch the log with `log stream --predicate 'subsystem == "com.saswat.polish"' --
 - [ ] Select text in an app that reports no bounds (or in Slack, clipboard path): the popover appears at the mouse location instead.
 - [ ] Select text near the bottom-right corner of the screen: the whole popover stays on screen.
 - [ ] Click into a different app while the model is running, then press ⏎: the log shows `focusChanged`, nothing is pasted, and the error text appears in the popover.
+
+## T1.5 — Undo buffer and toast
+
+Needs Accessibility permission and Apple Intelligence enabled. Run the built app.
+Watch the log with `log stream --predicate 'subsystem == "com.saswat.polish"' --level debug`.
+
+- [ ] Select text in Mail, ⌃⌥P → Improve → ⏎: the popover closes and a "Replaced · Undo" capsule appears where the popover was.
+- [ ] The toast disappears on its own after ~4 s and changes nothing.
+- [ ] Clicking "Undo" while the toast is up restores the original text in Mail and closes the toast.
+- [ ] Same in Slack (clipboard capture path): Replace, then Undo restores the original.
+- [ ] Pressing ⌘Z while the toast is up does the same as clicking Undo.
+- [ ] Esc dismisses the toast without undoing.
+- [ ] Replace twice in a row: only one toast is on screen, and Undo takes back the second replace.
+- [ ] Click into a different app, then click Undo: the log shows `undo failed: focusChanged` and nothing changes.
+- [ ] Leave the toast to expire, then press ⌘Z in Mail itself: the host app's own undo still restores the original.

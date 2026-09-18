@@ -12,6 +12,7 @@ enum SyntheticKeystroke {
 
     static func postCommandC() { post(key: CGKeyCode(kVK_ANSI_C)) }
     static func postCommandV() { post(key: CGKeyCode(kVK_ANSI_V)) }
+    static func postCommandZ() { post(key: CGKeyCode(kVK_ANSI_Z)) }
 
     private static func post(key: CGKeyCode) {
         // A private source keeps our synthetic modifiers out of the user's real keyboard state,
