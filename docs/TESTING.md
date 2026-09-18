@@ -130,3 +130,21 @@ submenu, which throws the real error type through the same mapping the live fail
 - [ ] Live path: turn Apple Intelligence off in System Settings, select text, ⌃⌥P → pick an action: the popover shows the "Turn on Apple Intelligence" message instead of a framework error.
 - [ ] Live path: press ⌃⌥P with nothing selected: the "Select some text first" panel appears at the mouse.
 - [ ] Live path: start a rewrite, click into another app, press ⏎: the popover shows the "cursor moved" message with **Copy result**, and clicking it puts the rewrite on the clipboard.
+
+## T1.7 — Onboarding
+
+Fresh install on a clean user account, or Debug → "Reset onboarding flag (T1.7)" then relaunch.
+Watch the log with `log stream --predicate 'subsystem == "com.saswat.polish"' --level debug`.
+
+- [ ] First launch shows the "Welcome to Polish" window centred on screen, on step 1 of 3.
+- [ ] Step 1 names ⌃⌥P and says everything runs on this Mac; **Continue** is enabled.
+- [ ] With Apple Intelligence **off**, step 2 says so, **Continue** is disabled, and "Open Apple Intelligence settings" opens the right pane.
+- [ ] Turn Apple Intelligence on without touching the window: within ~1 s the line flips to a green check and **Continue** enables.
+- [ ] With permission **not** granted, step 3 says so, **Test it** is disabled, and "Open Accessibility settings" shows the system prompt and opens the pane.
+- [ ] Grant Accessibility without touching the window: within ~1 s the line flips to a green check and **Finish** enables.
+- [ ] Select text in Notes, then click **Test it**: Notes stays frontmost, its selection stays highlighted, and the window shows the exact selected text.
+- [ ] Same with Slack frontmost (clipboard path): the text comes back and the clipboard marker still pastes afterwards.
+- [ ] **Test it** with nothing selected shows "Select some text first…" instead of the captured text.
+- [ ] **Back** returns to the previous step with its live status intact.
+- [ ] **Finish** closes the window; ⌃⌥P then opens the popover over a selection.
+- [ ] Quit and relaunch: onboarding does not appear again.

@@ -7,6 +7,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         HotkeyManager.shared.start { Task { await AppDelegate.trigger() } }
+        OnboardingWindow.showIfNeeded()
     }
 
     /// The single entry point for "user asked to polish the selection", from the hotkey or the menu.

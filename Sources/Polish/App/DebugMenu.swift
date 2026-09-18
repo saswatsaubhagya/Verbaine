@@ -24,6 +24,12 @@ struct DebugMenu: View {
             Button("Improve selection (T0.5)") {
                 Task { await Self.improveSelection() }
             }
+            Button("Show onboarding (T1.7)") {
+                OnboardingWindow.show()
+            }
+            Button("Reset onboarding flag (T1.7)") {
+                OnboardingFlag.reset()
+            }
             Menu("Errors (T1.6)") {
                 ForEach(DebugErrors.all, id: \.name) { sample in
                     Button(sample.name) {
