@@ -40,8 +40,8 @@ struct CustomAction: Codable, Hashable, Sendable, Identifiable {
     /// falls back to 4 characters per token — the same upper bound `PromptsTests` uses — so the
     /// Settings field still validates on a machine that cannot run the model.
     static func tokenCount(of text: String) async -> Int {
-        guard ModelService.shared.availability == .ready,
-              let tokens = try? await ModelService.shared.tokenCount(for: text)
+        guard Inference.current.availability == .ready,
+              let tokens = try? await Inference.current.tokenCount(for: text)
         else { return (text.count + 3) / 4 }
         return tokens
     }

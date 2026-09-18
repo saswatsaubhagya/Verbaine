@@ -1,13 +1,5 @@
 import Foundation
 
-/// Anything that can measure tokens. `ModelService` is the real one; tests stub it so they run on
-/// machines without Apple Intelligence.
-protocol TokenCounting: Sendable {
-    func tokenCount(for text: String) async throws -> Int
-}
-
-extension ModelService: TokenCounting {}
-
 /// Decides whether an action's input fits a single model call.
 ///
 /// Everything shares one window: instructions, the prompt wrapper, the input, and the model's own
@@ -31,7 +23,7 @@ struct TokenBudget: Sendable {
         self.counter = counter
     }
 
-    init(service: ModelService = .shared) {
+    init(service: any InferenceProvider = Inference.current) {
         self.init(contextSize: service.contextSize, counter: service)
     }
 

@@ -28,7 +28,7 @@ struct MapReduceSummarizer: Sendable {
         self.chunker = chunker
     }
 
-    init(service: ModelService = .shared) {
+    init(service: any InferenceProvider = Inference.current) {
         self.init(generator: service, budget: TokenBudget(service: service), chunker: TextChunker(service: service))
     }
 

@@ -42,7 +42,7 @@ final class PopoverModel {
         guard estimate == nil else { return }
         let budget = TokenBudget()
         guard
-            let tokens = try? await ModelService.shared.tokenCount(for: selection.text),
+            let tokens = try? await Inference.current.tokenCount(for: selection.text),
             let limit = try? await budget.maxSinglePassInputTokens(for: .improve)
         else { return }
         estimate = SizeEstimate.make(
@@ -64,7 +64,7 @@ final class PopoverModel {
 
         // Asking an unavailable model produces a framework error a sentence later; the
         // availability check says the useful thing (turn Apple Intelligence on) instead.
-        if let unavailable = UserFacingError(ModelService.shared.availability) {
+        if let unavailable = UserFacingError(Inference.current.availability) {
             phase = .failed(unavailable)
             return
         }
@@ -93,7 +93,7 @@ final class PopoverModel {
 
     /// Short input: one call, streamed token by token.
     private func streamSinglePass(_ action: Action, text: String) async throws {
-        for try await snapshot in await ModelService.shared.stream(
+        for try await snapshot in await Inference.current.stream(
             instructions: action.instructions,
             prompt: text
         ) {

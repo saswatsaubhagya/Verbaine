@@ -1,13 +1,5 @@
 import Foundation
 
-/// Anything that can answer one prompt. `ModelService` is the real one; tests stub it so they run
-/// on machines without Apple Intelligence.
-protocol TextGenerating: Sendable {
-    func respond(instructions: String, prompt: String) async throws -> String
-}
-
-extension ModelService: TextGenerating {}
-
 /// Runs a rewrite that does not fit one model call, one paragraph at a time.
 ///
 /// `PRD.md` "Chunking rules": rewrites go paragraph-by-paragraph, sequentially, each in its own
@@ -28,7 +20,7 @@ struct ParagraphRewriter: Sendable {
         self.chunker = chunker
     }
 
-    init(service: ModelService = .shared) {
+    init(service: any InferenceProvider = Inference.current) {
         self.init(generator: service, budget: TokenBudget(service: service), chunker: TextChunker(service: service))
     }
 
