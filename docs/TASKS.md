@@ -77,7 +77,7 @@ Execute in order. Each task is one Claude Code session or prompt; commit at the 
 - Unit tests with stubbed token counts.
 - Done when: tests pass.
 
-**T1.4 Action popover UI**
+**T1.4 Action popover UI** — ✅ done (`099f482`)
 
 - Non-activating `NSPanel` hosting a SwiftUI view, positioned at selection bounds or mouse location.
 - Step 1: action grid (6 actions, tone shows sub-menu). Step 2: two-pane result view, original left, result right, streaming text via `streamResponse`.
@@ -107,7 +107,7 @@ Execute in order. Each task is one Claude Code session or prompt; commit at the 
 - Tabs: General (hotkey, launch at login via `SMAppService`, summary style bullets/paragraph), Apps (Electron fallback list, editable), About.
 - Done when: settings persist across relaunch.
 
-**T1.9 TestFlight build**
+**T1.9 TestFlight build** — ✅ code done (`16952d3`); upload to TestFlight still pending (needs a signing account)
 
 - App icon, privacy manifest (no tracking, no collection), sandbox entitlements, notarization script `scripts/release.sh`.
 - Update `docs/TESTING.md` with the manual checklist for Slack, Mail, Notes, Safari, Chrome.
@@ -132,12 +132,12 @@ Execute in order. Each task is one Claude Code session or prompt; commit at the 
 - Chunks of ~2,500 tokens; each prompt includes previous chunk summary (capped 150 tokens); final session combines summaries; if combined exceeds budget, run a second reduce level.
 - Done when: a 5,000-word thread produces a 3-bullet summary with no context error.
 
-**T2.4 Over-budget UX**
+**T2.4 Over-budget UX** — ✅ done (`6020f76`; build + test pass, 103 tests)
 
 - Before running, popover shows estimated token count and "Long text — processing in N parts" when applicable; for > 12,000 tokens, only Fix grammar and Summarize are enabled with a warning.
 - Done when: matches PRD strategy table.
 
-**T2.5 Retry on context error**
+**T2.5 Retry on context error** — ✅ done (`eb3698d`; build + test pass)
 
 - On `contextSizeExceeded`, halve the chunk and retry once before surfacing the error.
 - Done when: unit test with a stub model that throws once passes.
@@ -155,12 +155,12 @@ Execute in order. Each task is one Claude Code session or prompt; commit at the 
 - Any action can have a hotkey; when fired, run immediately and Replace without showing the popover unless an error or over-budget condition occurs; show toast.
 - Done when: ⌃⌥G fixes grammar and replaces in Slack with no popover.
 
-**T3.3 App-aware tone presets**
+**T3.3 App-aware tone presets** — ✅ done (`a3c0a8f`; build + test pass)
 
 - Map bundle id → default tone (Slack → Friendly, Mail → Professional, Jira/Linear → Direct). Editable in Settings → Apps.
 - Done when: Change tone preselects the mapped tone per app.
 
-**T3.4 Services menu integration**
+**T3.4 Services menu integration** — ✅ done (`c75efaa`; build + test pass; TextEdit checklist in `docs/TESTING.md` still to run on device)
 
 - Register `NSServices` entries for Improve and Summarize with `NSStringPboardType`.
 - Done when: right-click → Services → Polish: Improve works in TextEdit.
