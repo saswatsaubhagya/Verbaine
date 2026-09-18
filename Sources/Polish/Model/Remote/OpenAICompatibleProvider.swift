@@ -72,7 +72,7 @@ struct OpenAICompatibleProvider: InferenceProvider {
                     let request = try makeRequest(instructions: instructions, prompt: prompt)
                     let (bytes, response) = try await session.bytes(
                         for: request,
-                        delegate: RedirectSanitizingDelegate(originalHost: request.url?.host())
+                        delegate: RedirectGuardDelegate(originalHost: request.url?.host())
                     )
 
                     if let http = response as? HTTPURLResponse, http.statusCode != 200 {
@@ -134,38 +134,44 @@ struct OpenAICompatibleProvider: InferenceProvider {
     }
 }
 
-/// The redirect check the wire request needs: `Authorization` rides along with a same-host
-/// redirect, and is dropped the moment the host changes.
+/// Whether a redirect should be followed at all.
 ///
-/// Factored out as a pure function, independent of `URLSessionTaskDelegate`, so the actual
-/// decision is testable without a socket. A mistyped or hostile base URL must never be able to
-/// hand the user's API key to a third party via a redirect — `URLSession` forwards headers
-/// across redirects, including cross-host ones, unless something here stops it.
+/// Refusing a cross-host redirect outright — rather than only stripping `Authorization` — is
+/// what protects the request body too, and that body is the user's selected text: `URLSession`
+/// carries the body across a redirect exactly as it carries headers, so stripping only the key
+/// would still hand a hostile or mistyped base URL the user's own text on a 307/308. A `nil`
+/// original host (a malformed base URL) never matches anything, including another `nil` host —
+/// there being no host to compare against is always a refusal, not a free pass.
+///
+/// Factored out as a pure function, independent of `URLSessionTaskDelegate`, so the decision is
+/// testable without a socket.
 enum RedirectPolicy {
-    static func sanitizedRequest(originalHost: String?, redirectedTo request: URLRequest) -> URLRequest {
-        guard request.url?.host() != originalHost else { return request }
-        var sanitized = request
-        sanitized.setValue(nil, forHTTPHeaderField: "Authorization")
-        return sanitized
+    static func allowsRedirect(originalHost: String?, to request: URLRequest) -> Bool {
+        guard let originalHost, let redirectedHost = request.url?.host() else { return false }
+        return redirectedHost == originalHost
     }
 }
 
 /// Applies `RedirectPolicy` to every redirect `URLSession` follows for one request. Created fresh
 /// per request — it is one small, stateless piece of glue, not a reason to restructure the
 /// provider around a session-wide delegate.
-private final class RedirectSanitizingDelegate: NSObject, URLSessionTaskDelegate, @unchecked Sendable {
+private final class RedirectGuardDelegate: NSObject, URLSessionTaskDelegate, @unchecked Sendable {
     private let originalHost: String?
 
     init(originalHost: String?) {
         self.originalHost = originalHost
     }
 
+    /// Returning `nil` refuses the redirect outright: `URLSession` hands back the redirect
+    /// response itself (a 3xx, read as a `RemoteError` like any other non-200) instead of
+    /// following it, so neither `Authorization` nor the request body ever reaches the redirect
+    /// target.
     func urlSession(
         _ session: URLSession,
         task: URLSessionTask,
         willPerformHTTPRedirection response: HTTPURLResponse,
         newRequest request: URLRequest
     ) async -> URLRequest? {
-        RedirectPolicy.sanitizedRequest(originalHost: originalHost, redirectedTo: request)
+        RedirectPolicy.allowsRedirect(originalHost: originalHost, to: request) ? request : nil
     }
 }

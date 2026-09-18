@@ -2,49 +2,43 @@ import Foundation
 import Testing
 @testable import Polish
 
-/// F3: `URLSession` forwards the `Authorization` header across redirects, including cross-host
-/// ones, unless something strips it first. `RedirectPolicy.sanitizedRequest` is that something —
-/// factored out as a pure function so the host check is testable without a socket or a delegate
-/// callback.
-private func authorizedRequest(to urlString: String) -> URLRequest {
-    var request = URLRequest(url: URL(string: urlString)!)
-    request.setValue("Bearer sk-test-secret", forHTTPHeaderField: "Authorization")
-    return request
+/// F3/F6: `URLSession` follows both the `Authorization` header and the request body — the
+/// user's selected text — across a redirect, including a cross-host one. `RedirectPolicy`
+/// answers a single question, "should this redirect be followed at all," and refusing it
+/// outright is what protects the body as well as the key. Factored out as a pure function so the
+/// host check is testable without a socket or a delegate callback.
+private func request(to urlString: String) -> URLRequest {
+    URLRequest(url: URL(string: urlString)!)
 }
 
-@Test("a same-host redirect keeps the Authorization header")
-func sameHostRedirectKeepsAuthorization() {
-    let redirected = authorizedRequest(to: "https://api.example.com/v1/other-path")
-    let sanitized = RedirectPolicy.sanitizedRequest(originalHost: "api.example.com", redirectedTo: redirected)
-    #expect(sanitized.value(forHTTPHeaderField: "Authorization") == "Bearer sk-test-secret")
+@Test("a same-host redirect is allowed")
+func sameHostRedirectIsAllowed() {
+    #expect(RedirectPolicy.allowsRedirect(originalHost: "api.example.com", to: request(to: "https://api.example.com/v1/other-path")))
 }
 
-@Test("a cross-host redirect drops the Authorization header")
-func crossHostRedirectDropsAuthorization() {
-    let redirected = authorizedRequest(to: "https://evil.example.com/v1/other-path")
-    let sanitized = RedirectPolicy.sanitizedRequest(originalHost: "api.example.com", redirectedTo: redirected)
-    #expect(sanitized.value(forHTTPHeaderField: "Authorization") == nil)
+@Test("a cross-host redirect is refused outright, not just stripped of its key")
+func crossHostRedirectIsRefused() {
+    #expect(!RedirectPolicy.allowsRedirect(originalHost: "api.example.com", to: request(to: "https://evil.example.com/v1/other-path")))
 }
 
-@Test("a subdomain is still a different host, so the key does not follow it")
-func subdomainRedirectDropsAuthorization() {
-    let redirected = authorizedRequest(to: "https://sneaky.api.example.com/v1/other-path")
-    let sanitized = RedirectPolicy.sanitizedRequest(originalHost: "api.example.com", redirectedTo: redirected)
-    #expect(sanitized.value(forHTTPHeaderField: "Authorization") == nil)
+@Test("a subdomain is still a different host, so the redirect is refused")
+func subdomainRedirectIsRefused() {
+    #expect(!RedirectPolicy.allowsRedirect(originalHost: "api.example.com", to: request(to: "https://sneaky.api.example.com/v1/other-path")))
 }
 
-@Test("a nil original host — a malformed base URL — never lets the key ride along")
-func nilOriginalHostDropsAuthorization() {
-    let redirected = authorizedRequest(to: "https://api.example.com/v1/other-path")
-    let sanitized = RedirectPolicy.sanitizedRequest(originalHost: nil, redirectedTo: redirected)
-    #expect(sanitized.value(forHTTPHeaderField: "Authorization") == nil)
+@Test("a nil original host — a malformed base URL — never allows a redirect")
+func nilOriginalHostRefusesRedirect() {
+    #expect(!RedirectPolicy.allowsRedirect(originalHost: nil, to: request(to: "https://api.example.com/v1/other-path")))
 }
 
-@Test("everything else about the redirected request is left untouched")
-func sameHostRedirectKeepsOtherHeaders() {
-    var redirected = authorizedRequest(to: "https://api.example.com/v1/other-path")
-    redirected.setValue("application/json", forHTTPHeaderField: "Content-Type")
-    let sanitized = RedirectPolicy.sanitizedRequest(originalHost: "api.example.com", redirectedTo: redirected)
-    #expect(sanitized.value(forHTTPHeaderField: "Content-Type") == "application/json")
-    #expect(sanitized.url == redirected.url)
+@Test("two nil hosts never compare equal — a redirect to a request with no host is always refused")
+func nilRedirectedHostNeverMatchesNilOriginalHost() {
+    // A `file:` URL reports no host at all, giving a `nil` on both sides of the comparison —
+    // exactly the case a bare `==` would wrongly treat as a match.
+    #expect(!RedirectPolicy.allowsRedirect(originalHost: nil, to: request(to: "file:///tmp/exfiltrate")))
+}
+
+@Test("a redirect target with no host at all is refused even against a real original host")
+func redirectWithNoHostIsRefused() {
+    #expect(!RedirectPolicy.allowsRedirect(originalHost: "api.example.com", to: request(to: "file:///tmp/exfiltrate")))
 }

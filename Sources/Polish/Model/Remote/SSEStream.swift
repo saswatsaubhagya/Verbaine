@@ -10,9 +10,11 @@ enum SSEStream {
         case content(String)
         case done
         /// An in-band failure the endpoint reports inside a `data:` frame at HTTP 200 — OpenRouter,
-        /// Groq and Together all do this. Never carries the error text: some providers echo the
-        /// request content back inside it, and that text must never reach a log or the user.
-        case error
+        /// Groq and Together all do this. Classified the same way a real HTTP body is, by
+        /// substring, so a context-length frame still reaches `ContextRetry` and a quota/auth
+        /// frame still points at Settings rather than Retry. The raw text itself never crosses
+        /// out of this classification — only the resulting `RemoteError` case does.
+        case error(RemoteError)
         /// Keep-alives, comments, empty deltas and anything unparseable. A malformed line is never
         /// fatal — the provider is not ours, and one bad frame must not lose the answer so far.
         case ignore
@@ -35,10 +37,12 @@ enum SSEStream {
 
         // Checked before the `Chunk` decode: an error frame has no `choices` array at all, so it
         // would otherwise fall through and be misread as `.ignore` — an empty answer rendered as
-        // a quiet success.
+        // a quiet success. `object["error"] is [String: Any]`, not `!= nil`: several gateways send
+        // `"error": null` alongside perfectly valid choices on every frame, and `null` decodes to
+        // `NSNull`, which is non-nil — a bare presence check would abort a healthy stream.
         if let object = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-           object["error"] != nil {
-            return .error
+           object["error"] is [String: Any] {
+            return .error(RemoteError.classify(body: payload))
         }
 
         guard let chunk = try? JSONDecoder().decode(Chunk.self, from: data),
@@ -65,10 +69,10 @@ enum SSEStream {
                         case .done:
                             continuation.finish()
                             return
-                        case .error:
+                        case .error(let remoteError):
                             // A failure, not noise: finishing quietly here is exactly the silent
                             // truncation the project's constraints forbid.
-                            continuation.finish(throwing: RemoteError.serverError)
+                            continuation.finish(throwing: remoteError)
                             return
                         case .ignore:
                             continue
