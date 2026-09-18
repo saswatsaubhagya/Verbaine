@@ -4,7 +4,7 @@
 
 ## Overview
 
-Polish is a menu-bar Mac app that fixes, improves, or summarizes any text you select in any app, fully on-device, using Apple's Foundation Models framework. Select text in Slack, Mail, Notes or a browser, press a hotkey, pick an action, and either copy the result or replace the selection in place. No account, no cloud, no data leaves the Mac.
+Polish is a menu-bar Mac app that fixes, improves, or summarizes any text you select in any app, on-device by default, using Apple's Foundation Models framework. Select text in Slack, Mail, Notes or a browser, press a hotkey, pick an action, and either copy the result or replace the selection in place. No account, no cloud, no data leaves the Mac — unless you configure your own API endpoint, and the menu bar says so whenever that's active.
 
 **One-line pitch:** Grammarly-style writing help for every Mac app, private by design and free to run because the model ships with macOS.
 
@@ -36,7 +36,6 @@ Apple's on-device model changes the economics. Every Apple Silicon Mac on macOS 
 
 - Long-document editing (essays, reports over ~2,000 words).
 - Real-time underline-as-you-type checking.
-- Cloud fallback or bring-your-own-API-key.
 - iOS / iPadOS version.
 - Translation between languages (revisit in v2; on-device model quality for Indian languages needs testing first).
 - Using a ChatGPT or Claude consumer subscription in place of an API key. Consumer chat subscriptions grant no API access, so there is nothing for a third-party app to call.
@@ -59,7 +58,7 @@ Apple's on-device model changes the economics. Every Apple Silicon Mac on macOS 
 | Non-native English professional | Writes 30–50 Slack messages and 10 emails a day; second-guesses grammar and tone before sending | Fix grammar and make it sound natural in one keystroke, without leaving Slack |
 | Engineer / IC | Terse, rushed messages; long threads to catch up on | Improve clarity, summarize a pasted thread, turn notes into a tidy update |
 | Manager / lead | Writes announcements and feedback; tone matters | Rewrite as professional / friendly / concise; shorten without losing meaning |
-| Privacy-constrained user (legal, finance, health, regulated enterprise) | Company policy forbids cloud AI on work text | An assistant that provably never sends text off the machine |
+| Privacy-constrained user (legal, finance, health, regulated enterprise) | Company policy forbids cloud AI on work text | An assistant that provably never sends text off the machine by default |
 
 **Primary persona for v1:** the non-native English professional on Slack and Mail. Every v1 decision is judged against their flow first.
 

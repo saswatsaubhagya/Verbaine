@@ -1,6 +1,6 @@
 # Polish
 
-macOS menu-bar app that rewrites or summarizes text selected in any app, fully on-device via Apple's Foundation Models framework. No network, no account, no cloud.
+macOS menu-bar app that rewrites or summarizes text selected in any app, on-device by default via Apple's Foundation Models framework. No network, no account, no cloud — unless you configure your own API endpoint, and the menu bar says so whenever that's active.
 
 - Product spec: [docs/PRD.md](docs/PRD.md)
 - Build plan: [docs/TASKS.md](docs/TASKS.md)

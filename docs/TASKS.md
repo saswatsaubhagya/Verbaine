@@ -176,6 +176,7 @@ Execute in order. Each task is one Claude Code session or prompt; commit at the 
 
 **T3.9 Remote visibility and entitlement** — ✅ done (`f5fc11a`; build + test pass, 172 tests) — menu-bar symbol, popover badge, network entitlement, privacy manifest, PRD amendment.
 - Done when: the icon and badge change with the setting, and `codesign -d --entitlements - ` on the built app shows `network.client`.
+- Note: the app target's `CODE_SIGN_ENTITLEMENTS` must be set for the Debug configuration too, not just Release, or the `codesign` check above cannot be reproduced on a fresh clone.
 
 **T3.5 Store readiness**
 

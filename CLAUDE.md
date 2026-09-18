@@ -8,7 +8,7 @@ T0.1–T0.3 done: menu-bar app scaffolded, `ModelService` talks to the on-device
 
 ## Product
 
-**Polish** — macOS menu-bar app that rewrites/summarizes text selected in *any* app (Slack, Mail, Chrome, Notes) using Apple's on-device Foundation Models. No network, no account, no cloud.
+**Polish** — macOS menu-bar app that rewrites/summarizes text selected in *any* app (Slack, Mail, Chrome, Notes) using Apple's on-device Foundation Models by default. No network, no account, no cloud — unless the user configures their own endpoint, and the menu bar and popover say so whenever that's active.
 
 ## Working method
 
