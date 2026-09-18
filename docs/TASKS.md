@@ -37,7 +37,7 @@ Execute in order. Each task is one Claude Code session or prompt; commit at the 
 - Return a `Selection` struct: `text`, `bounds: CGRect?`, `appBundleID`, `elementRef`.
 - Done when: with Mail or Notes frontmost and text selected, a debug menu item logs the selected text and bounds.
 
-**T0.4 Selection capture via clipboard fallback**
+**T0.4 Selection capture via clipboard fallback** — ✅ done (`95e8c4c`; build + test pass, manual Slack/Chrome checklist in `docs/TESTING.md` still to run)
 
 - Implement `ClipboardSelectionReader`: snapshot `NSPasteboard.general` (all types), post ⌘C via `CGEvent`, wait up to 300 ms polling `changeCount`, read string, restore snapshot.
 - Implement `SelectionCapture` facade: try AX; if text is empty or app bundle id is in `electronFallbackList` (Slack, Discord, VS Code, Chrome, Arc, Figma), use clipboard method.
