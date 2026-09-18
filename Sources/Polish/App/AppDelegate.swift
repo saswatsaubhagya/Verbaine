@@ -7,6 +7,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         HotkeyManager.shared.start { Task { await AppDelegate.trigger() } }
+        NSApp.servicesProvider = ServicesProvider.shared
+        // ponytail: the services cache only picks up a debug build's NSServices after a nudge;
+        // harmless in a released build, which the installer refreshes anyway.
+        NSUpdateDynamicServices()
         OnboardingWindow.showIfNeeded()
     }
 

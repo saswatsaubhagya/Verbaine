@@ -225,3 +225,18 @@ Needs the real model: the unit tests stub it, so summary quality over a long thr
 - [ ] **Cancel** part-way through stops within one part and returns to the action grid.
 - [ ] **Copy** puts the summary on the clipboard; the original thread in Notes is untouched.
 - [ ] A short selection still streams token by token with no "Part" label — the single-pass path is unchanged.
+
+## T3.4 Services menu — manual
+
+The Services menu is a system feature: it reads `NSServices` out of the installed app's bundle, so
+nothing here is provable from a unit test. Build and run Polish once first (the services cache only
+learns about a new entry after the app has launched from its built location); if the items do not
+appear, run `/System/Library/CoreServices/pbs -flush` and log out and back in.
+
+- [ ] TextEdit: type a sentence with a clumsy phrasing, select it, right-click → **Services** — "Polish: Improve" and "Polish: Summarize" both appear.
+- [ ] **Polish: Improve** replaces the selection in place with the rewritten text; ⌘Z in TextEdit undoes it in one step.
+- [ ] **Polish: Summarize** on a few paragraphs replaces them with the summary.
+- [ ] The same two items appear in Mail and in Safari (in an editable field), and Improve replaces there too.
+- [ ] With nothing selected the items are greyed out; with a selection of whitespace only, the system beep/alert says "Select some text first."
+- [ ] A very long selection (the 3,000-word document from T2.2) fails with the over-long message rather than hanging or silently truncating — Services runs single-pass only.
+- [ ] While a Services action runs, the app's own ⌃⌥P popover still opens afterwards — nothing is left wedged.
