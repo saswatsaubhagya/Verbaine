@@ -62,7 +62,7 @@ Execute in order. Each task is one Claude Code session or prompt; commit at the 
 - Hotkey triggers `SelectionCapture` → opens the action popover.
 - Done when: hotkey works while Slack, Safari and Mail are frontmost.
 
-**T1.2 Action definitions and prompts** — ✅ done (`PENDING`; build + test pass, real tokenizer confirms every instruction ≤ 120 tokens)
+**T1.2 Action definitions and prompts** — ✅ done (`d07edac`; build + test pass, real tokenizer confirms every instruction ≤ 120 tokens)
 
 - Create `Action` enum: `fixGrammar, improve, summarize, shorten, changeTone(Tone), expand`.
 - Create `Prompts.swift` with instructions per action, each ≤ 120 tokens, imperative, output-only ("Return only the corrected text, no preamble").
