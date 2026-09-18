@@ -19,6 +19,7 @@ struct PopoverView: View {
         .padding(14)
         .frame(width: 460, height: 320, alignment: .topLeading)
         .onExitCommand { model.onClose() }
+        .task { await model.loadEstimate() }
     }
 
     /// What each remedy means once there is a popover: retry the action, or fall back to the
@@ -49,23 +50,43 @@ struct PopoverView: View {
                 .lineLimit(3)
                 .foregroundStyle(.secondary)
 
+            if let estimate = model.estimate {
+                Text(estimate.label)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .monospacedDigit()
+                if let warning = estimate.warning {
+                    Label(warning, systemImage: "exclamationmark.triangle")
+                        .font(.caption)
+                        .foregroundStyle(.orange)
+                }
+            }
+
             LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 3), spacing: 8) {
                 ForEach(Action.grid) { action in
                     if case .changeTone = action {
                         Menu(action.title) {
-                            ForEach(Tone.allCases) { tone in
+                            // The app's preset tone first (T3.3), the rest after it.
+                            ForEach(Preferences.tones(forBundleID: model.selection.appBundleID)) { tone in
                                 Button(tone.title) { model.run(.changeTone(tone)) }
                             }
                         }
                         .menuStyle(.button)
+                        .disabled(!enabled(action))
                     } else {
                         Button(action.title) { model.run(action) }
                             .frame(maxWidth: .infinity)
+                            .disabled(!enabled(action))
                     }
                 }
             }
             Spacer()
         }
+    }
+
+    /// Past 12,000 tokens the grid offers only what stays useful at that length (PRD row 3).
+    private func enabled(_ action: Action) -> Bool {
+        model.estimate?.isEnabled(action) ?? true
     }
 
     private var resultPanes: some View {

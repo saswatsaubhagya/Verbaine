@@ -22,6 +22,8 @@ final class PopoverModel {
     private(set) var action: Action?
     /// "Part 3 of 8" while a long rewrite or summary runs, `nil` for a single-pass action.
     private(set) var progress: PartProgress?
+    /// Size of the selection, shown on the action grid; `nil` until it has been measured (T2.4).
+    private(set) var estimate: SizeEstimate?
     /// Dismisses the popover: Esc, Copy, or a failure the user closes.
     var onClose: () -> Void = {}
     /// Dismisses the popover and hands over to the undo toast (T1.5).
@@ -33,11 +35,29 @@ final class PopoverModel {
         self.selection = selection
     }
 
+    /// Measures the selection so the grid can say how long this will take and hide the actions
+    /// that are a bad deal past 12,000 tokens. Silent on failure — an unmeasurable selection just
+    /// shows no estimate, and `run` surfaces the real error a moment later.
+    func loadEstimate() async {
+        guard estimate == nil else { return }
+        let budget = TokenBudget()
+        guard
+            let tokens = try? await ModelService.shared.tokenCount(for: selection.text),
+            let limit = try? await budget.maxSinglePassInputTokens(for: .improve)
+        else { return }
+        estimate = SizeEstimate.make(
+            tokens: tokens,
+            paragraphs: TextChunker.paragraphs(selection.text).count,
+            singlePassLimit: limit
+        )
+    }
+
     var diff: [DiffEngine.Segment] {
         DiffEngine.diff(original: selection.text, result: output)
     }
 
     func run(_ action: Action) {
+        guard estimate?.isEnabled(action) ?? true else { return }
         self.action = action
         generation?.cancel()
         output = ""
