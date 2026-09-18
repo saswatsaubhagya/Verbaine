@@ -64,3 +64,40 @@ func snapshotsSurviveMissingTerminator() async throws {
 
     #expect(received == ["Half"])
 }
+
+// MARK: - F1: an in-band error at HTTP 200
+
+@Test("an in-band error frame is read as a failure, not as noise")
+func readsInBandError() {
+    let line = #"data: {"error":{"message":"insufficient_quota","code":"insufficient_quota"}}"#
+    #expect(SSEStream.event(from: line) == .error)
+}
+
+@Test("a frame that carries both an error and no choices is still read as a failure")
+func readsInBandErrorWithoutChoices() {
+    let line = #"data: {"error":{"message":"model overloaded"}}"#
+    #expect(SSEStream.event(from: line) == .error)
+}
+
+@Test("an in-band error ends the snapshot stream as a thrown failure, never a silent empty answer")
+func inBandErrorFrameThrowsFromSnapshots() async throws {
+    let lines = StubLines(lines: [
+        #"data: {"error":{"message":"insufficient_quota"}}"#,
+    ])
+
+    await #expect(throws: RemoteError.self) {
+        for try await _ in SSEStream.snapshots(lines: lines) {}
+    }
+}
+
+@Test("content already streamed before an in-band error still surfaces the error, not a partial success")
+func inBandErrorAfterSomeContentStillThrows() async throws {
+    let lines = StubLines(lines: [
+        #"data: {"choices":[{"delta":{"content":"Fix "}}]}"#,
+        #"data: {"error":{"message":"rate limit exceeded"}}"#,
+    ])
+
+    await #expect(throws: RemoteError.self) {
+        for try await _ in SSEStream.snapshots(lines: lines) {}
+    }
+}

@@ -9,6 +9,10 @@ enum SSEStream {
     enum Event: Equatable {
         case content(String)
         case done
+        /// An in-band failure the endpoint reports inside a `data:` frame at HTTP 200 — OpenRouter,
+        /// Groq and Together all do this. Never carries the error text: some providers echo the
+        /// request content back inside it, and that text must never reach a log or the user.
+        case error
         /// Keep-alives, comments, empty deltas and anything unparseable. A malformed line is never
         /// fatal — the provider is not ours, and one bad frame must not lose the answer so far.
         case ignore
@@ -27,8 +31,17 @@ enum SSEStream {
         let payload = line.dropFirst("data:".count).trimmingCharacters(in: .whitespaces)
 
         if payload == "[DONE]" { return .done }
-        guard let data = payload.data(using: .utf8),
-              let chunk = try? JSONDecoder().decode(Chunk.self, from: data),
+        guard let data = payload.data(using: .utf8) else { return .ignore }
+
+        // Checked before the `Chunk` decode: an error frame has no `choices` array at all, so it
+        // would otherwise fall through and be misread as `.ignore` — an empty answer rendered as
+        // a quiet success.
+        if let object = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+           object["error"] != nil {
+            return .error
+        }
+
+        guard let chunk = try? JSONDecoder().decode(Chunk.self, from: data),
               let content = chunk.choices.first?.delta?.content,
               !content.isEmpty
         else { return .ignore }
@@ -51,6 +64,11 @@ enum SSEStream {
                             continuation.yield(answer)
                         case .done:
                             continuation.finish()
+                            return
+                        case .error:
+                            // A failure, not noise: finishing quietly here is exactly the silent
+                            // truncation the project's constraints forbid.
+                            continuation.finish(throwing: RemoteError.serverError)
                             return
                         case .ignore:
                             continue
