@@ -120,7 +120,19 @@ struct ModelSettings: View {
     }
 
     private func runTest() {
-        // Replaced in Task 3 with a real five-token round trip against the endpoint.
-        test = .failed("Not wired up yet")
+        test = .running
+        let config = self.config
+        let key = self.apiKey
+        Task {
+            let provider = OpenAICompatibleProvider(config: config, apiKey: key)
+            do {
+                // Five tokens out and a one-word answer back: enough to prove the URL, the key and
+                // the model name are all right, cheap enough to press repeatedly.
+                _ = try await provider.respond(instructions: "Reply with the word OK.", prompt: "Ping")
+                test = .passed
+            } catch {
+                test = .failed(UserFacingError(error).message)
+            }
+        }
     }
 }

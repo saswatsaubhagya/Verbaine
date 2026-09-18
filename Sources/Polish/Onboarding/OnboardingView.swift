@@ -61,6 +61,9 @@ struct OnboardingView: View {
         case .intelligenceDisabled: "Apple Intelligence is off. Turn it on in System Settings — this window updates on its own."
         case .modelDownloading: "Apple Intelligence is still downloading its model. This window updates when it finishes."
         case .unsupportedDevice: "This Mac cannot run Apple Intelligence, so Polish cannot rewrite text."
+        // Onboarding only ever reads the on-device provider's availability, which `init(_:)`
+        // never maps to this case — unreachable in practice, kept only for exhaustiveness.
+        case .remoteNotConfigured: "This Mac cannot run Apple Intelligence, so Polish cannot rewrite text."
         }
     }
 

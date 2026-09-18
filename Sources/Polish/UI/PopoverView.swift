@@ -40,6 +40,9 @@ struct PopoverView: View {
         case .intelligenceSettings:
             SettingsPane.openAppleIntelligence()
             model.onClose()
+        case .modelSettings:
+            SettingsPane.openPolishSettings()
+            model.onClose()
         case .dismiss:
             model.onClose()
         }
