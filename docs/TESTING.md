@@ -275,3 +275,12 @@ window on screen.
 - [ ] With nothing selected, ⌃⌥G shows the empty-capture message rather than doing nothing.
 - [ ] Click away to another app between pressing ⌃⌥G and the replace landing — the focus-changed message appears and nothing is pasted into the wrong app.
 - [ ] Quit and relaunch: the recorded shortcuts still fire.
+
+## T3.7 — Model settings
+
+- [ ] Settings → Model defaults to "Apple on-device" on a fresh install.
+- [ ] Picking "Custom endpoint" reveals Base URL, API key, Model and Context size.
+- [ ] Choosing a preset fills the Base URL field and leaves the other fields alone.
+- [ ] Typed values survive closing and reopening Settings.
+- [ ] The API key field is masked, and the key does not appear in `defaults read com.saswat.polish`.
+- [ ] Switching back to "Apple on-device" hides the fields but keeps the stored values.
