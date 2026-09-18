@@ -66,3 +66,16 @@ Before each run, copy a marker string (e.g. `MARKER-123`) so the clipboard resto
 - [x] Select text in Notes, trigger the item, then click into a **different** Notes note (or a different app) while the model is running: the log shows `focusChanged`, nothing is pasted, and the clipboard marker is intact.
 - [x] Select text in Slack, then quit Slack while the model is running: the log shows `sourceAppGone` and nothing is pasted.
 - [x] With nothing selected anywhere, the item logs a capture error and no paste happens.
+
+## T1.1 — Global hotkey
+
+Needs Accessibility permission. Run the built app (not the Xcode preview) so the hotkey registers.
+Watch the log with `log stream --predicate 'subsystem == "com.saswat.polish"' --level debug`.
+
+- [ ] With Slack frontmost and text selected, ⌃⌥P logs `hotkey fired` then `captured N chars from com.tinyspeck.slackmacgap`.
+- [ ] Same with Safari frontmost (`com.apple.Safari`) and text selected on a page.
+- [ ] Same with Mail frontmost (`com.apple.mail`) and text selected in a draft.
+- [ ] ⌃⌥P with nothing selected logs `capture failed: emptySelection` and changes nothing.
+- [ ] Typing ⌃⌥P inside a text field does not insert a character in the host app (the hotkey swallows it).
+- [ ] Menu bar → "Improve selection" does the same as the hotkey.
+- [ ] Quit and relaunch: ⌃⌥P still works (the default is read from `UserDefaults` each launch).

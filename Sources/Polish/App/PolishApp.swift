@@ -3,11 +3,11 @@ import SwiftUI
 
 @main
 struct PolishApp: App {
+    @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
+
     var body: some Scene {
         MenuBarExtra("Polish", systemImage: "wand.and.sparkles") {
-            // ponytail: placeholders until T1.1 wires the hotkey + capture pipeline
-            Button("Improve selection") {}
-                .disabled(true)
+            Button("Improve selection") { Task { await AppDelegate.trigger() } }
             Divider()
 #if DEBUG
             DebugMenu()
