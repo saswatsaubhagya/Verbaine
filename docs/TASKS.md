@@ -127,7 +127,7 @@ Execute in order. Each task is one Claude Code session or prompt; commit at the 
 - Progress indicator "Part 3 of 8" in popover; Cancel button cancels the `Task`.
 - Done when: a 3,000-word document is Fix-grammar'd with paragraphs intact.
 
-**T2.3 Map-reduce summarize**
+**T2.3 Map-reduce summarize** — ✅ done (`238af63`; build + test pass, 88 tests; 5,000-word manual run in `docs/TESTING.md` still to do on device)
 
 - Chunks of ~2,500 tokens; each prompt includes previous chunk summary (capped 150 tokens); final session combines summaries; if combined exceeds budget, run a second reduce level.
 - Done when: a 5,000-word thread produces a 3-bullet summary with no context error.
