@@ -28,7 +28,7 @@ Apple's on-device model changes the economics. Every Apple Silicon Mac on macOS 
 
 1. Work in any Mac app where text can be selected, including Slack, Electron apps and browsers.
 2. Selection → result in under 3 seconds for a typical message (≤ 150 words) on an M1.
-3. 100% on-device. No network permission requested at all in v1.
+3. On-device by default. Text leaves the Mac only when the user configures their own API endpoint in Settings, and the menu-bar icon and popover say so whenever that is active.
 4. Zero-friction output: one click to copy, one click to replace the original selection.
 5. Honest degradation: when text is too long for one pass, chunk it or tell the user, never silently truncate.
 
@@ -39,6 +39,7 @@ Apple's on-device model changes the economics. Every Apple Silicon Mac on macOS 
 - Cloud fallback or bring-your-own-API-key.
 - iOS / iPadOS version.
 - Translation between languages (revisit in v2; on-device model quality for Indian languages needs testing first).
+- Using a ChatGPT or Claude consumer subscription in place of an API key. Consumer chat subscriptions grant no API access, so there is nothing for a third-party app to call.
 
 **Success metrics**
 
@@ -257,11 +258,11 @@ Using paste rather than `AXValue` writes is what makes Replace work in Slack and
 | --- | --- | --- |
 | Accessibility | Read selected text, find its bounds, send ⌘C / ⌘V | Onboarding, with a short explainer and a Test button |
 | Input Monitoring | Global hotkey on some configurations | Only if the hotkey API needs it |
-| Network | None. v1 does not link a networking stack and requests no network entitlement | Never |
+| Network | Outgoing only (`com.apple.security.network.client`), and only to the endpoint the user configures. Unused when running on-device, which is the default | Never prompted — macOS does not gate outgoing connections |
 
 **Privacy posture**
 
-- All inference on-device via Foundation Models. Text never leaves the Mac and is never logged in release builds.
+- Inference is on-device via Foundation Models by default; text never leaves the Mac and is never logged in release builds. A user who configures their own OpenAI-compatible endpoint sends selected text to that endpoint instead, and only then. The API key is stored in the Keychain and is never logged.
 - Undo buffer and clipboard history are in-memory only, cleared on quit; optional 24 h history is stored encrypted in the app container and can be disabled.
 - Privacy manifest declares no tracking, no data collection. This should be the headline of the App Store listing.
 - Sandbox: App Store build runs sandboxed; Accessibility use is allowed with the user's permission, and the paste-based write-back avoids needing broader automation entitlements. Verify this in review early with a TestFlight build.

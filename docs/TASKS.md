@@ -165,6 +165,18 @@ Execute in order. Each task is one Claude Code session or prompt; commit at the 
 - Register `NSServices` entries for Improve and Summarize with `NSStringPboardType`.
 - Done when: right-click → Services → Polish: Improve works in TextEdit.
 
+**T3.6 Inference provider seam** — ✅ done (`772b3da`; build + test pass) — `InferenceProvider` protocol, `Inference.current` resolver, all call sites moved. Pure refactor.
+- Done when: build and test pass with the existing suite unchanged, and `Inference.current` returns the on-device model by default.
+
+**T3.7 Remote endpoint settings** — ✅ done (`6490cf8`; build + test pass) — `RemoteConfig`, `APIKeyStore` (Keychain), Settings "Model" tab with presets and Test connection.
+- Done when: values round-trip through Settings, and the key is absent from `defaults read com.saswat.polish`.
+
+**T3.8 OpenAI-compatible provider** — ✅ done (`c27639e`; build + test pass) — `OpenAICompatibleProvider`, `SSEStream`, `RemoteError` mapping, `ContextRetry` extension.
+- Done when: a real key streams a rewrite into the popover, and a wrong key, wrong model and offline machine each produce their own message.
+
+**T3.9 Remote visibility and entitlement** — menu-bar symbol, popover badge, network entitlement, privacy manifest, PRD amendment.
+- Done when: the icon and badge change with the setting, and `codesign -d --entitlements - ` on the built app shows `network.client`.
+
 **T3.5 Store readiness**
 
 - App Store screenshots script, listing copy in `docs/STORE.md` emphasizing on-device privacy and cross-app support, review notes explaining Accessibility use.

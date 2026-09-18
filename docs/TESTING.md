@@ -284,3 +284,14 @@ window on screen.
 - [ ] Typed values survive closing and reopening Settings.
 - [ ] The API key field is masked, and the key does not appear in `defaults read com.saswat.polish`.
 - [ ] Switching back to "Apple on-device" hides the fields but keeps the stored values.
+
+## T3.9 — Remote visibility
+
+- [ ] With Apple on-device selected, the menu-bar icon is the outline wand and the popover shows no badge.
+- [ ] Switching to a configured custom endpoint changes the menu-bar icon immediately, with no restart.
+- [ ] The popover shows `via <model> · cloud` under the action grid, and only then.
+- [ ] A rewrite against the remote endpoint streams into the result pane, and the word-level diff highlights as it does on-device.
+- [ ] Replace still pastes into Slack, and ⌘Z in Slack still restores the original.
+- [ ] Switching back to Apple on-device takes effect on the very next action.
+- [ ] `codesign -d --entitlements - build/.../Polish.app` lists `com.apple.security.network.client` and no `network.server`.
+- [ ] A custom endpoint whose base URL redirects to a different host is refused rather than followed: the request fails with the "check the base URL in Settings" message, and the API key is not sent onward.
