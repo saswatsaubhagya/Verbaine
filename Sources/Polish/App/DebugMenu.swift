@@ -18,6 +18,24 @@ struct DebugMenu: View {
             Button("Read AX selection (T0.3)") {
                 Self.logAXSelection()
             }
+            Button("Capture selection (T0.4)") {
+                Task { await Self.logCapture() }
+            }
+        }
+    }
+
+    /// Exercises the facade: AX where it works, ⌘C where it does not.
+    @MainActor
+    private static func logCapture() async {
+        do {
+            let selection = try await SelectionCapture.capture()
+            log.debug("""
+                source=\(String(describing: selection.source)) \
+                app=\(selection.appBundleID ?? "nil") \
+                text=\(selection.text)
+                """)
+        } catch {
+            log.error("capture failed: \(String(describing: error))")
         }
     }
 

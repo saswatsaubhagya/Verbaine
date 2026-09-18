@@ -8,4 +8,6 @@ enum CaptureError: Error, Equatable {
     case noFocusedElement
     /// There is a focused element but nothing is selected in it.
     case emptySelection
+    /// ⌘C was posted but the app never wrote to the pasteboard in time.
+    case clipboardCopyTimedOut
 }

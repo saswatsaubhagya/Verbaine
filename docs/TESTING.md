@@ -34,3 +34,18 @@ Watch the log with `log stream --predicate 'subsystem == "com.saswat.polish"' --
 - [ ] With an app frontmost but nothing selected, it logs `emptySelection` and changes nothing.
 - [ ] With Slack frontmost and text selected, it logs `emptySelection` or empty text — expected; the clipboard fallback (T0.4) is what covers Electron.
 - [ ] The user's clipboard is untouched by all of the above.
+
+## T0.4 — Selection capture via clipboard fallback
+
+Needs Accessibility permission (posting ⌘C requires the same trust as reading).
+Watch the log with `log stream --predicate 'subsystem == "com.saswat.polish"' --level debug`.
+
+Before each run, copy a marker string (e.g. `MARKER-123`) so the clipboard restore is checkable.
+
+- [ ] With Slack frontmost and a message selected, Debug → "Capture selection (T0.4)" logs `source=clipboard`, `app=com.tinyspeck.slackmacgap` and the exact selected text.
+- [ ] Immediately after, ⌘V in any app still pastes `MARKER-123` — the original clipboard survived.
+- [ ] Same in Chrome (`com.google.Chrome`) with text selected on a web page.
+- [ ] With Notes frontmost and text selected, the same item logs `source=accessibility` and the clipboard marker is untouched (no ⌘C was posted).
+- [ ] With Slack frontmost and **nothing** selected, it logs `emptySelection` or `clipboardCopyTimedOut`, and the clipboard marker still pastes.
+- [ ] Copy an image (not text) as the marker, then capture from Slack: after capture, ⌘V still pastes the image.
+- [ ] With TextEdit frontmost and nothing selected, it logs `emptySelection` (AX path returned nothing, ⌘C copied nothing) and the clipboard is intact.
