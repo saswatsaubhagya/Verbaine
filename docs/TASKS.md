@@ -115,7 +115,7 @@ Execute in order. Each task is one Claude Code session or prompt; commit at the 
 
 ## Phase 2 — Long text
 
-**T2.1 Chunker**
+**T2.1 Chunker** — ✅ done (`2cd56de`; build + test pass, 68 tests; no chunk exceeds budget for either fixture at 40/120/400 tokens)
 
 - `TextChunker` using `NLTokenizer`: split on paragraphs, then sentences, never mid-sentence. Modes: `paragraphs` (for rewrites) and `budgeted(maxTokens:overlapSentences:)` (for summaries).
 - Unit tests with long fixtures in `Tests/Fixtures/`.
