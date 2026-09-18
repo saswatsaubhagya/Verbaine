@@ -30,26 +30,26 @@ Execute in order. Each task is one Claude Code session or prompt; commit at the 
 - Log `contextSize` and `tokenCount(for:)` for a sample string in debug.
 - Done when: a debug menu item sends "Fix grammar: I has a apple" and prints the corrected text to the console in under 3 s on M1.
 
-**T0.3 Selection capture via Accessibility** — ✅ done (`afe39e3`; build + test pass, manual Notes/Mail checklist in `docs/TESTING.md` still to run)
+**T0.3 Selection capture via Accessibility** — ✅ done (`afe39e3`; build + test pass, manual checklist passed 2026-09-18)
 
 - Add `AccessibilityPermission` helper: check `AXIsProcessTrusted()`, open System Settings pane on request.
 - Implement `AXSelectionReader`: get focused element of frontmost app, read `kAXSelectedTextAttribute`, `kAXSelectedTextRangeAttribute`, and bounds via `kAXBoundsForRangeParameterizedAttribute`.
 - Return a `Selection` struct: `text`, `bounds: CGRect?`, `appBundleID`, `elementRef`.
 - Done when: with Mail or Notes frontmost and text selected, a debug menu item logs the selected text and bounds.
 
-**T0.4 Selection capture via clipboard fallback** — ✅ done (`95e8c4c`; build + test pass, manual Slack/Chrome checklist in `docs/TESTING.md` still to run)
+**T0.4 Selection capture via clipboard fallback** — ✅ done (`95e8c4c`; build + test pass, manual checklist passed 2026-09-18)
 
 - Implement `ClipboardSelectionReader`: snapshot `NSPasteboard.general` (all types), post ⌘C via `CGEvent`, wait up to 300 ms polling `changeCount`, read string, restore snapshot.
 - Implement `SelectionCapture` facade: try AX; if text is empty or app bundle id is in `electronFallbackList` (Slack, Discord, VS Code, Chrome, Arc, Figma), use clipboard method.
 - Done when: with Slack desktop frontmost and text selected, debug menu logs the selected text; user's original clipboard is intact afterwards.
 
-**T0.5 Paste-based write-back** — ✅ done (`bb1b2ad`; build + test pass, manual Slack/Mail/Notes checklist in `docs/TESTING.md` still to run)
+**T0.5 Paste-based write-back** — ✅ done (`bb1b2ad`; build + test pass, manual checklist passed 2026-09-18)
 
 - Implement `WriteBackService.replace(selection:with:)`: snapshot clipboard, set result string with a transient marker type (`org.nspasteboard.TransientType`), activate source app by bundle id, post ⌘V via `CGEvent`, restore clipboard after 300 ms.
 - Guard: before pasting, re-read frontmost app bundle id and focused element; abort with `.focusChanged` error if either differs from capture time.
 - Done when: select text in Slack → debug menu "Improve selection" → text replaced in Slack; ⌘Z in Slack restores the original.
 
-**T0.6 Spike report**
+**T0.6 Spike report** — ✅ done (`PENDING`)
 
 - Write `docs/SPIKE.md`: measured latency per action on the test Mac, token counts for 5 sample messages, which apps worked with AX vs clipboard, any failures.
 - Done when: file committed and each of T0.2–T0.5 has a pass/fail line.
