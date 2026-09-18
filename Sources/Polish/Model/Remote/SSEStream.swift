@@ -37,11 +37,13 @@ enum SSEStream {
 
         // Checked before the `Chunk` decode: an error frame has no `choices` array at all, so it
         // would otherwise fall through and be misread as `.ignore` — an empty answer rendered as
-        // a quiet success. `object["error"] is [String: Any]`, not `!= nil`: several gateways send
-        // `"error": null` alongside perfectly valid choices on every frame, and `null` decodes to
-        // `NSNull`, which is non-nil — a bare presence check would abort a healthy stream.
+        // a quiet success. `error` can be any JSON shape a provider chooses — an object, a plain
+        // string, an array — so this only rules out the one shape that is not an error: an
+        // explicit JSON `null`, which decodes to `NSNull` and would otherwise satisfy a bare
+        // `!= nil` check and abort a healthy stream that just happens to carry `"error": null`
+        // on every frame.
         if let object = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-           object["error"] is [String: Any] {
+           let errorValue = object["error"], !(errorValue is NSNull) {
             return .error(RemoteError.classify(body: payload))
         }
 

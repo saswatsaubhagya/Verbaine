@@ -32,6 +32,14 @@ func mapsUnknown400() {
     #expect(RemoteError.from(status: 400, body: "{}") == .serverError)
 }
 
+@Test("a 3xx — the redirect guard refusing a cross-host redirect — points at Settings, not an endless retry", arguments: [
+    300, 301, 302, 307, 308,
+])
+func mapsRedirectStatus(status: Int) {
+    #expect(RemoteError.from(status: status, body: "") == .unexpectedRedirect)
+    #expect(UserFacingError(RemoteError.unexpectedRedirect).remedy == .modelSettings)
+}
+
 @Test("every remote failure reaches the user as a sentence and one thing to do", arguments: [
     RemoteError.notConfigured,
     .unauthorized,

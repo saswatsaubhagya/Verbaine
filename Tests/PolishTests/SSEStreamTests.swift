@@ -149,3 +149,32 @@ func inBandQuotaErrorIsUnauthorized() {
     }
     #expect(UserFacingError(remoteError).remedy == .modelSettings)
 }
+
+// MARK: - F7: an "error" field is not always an object
+
+@Test("a string-valued error field is still read as a failure, not as noise")
+func readsStringValuedErrorField() {
+    let line = #"data: {"error":"insufficient_quota"}"#
+    #expect(SSEStream.event(from: line) == .error(.unauthorized))
+}
+
+@Test("an array-valued error field is still read as a failure, not as noise")
+func readsArrayValuedErrorField() {
+    let line = #"data: {"error":["insufficient_quota"]}"#
+    guard case .error = SSEStream.event(from: line) else {
+        Issue.record("expected an .error event")
+        return
+    }
+}
+
+@Test("content already streamed before a string-valued error still surfaces the error, not a quiet partial success")
+func stringValuedErrorAfterContentStillThrows() async throws {
+    let lines = StubLines(lines: [
+        #"data: {"choices":[{"delta":{"content":"Fix "}}]}"#,
+        #"data: {"error":"insufficient_quota"}"#,
+    ])
+
+    await #expect(throws: RemoteError.self) {
+        for try await _ in SSEStream.snapshots(lines: lines) {}
+    }
+}

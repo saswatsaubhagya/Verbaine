@@ -17,6 +17,11 @@ enum RemoteError: Error, Equatable {
     case contextLengthExceeded
     /// A 200 whose body was not a chat completion.
     case malformedResponse
+    /// The endpoint tried to redirect this request somewhere else. `OpenAICompatibleProvider`
+    /// refuses every such redirect outright — following it could hand the API key and the
+    /// request body (the user's selected text) to whatever host it points at — so this is what
+    /// the refused redirect's own 3xx response reads as.
+    case unexpectedRedirect
 
     /// `body` is the raw response text. It is matched case-insensitively and never shown to the
     /// user or logged — some providers echo request content back inside error messages.
@@ -30,6 +35,8 @@ enum RemoteError: Error, Equatable {
             return .rateLimited
         case 400:
             return classify(body: body)
+        case 300...399:
+            return .unexpectedRedirect
         default:
             return .serverError
         }

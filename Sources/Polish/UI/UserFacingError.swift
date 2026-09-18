@@ -166,6 +166,12 @@ struct UserFacingError: Error, Equatable {
                 message: "Your endpoint sent a reply Polish could not read.",
                 remedy: .retry
             )
+        case .unexpectedRedirect:
+            self.init(
+                message: "Your endpoint tried to redirect this request to a different address, "
+                    + "which Polish refused for safety. Check the base URL in Settings.",
+                remedy: .modelSettings
+            )
         }
     }
 
