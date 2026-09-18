@@ -15,6 +15,30 @@ struct DebugMenu: View {
             Button("Fix grammar sample (T0.2)") {
                 Task { await Self.runGrammarSample() }
             }
+            Button("Read AX selection (T0.3)") {
+                Self.logAXSelection()
+            }
+        }
+    }
+
+    @MainActor
+    private static func logAXSelection() {
+        guard AccessibilityPermission.isTrusted else {
+            log.error("not trusted; opening Settings")
+            AccessibilityPermission.requestTrust()
+            AccessibilityPermission.openSettingsPane()
+            return
+        }
+
+        do {
+            let selection = try AXSelectionReader.read()
+            log.debug("""
+                app=\(selection.appBundleID ?? "nil") \
+                bounds=\(selection.bounds.map(NSStringFromRect) ?? "nil") \
+                text=\(selection.text)
+                """)
+        } catch {
+            log.error("AX capture failed: \(String(describing: error))")
         }
     }
 

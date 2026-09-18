@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Status
 
-T0.1 and T0.2 done: menu-bar app scaffolded, `ModelService` talks to the on-device model (measured 0.93 s for a 5-token grammar fix). Next task is T0.3 in `docs/TASKS.md`.
+T0.1–T0.3 done: menu-bar app scaffolded, `ModelService` talks to the on-device model (measured 0.93 s for a 5-token grammar fix), `AXSelectionReader` reads the frontmost app's selection and bounds. Next task is T0.4 in `docs/TASKS.md`.
 
 ## Product
 
