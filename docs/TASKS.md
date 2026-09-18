@@ -174,7 +174,7 @@ Execute in order. Each task is one Claude Code session or prompt; commit at the 
 **T3.8 OpenAI-compatible provider** — ✅ done (`c27639e`; build + test pass) — `OpenAICompatibleProvider`, `SSEStream`, `RemoteError` mapping, `ContextRetry` extension.
 - Done when: a real key streams a rewrite into the popover, and a wrong key, wrong model and offline machine each produce their own message.
 
-**T3.9 Remote visibility and entitlement** — menu-bar symbol, popover badge, network entitlement, privacy manifest, PRD amendment.
+**T3.9 Remote visibility and entitlement** — ✅ done (`f5fc11a`; build + test pass, 172 tests) — menu-bar symbol, popover badge, network entitlement, privacy manifest, PRD amendment.
 - Done when: the icon and badge change with the setting, and `codesign -d --entitlements - ` on the built app shows `network.client`.
 
 **T3.5 Store readiness**
