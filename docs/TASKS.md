@@ -121,7 +121,7 @@ Execute in order. Each task is one Claude Code session or prompt; commit at the 
 - Unit tests with long fixtures in `Tests/Fixtures/`.
 - Done when: tests pass, no chunk exceeds budget.
 
-**T2.2 Paragraph-by-paragraph rewrite**
+**T2.2 Paragraph-by-paragraph rewrite** — ✅ done (`9e9190e`; build + test pass, 78 tests; 3,000-word manual run in `docs/TESTING.md` still to do on device)
 
 - For rewrite actions over budget: run one fresh session per paragraph sequentially, preserve blank-line structure, stitch in order.
 - Progress indicator "Part 3 of 8" in popover; Cancel button cancels the `Task`.
