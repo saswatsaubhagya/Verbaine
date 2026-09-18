@@ -148,3 +148,26 @@ Watch the log with `log stream --predicate 'subsystem == "com.saswat.polish"' --
 - [ ] **Back** returns to the previous step with its live status intact.
 - [ ] **Finish** closes the window; ⌃⌥P then opens the popover over a selection.
 - [ ] Quit and relaunch: onboarding does not appear again.
+
+## T1.8 — Settings window
+
+Open with the menu-bar item → **Settings…** (⌘,).
+
+- [ ] Three tabs: General, Apps, About; the window is a fixed size and does not clip any tab.
+- [ ] General shows the current shortcut as symbols (⌃⌥P on a fresh install) and **Reset** is disabled.
+- [ ] Click the shortcut button: it reads "Press keys…"; press ⇧⌘K → the button shows ⇧⌘K and ⇧⌘K now opens the popover over a selection while ⌃⌥P no longer does.
+- [ ] While recording, the pressed key does not also type into the window or trigger its menu item.
+- [ ] Press a bare letter with no ⌃/⌥/⌘: recording ends and the shortcut is unchanged.
+- [ ] Press Esc while recording: recording ends and the shortcut is unchanged.
+- [ ] Record a combination another app owns (e.g. ⌘Space): "Another app already uses that shortcut." appears and the previous shortcut still fires.
+- [ ] **Reset** returns to ⌃⌥P and ⌃⌥P fires again.
+- [ ] Set "Summarize as" to Paragraph, then summarize a selection: the result is prose, not "- " bullets. Switch back to Bullet points: bullets again.
+- [ ] Toggle **Launch Polish at login** on; check System Settings → General → Login Items shows Polish; toggle off and it disappears. (Needs the app in /Applications; if it fails, the toggle snaps back and shows the reason.)
+- [ ] Apps tab lists the six default bundle IDs.
+- [ ] **Add…** → pick an app: its bundle ID appears once. Adding the same app twice leaves one entry.
+- [ ] Select an entry → **Remove**: it disappears and **Remove** disables again.
+- [ ] Remove `com.tinyspeck.slackmacgap`, then press the hotkey over a Slack selection: capture now fails with "Select some text first" (AX path), proving the list is live. Re-add it and capture works again.
+- [ ] **Reset** on the Apps tab restores the six defaults.
+- [ ] About shows the name, version and build, and says nothing leaves the Mac.
+- [ ] About → **Show onboarding again** opens the onboarding window.
+- [ ] **Persistence:** change the shortcut, summary style and the app list, quit Polish, relaunch → all three come back as set, and the new shortcut fires without opening Settings first.

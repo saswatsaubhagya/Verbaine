@@ -20,11 +20,22 @@ enum Prompts {
         Return only the rewritten text, with no preamble.
         """
 
-    static let summarize = """
-        Summarize the user's text as three short bullet points, each starting with "- ". \
-        Use only what the text states; add nothing. \
-        Return only the bullets, with no preamble.
-        """
+    static func summarize(_ style: SummaryStyle) -> String {
+        switch style {
+        case .bullets:
+            """
+            Summarize the user's text as three short bullet points, each starting with "- ". \
+            Use only what the text states; add nothing. \
+            Return only the bullets, with no preamble.
+            """
+        case .paragraph:
+            """
+            Summarize the user's text as one short paragraph of at most three sentences. \
+            Use only what the text states; add nothing. \
+            Return only the summary, with no preamble.
+            """
+        }
+    }
 
     static let shorten = """
         Rewrite the user's text about 40% shorter. \
@@ -46,11 +57,13 @@ enum Prompts {
         """
     }
 
-    static func instructions(for action: Action) -> String {
+    /// `summaryStyle` defaults to the stored preference so callers that only have an `Action`
+    /// (the popover, `TokenBudget`) need not thread it through.
+    static func instructions(for action: Action, summaryStyle: SummaryStyle = Preferences.summaryStyle()) -> String {
         switch action {
         case .fixGrammar: fixGrammar
         case .improve: improve
-        case .summarize: summarize
+        case .summarize: summarize(summaryStyle)
         case .shorten: shorten
         case .changeTone(let tone): changeTone(tone)
         case .expand: expand
@@ -59,7 +72,12 @@ enum Prompts {
 
     /// Every instruction the app can send, for the token-budget test.
     static var all: [String] {
-        Action.grid.map(instructions(for:)) + Tone.allCases.map(changeTone)
+        // De-duplicated: whichever summary style is stored also comes back through `Action.grid`.
+        Array(Set(
+            Action.grid.map { instructions(for: $0) }
+                + Tone.allCases.map(changeTone)
+                + SummaryStyle.allCases.map(summarize)
+        ))
     }
 
     private static func toneClause(_ tone: Tone) -> String {

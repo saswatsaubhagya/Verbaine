@@ -102,7 +102,7 @@ Execute in order. Each task is one Claude Code session or prompt; commit at the 
 - First-launch window: 3 steps — what Polish does; enable Apple Intelligence (with availability status live); grant Accessibility (with Test button that reads current selection).
 - Done when: fresh install on a clean user account completes onboarding and hotkey works.
 
-**T1.8 Settings window**
+**T1.8 Settings window** — ✅ done (`PENDING`; build + test pass, 56 tests; manual checklist in `docs/TESTING.md`)
 
 - Tabs: General (hotkey, launch at login via `SMAppService`, summary style bullets/paragraph), Apps (Electron fallback list, editable), About.
 - Done when: settings persist across relaunch.

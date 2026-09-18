@@ -4,23 +4,11 @@ import os
 /// The one entry point for "what has the user selected right now".
 ///
 /// Accessibility first — read-only, gives bounds, leaves the clipboard alone. The ⌘C fallback
-/// runs when AX cannot work: apps on `electronFallbackList` (known not to implement
+/// runs when AX cannot work: apps on `Preferences.fallbackApps` (known not to implement
 /// `kAXSelectedTextAttribute`), and any app that answers with nothing.
 @MainActor
 enum SelectionCapture {
     private static let log = Logger(subsystem: "com.saswat.polish", category: "SelectionCapture")
-
-    /// Apps whose selections only come back via ⌘C. Electron and Chromium shells expose an AX
-    /// tree but not the selected-text attribute, so AX would report `emptySelection` forever.
-    /// T1.8 makes this list editable in Settings; hard-coded is enough for the spike.
-    static let electronFallbackList: Set<String> = [
-        "com.tinyspeck.slackmacgap",   // Slack
-        "com.hnc.Discord",             // Discord
-        "com.microsoft.VSCode",        // VS Code
-        "com.google.Chrome",
-        "company.thebrowser.Browser",  // Arc
-        "com.figma.Desktop",
-    ]
 
     /// Reads the current selection, choosing the capture path per app.
     static func capture() async throws(CaptureError) -> Selection {
@@ -42,8 +30,9 @@ enum SelectionCapture {
     }
 
     /// Whether this app is known to need the ⌘C path. Pure, so T0.4's only unit test covers it.
-    static func prefersClipboard(bundleID: String?) -> Bool {
+    /// The list comes from the Apps tab in Settings.
+    static func prefersClipboard(bundleID: String?, fallbackApps: [String] = Preferences.fallbackApps()) -> Bool {
         guard let bundleID else { return false }
-        return electronFallbackList.contains(bundleID)
+        return fallbackApps.contains(bundleID)
     }
 }
