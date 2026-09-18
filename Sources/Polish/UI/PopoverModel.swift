@@ -20,6 +20,8 @@ final class PopoverModel {
     private(set) var phase: Phase = .actions
     private(set) var output = ""
     private(set) var action: Action?
+    /// "Part 3 of 8" while a long rewrite runs, `nil` for a single-pass action.
+    private(set) var progress: ParagraphRewriter.Progress?
     /// Dismisses the popover: Esc, Copy, or a failure the user closes.
     var onClose: () -> Void = {}
     /// Dismisses the popover and hands over to the undo toast (T1.5).
@@ -47,14 +49,16 @@ final class PopoverModel {
             return
         }
         phase = .running
+        progress = nil
 
         generation = Task { [selection] in
             do {
-                for try await snapshot in await ModelService.shared.stream(
-                    instructions: action.instructions,
-                    prompt: selection.text
-                ) {
-                    output = snapshot
+                // Non-rewrites over budget still go single-pass until T2.3 lands map-reduce.
+                if try await TokenBudget().fitsInOnePass(action: action, text: selection.text)
+                    || !action.isRewrite {
+                    try await streamSinglePass(action, text: selection.text)
+                } else {
+                    try await streamByParagraph(action, text: selection.text)
                 }
                 guard !Task.isCancelled else { return }
                 phase = .result
@@ -63,6 +67,27 @@ final class PopoverModel {
             } catch {
                 Self.log.error("generation failed: \(String(describing: error))")
                 phase = .failed(UserFacingError(error))
+            }
+        }
+    }
+
+    /// Short input: one call, streamed token by token.
+    private func streamSinglePass(_ action: Action, text: String) async throws {
+        for try await snapshot in await ModelService.shared.stream(
+            instructions: action.instructions,
+            prompt: text
+        ) {
+            output = snapshot
+        }
+    }
+
+    /// Long input: one call per paragraph, the result growing a paragraph at a time. Only rewrites
+    /// take this path — summaries are map-reduce (T2.3).
+    private func streamByParagraph(_ action: Action, text: String) async throws {
+        try await ParagraphRewriter().run(text, action: action) { step in
+            await MainActor.run {
+                self.progress = step
+                self.output = step.text
             }
         }
     }
@@ -105,5 +130,7 @@ final class PopoverModel {
     func cancel() {
         generation?.cancel()
         generation = nil
+        progress = nil
+        phase = .actions
     }
 }

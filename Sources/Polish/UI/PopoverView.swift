@@ -117,8 +117,17 @@ struct PopoverView: View {
         HStack {
             if case .running = model.phase {
                 ProgressView().controlSize(.small)
+                if let progress = model.progress {
+                    Text("Part \(progress.part) of \(progress.total)")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .monospacedDigit()
+                }
             }
             Spacer()
+            if isRunning {
+                Button("Cancel") { model.cancel() }
+            }
             Button("Retry") { model.retry() }
                 .disabled(model.action == nil)
             Button("Copy") { model.copy() }

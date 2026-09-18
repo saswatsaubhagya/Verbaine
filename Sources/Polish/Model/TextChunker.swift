@@ -12,7 +12,7 @@ import NaturalLanguage
 /// Splits never fall mid-sentence, with one exception: a single sentence larger than the whole
 /// budget is broken on word boundaries, because the alternative is a chunk the model would reject.
 struct TextChunker: Sendable {
-    private let counter: any TokenCounting
+    let counter: any TokenCounting
 
     init(counter: any TokenCounting) {
         self.counter = counter

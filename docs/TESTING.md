@@ -203,3 +203,14 @@ For each app: select one sentence with a deliberate typo, press ⌃⌥P, run **F
 
 - [ ] `scripts/release.sh testflight` uploads without validation errors (no missing icon size, no disallowed entitlement, unique build number).
 - [ ] The build appears in App Store Connect → TestFlight, finishes processing, and is installable by an external tester on a clean Apple Silicon Mac with Apple Intelligence on.
+
+## T2.2 Long rewrites — manual
+
+Needs the real model: the unit tests stub it, so paragraph fidelity over a long document is only provable on device. Use a 3,000-word document (the one in `Tests/Fixtures/long-document.txt`, repeated until it is that long, pasted into Notes).
+
+- [ ] Select the whole document, ⌃⌥P, **Fix grammar** — the footer shows a spinner and "Part 1 of N", counting up to N.
+- [ ] The result pane grows a paragraph at a time rather than appearing all at once at the end.
+- [ ] The finished result has the same number of paragraphs as the original, in the same order, separated by single blank lines — no paragraph merged, dropped or duplicated.
+- [ ] **Cancel** part-way through stops the run within one part and returns to the action grid; nothing is written back.
+- [ ] **Replace** writes the whole stitched result, and ⌘Z in Notes undoes it in one step.
+- [ ] A short selection still streams token by token with no "Part" label — the single-pass path is unchanged.
