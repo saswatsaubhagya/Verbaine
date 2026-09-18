@@ -144,7 +144,7 @@ Execute in order. Each task is one Claude Code session or prompt; commit at the 
 
 ## Phase 3 — Launch
 
-**T3.1 Custom actions** — ✅ done (`PENDING`; build + test pass, 110 tests; manual checklist in `docs/TESTING.md`)
+**T3.1 Custom actions** — ✅ done (`64eff68`; build + test pass, 110 tests; manual checklist in `docs/TESTING.md`)
 
 - Settings → Custom Actions: name, instruction text (validated ≤ 300 tokens), default button (Replace/Copy), optional hotkey.
 - Custom actions appear in the popover grid after built-ins.
