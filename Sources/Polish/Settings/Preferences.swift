@@ -1,3 +1,4 @@
+import Carbon.HIToolbox
 import Foundation
 
 /// The shape `Summarize` should return. Raw values persist in `UserDefaults`.
@@ -117,5 +118,45 @@ extension Preferences {
     static func setCustomActions(_ actions: [CustomAction], _ defaults: UserDefaults = .standard) {
         guard let data = try? JSONEncoder().encode(actions) else { return }
         defaults.set(data, forKey: customActionsKey)
+    }
+}
+
+// MARK: Per-action hotkeys
+
+extension Preferences {
+    static let actionHotkeysKey = "actions.hotkeys"
+
+    /// Built-in actions that ship with a shortcut. Fix grammar is the PRD's example
+    /// ("⌃⌥G = fix grammar and replace immediately"), so it is bound out of the box.
+    static let builtInActionHotkeys: [String: Hotkey] = [
+        Action.fixGrammar.id: Hotkey(keyCode: UInt32(kVK_ANSI_G), modifiers: UInt32(controlKey | optionKey)),
+    ]
+
+    /// `Action.id` → the shortcut that runs it silently. Custom actions keep theirs in
+    /// `CustomAction.hotkey`; this map is for the built-in grid only.
+    ///
+    /// An empty stored map is a real choice (the user cleared every shortcut), so only a missing
+    /// key falls back to the built-ins — same rule as the fallback-app and tone maps above.
+    static func actionHotkeys(_ defaults: UserDefaults = .standard) -> [String: Hotkey] {
+        guard let data = defaults.data(forKey: actionHotkeysKey),
+              let stored = try? JSONDecoder().decode([String: Hotkey].self, from: data)
+        else { return builtInActionHotkeys }
+        return stored
+    }
+
+    static func setActionHotkeys(_ hotkeys: [String: Hotkey], _ defaults: UserDefaults = .standard) {
+        guard let data = try? JSONEncoder().encode(hotkeys) else { return }
+        defaults.set(data, forKey: actionHotkeysKey)
+    }
+
+    /// Every action with a shortcut: the built-in grid first, then the user's own.
+    static func hotkeyedActions(_ defaults: UserDefaults = .standard) -> [(action: Action, hotkey: Hotkey)] {
+        let builtIn = actionHotkeys(defaults).compactMap { id, hotkey in
+            Action(id: id).map { (action: $0, hotkey: hotkey) }
+        }
+        let custom = customActions(defaults).compactMap { action in
+            action.hotkey.map { (action: Action.custom(action), hotkey: $0) }
+        }
+        return builtIn.sorted { $0.action.id < $1.action.id } + custom
     }
 }

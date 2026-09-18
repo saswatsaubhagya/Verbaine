@@ -24,6 +24,11 @@ struct SizeEstimate: Sendable, Equatable {
         return action == .fixGrammar || action == .summarize
     }
 
+    /// Whether a per-action shortcut (T3.2) may run this action and replace without showing the
+    /// popover. A multi-part run takes long enough that the user should see progress and be able
+    /// to cancel it, and an action this selection is too long for must not run at all.
+    func allowsSilentRun(_ action: Action) -> Bool { !isLong && isEnabled(action) }
+
     var label: String {
         let count = "~\(tokens.formatted()) tokens"
         return isLong ? "\(count) · Long text — processing in \(parts) parts" : count

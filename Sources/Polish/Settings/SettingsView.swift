@@ -227,6 +227,10 @@ private struct CustomActionsSettings: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
+            BuiltInActionHotkeys()
+
+            Divider()
+
             Text("Your own actions appear in the popover after the built-in ones.")
                 .font(.caption)
                 .foregroundStyle(.secondary)
@@ -313,7 +317,7 @@ private struct CustomActionsSettings: View {
     private func save(_ updated: [CustomAction]) {
         Preferences.setCustomActions(updated)
         actions = Preferences.customActions()
-        AppDelegate.registerCustomActionHotkeys()
+        AppDelegate.registerActionHotkeys()
 
         guard let edited = updated.first(where: { $0.id == selection }) else {
             error = nil
@@ -323,5 +327,38 @@ private struct CustomActionsSettings: View {
             let tokens = await CustomAction.tokenCount(of: edited.instruction)
             error = CustomAction.validationError(name: edited.name, instruction: edited.instruction, tokens: tokens)
         }
+    }
+}
+
+/// Settings → Actions: a shortcut per built-in action (T3.2). Firing one runs the action and
+/// replaces the selection with no popover, so this list is what turns a built-in into a one-key
+/// operation.
+private struct BuiltInActionHotkeys: View {
+    @State private var hotkeys = Preferences.actionHotkeys()
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("A shortcut runs its action straight away and replaces the selection — no popover unless something goes wrong or the text is too long for one pass.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+
+            ForEach(Action.grid) { action in
+                LabeledContent(action.title) {
+                    HotkeyRecorder(hotkey: binding(for: action), reset: nil, register: { _ in true })
+                }
+            }
+        }
+    }
+
+    private func binding(for action: Action) -> Binding<Hotkey?> {
+        Binding(
+            get: { hotkeys[action.id] },
+            set: { hotkey in
+                hotkeys[action.id] = hotkey
+                Preferences.setActionHotkeys(hotkeys)
+                AppDelegate.registerActionHotkeys()
+            }
+        )
     }
 }

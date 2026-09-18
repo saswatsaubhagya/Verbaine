@@ -122,22 +122,31 @@ final class PopoverModel {
         }
     }
 
+    /// Waits for the task `run` started. The silent hotkey path (T3.2) has no view observing
+    /// `phase`, so it awaits this and then reads the outcome.
+    func wait() async {
+        await generation?.value
+    }
+
     func retry() {
         guard let action else { return }
         run(action)
     }
 
     func replace() {
+        Task { await replaceAndWait() }
+    }
+
+    /// The body of `replace`, awaitable for the silent hotkey path.
+    func replaceAndWait() async {
         let text = output
-        Task {
-            do {
-                try await WriteBackService.replace(selection: selection, with: text)
-                UndoBuffer.shared.record(original: selection.text, result: text, selection: selection)
-                onReplaced()
-            } catch {
-                Self.log.error("replace failed: \(String(describing: error))")
-                phase = .failed(UserFacingError(error))
-            }
+        do {
+            try await WriteBackService.replace(selection: selection, with: text)
+            UndoBuffer.shared.record(original: selection.text, result: text, selection: selection)
+            onReplaced()
+        } catch {
+            Self.log.error("replace failed: \(String(describing: error))")
+            phase = .failed(UserFacingError(error))
         }
     }
 

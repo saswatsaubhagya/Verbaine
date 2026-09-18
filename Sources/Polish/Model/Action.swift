@@ -37,6 +37,14 @@ enum Action: Hashable, Sendable, Identifiable {
         }
     }
 
+    /// Rebuilds a built-in action from the `id` a shortcut was stored under. Custom actions are
+    /// not reachable this way — they are looked up in `Preferences.customActions()` by UUID.
+    init?(id: String) {
+        guard let match = (Self.grid + Tone.allCases.map(Action.changeTone)).first(where: { $0.id == id })
+        else { return nil }
+        self = match
+    }
+
     var title: String {
         switch self {
         case .fixGrammar: "Fix grammar"

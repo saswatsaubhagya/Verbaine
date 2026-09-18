@@ -253,7 +253,25 @@ what only the running app proves is the Settings editor, the grid and the global
 - [ ] Select text in Notes, ⌃⌥P — "Rewrite as release note" appears in the grid after **Expand**; running it returns a release note.
 - [ ] With that action's result on screen, ⏎ copies (the action's default button) rather than replacing; **Replace** still works from the mouse.
 - [ ] Quit and relaunch Polish: the action is still there, with its shortcut.
-- [ ] Select text in Slack and press ⌃⌥R — the popover opens with the action already running, no grid step. (T3.1 done-when.)
+- [ ] Select text in Slack and press ⌃⌥R — the action runs and replaces with no popover, the toast confirms it. (T3.1 done-when, silent since T3.2.)
 - [ ] Give a second custom action a different shortcut; both fire their own action. Give one a shortcut already owned by another app — Settings says the combination is taken and the old one is kept.
 - [ ] **Remove** deletes the action; its shortcut stops firing without a relaunch.
 - [ ] A 15,000-token selection greys out the custom action along with Improve/Shorten/Tone/Expand.
+
+## T3.2 Per-action hotkeys and silent mode — manual
+
+The store, the id round-trip and the silent-run gate are unit-tested (`PreferencesTests`,
+`SizeEstimateTests`); what only the running app proves is the shortcut firing end to end with no
+window on screen.
+
+- [ ] Settings → **Actions** — the built-in actions are listed above the custom ones, **Fix grammar** already showing "⌃⌥G".
+- [ ] Select a sentence with a typo in Slack and press ⌃⌥G — no popover appears at any point, the selection is replaced with the corrected text, and the "Replaced · Undo" toast shows. (T3.2 done-when.)
+- [ ] ⌘Z (or the toast's **Undo**) puts the original sentence back in one step.
+- [ ] Record ⌃⌥I for **Improve** and ⌃⌥K for **Summarize**; both fire silently on a short selection. **Clear** on **Fix grammar** stops ⌃⌥G firing without a relaunch.
+- [ ] Record a combination another app owns — Settings says it is taken and keeps the previous one.
+- [ ] Select several long paragraphs (the 3,000-word document from T2.2) and press ⌃⌥G — the popover *does* open, running in parts, because the selection needs more than one pass.
+- [ ] Select 15,000 tokens and press ⌃⌥I — the popover opens instead of replacing; Improve is not offered at that length.
+- [ ] Turn Apple Intelligence off and press ⌃⌥G — the popover opens with the "turn Apple Intelligence on" message instead of replacing silently.
+- [ ] With nothing selected, ⌃⌥G shows the empty-capture message rather than doing nothing.
+- [ ] Click away to another app between pressing ⌃⌥G and the replace landing — the focus-changed message appears and nothing is pasted into the wrong app.
+- [ ] Quit and relaunch: the recorded shortcuts still fire.

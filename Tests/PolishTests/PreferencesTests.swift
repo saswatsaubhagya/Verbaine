@@ -117,3 +117,45 @@ func hotkeyRequiresAModifier() {
     #expect(!Hotkey(keyCode: UInt32(kVK_ANSI_K), modifiers: UInt32(shiftKey)).hasRequiredModifier)
     #expect(!Hotkey(keyCode: UInt32(kVK_ANSI_K), modifiers: 0).hasRequiredModifier)
 }
+
+@Test("built-in action hotkeys start at the defaults, then round-trip")
+func actionHotkeysPersist() {
+    let defaults = scratchDefaults()
+    #expect(Preferences.actionHotkeys(defaults) == Preferences.builtInActionHotkeys)
+    #expect(Preferences.actionHotkeys(defaults)[Action.fixGrammar.id]?.displayString == "⌃⌥G")
+
+    let custom = Hotkey(keyCode: UInt32(kVK_ANSI_K), modifiers: UInt32(controlKey | optionKey))
+    Preferences.setActionHotkeys([Action.improve.id: custom], defaults)
+    #expect(Preferences.actionHotkeys(defaults) == [Action.improve.id: custom])
+}
+
+@Test("clearing every action hotkey stays cleared instead of reverting")
+func actionHotkeysStayCleared() {
+    let defaults = scratchDefaults()
+    Preferences.setActionHotkeys([:], defaults)
+    #expect(Preferences.actionHotkeys(defaults).isEmpty)
+    #expect(Preferences.hotkeyedActions(defaults).isEmpty)
+}
+
+@Test("hotkeyed actions cover the built-in grid and the user's own")
+func hotkeyedActionsCombineBothLists() {
+    let defaults = scratchDefaults()
+    let custom = CustomAction(
+        name: "Release note",
+        instruction: "Rewrite as a release note.",
+        hotkey: Hotkey(keyCode: UInt32(kVK_ANSI_R), modifiers: UInt32(controlKey | optionKey))
+    )
+    Preferences.setCustomActions([custom, CustomAction(name: "No shortcut", instruction: "x")], defaults)
+
+    let entries = Preferences.hotkeyedActions(defaults)
+    #expect(entries.map(\.action) == [.fixGrammar, .custom(custom)])
+    #expect(entries.last?.hotkey == custom.hotkey)
+}
+
+@Test("a stored id maps back to its built-in action, and custom ids do not")
+func actionsRebuildFromID() {
+    #expect(Action(id: Action.fixGrammar.id) == .fixGrammar)
+    #expect(Action(id: Action.changeTone(.friendly).id) == .changeTone(.friendly))
+    #expect(Action(id: "custom.\(UUID().uuidString)") == nil)
+    #expect(Action(id: "haiku") == nil)
+}

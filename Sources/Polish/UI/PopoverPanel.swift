@@ -15,15 +15,48 @@ enum PopoverController {
     static func show(selection: Selection, run action: Action? = nil) {
         close()
 
+        let model = model(for: selection)
+        if let action { model.run(action) }
+        present(model, near: selection)
+    }
+
+    /// A per-action shortcut (T3.2): run the action and replace the selection with no popover at
+    /// all, then let the undo toast confirm it. The popover only appears when the run cannot be
+    /// silent — the selection is over budget, generation failed, or the paste-back did.
+    static func runSilently(selection: Selection, action: Action) async {
+        close()
+
+        let model = model(for: selection)
+        await model.loadEstimate()
+        guard model.estimate?.allowsSilentRun(action) ?? true else {
+            model.run(action)
+            present(model, near: selection)
+            return
+        }
+
+        model.run(action)
+        await model.wait()
+        guard case .result = model.phase else {
+            present(model, near: selection)
+            return
+        }
+
+        await model.replaceAndWait()
+        // `onReplaced` showed the toast; anything else is a write-back failure worth a pane.
+        if case .failed = model.phase { present(model, near: selection) }
+    }
+
+    private static func model(for selection: Selection) -> PopoverModel {
         let model = PopoverModel(selection: selection)
         model.onClose = { close() }
         model.onReplaced = {
             close()
             UndoToast.show(near: selection)
         }
+        return model
+    }
 
-        if let action { model.run(action) }
-
+    private static func present(_ model: PopoverModel, near selection: Selection) {
         present(PopoverView(model: model), near: selection, fallbackSize: NSSize(width: 460, height: 320))
     }
 

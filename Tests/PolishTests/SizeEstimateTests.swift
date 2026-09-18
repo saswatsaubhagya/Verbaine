@@ -42,3 +42,18 @@ struct SizeEstimateTests {
         #expect(estimate.warning != nil)
     }
 }
+
+@Test("a shortcut only runs silently for a single-pass selection it is offered for")
+func silentRunNeedsOnePass() {
+    let short = SizeEstimate.make(tokens: 200, paragraphs: 3, singlePassLimit: 3_000)
+    #expect(short.allowsSilentRun(.fixGrammar))
+    #expect(short.allowsSilentRun(.improve))
+
+    // Multi-part: the user should see progress and be able to cancel.
+    let long = SizeEstimate.make(tokens: 8_000, paragraphs: 12, singlePassLimit: 3_000)
+    #expect(!long.allowsSilentRun(.fixGrammar))
+
+    // Past 12,000 tokens Improve is not offered at all, silently or otherwise.
+    let veryLong = SizeEstimate.make(tokens: 20_000, paragraphs: 40, singlePassLimit: 3_000)
+    #expect(!veryLong.allowsSilentRun(.improve))
+}
