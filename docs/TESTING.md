@@ -171,3 +171,35 @@ Open with the menu-bar item → **Settings…** (⌘,).
 - [ ] About shows the name, version and build, and says nothing leaves the Mac.
 - [ ] About → **Show onboarding again** opens the onboarding window.
 - [ ] **Persistence:** change the shortcut, summary style and the app list, quit Polish, relaunch → all three come back as set, and the new shortcut fires without opening Settings first.
+
+## T1.9 — Release build
+
+Build with `scripts/release.sh direct` (Developer ID) or `scripts/release.sh testflight`, then run the
+exported app from `/Applications`, not from DerivedData — sandbox and notarization only bite there.
+
+**Artefacts**
+
+- [ ] The app icon is the paper-and-sparkle mark in Finder, the Dock's ⌘Tab-less app list, and About; at 16 pt in a Get Info panel it still reads as two lines plus a sparkle.
+- [ ] `plutil -p Polish.app/Contents/Info.plist` shows `LSUIElement`, `LSApplicationCategoryType = public.app-category.productivity`, `CFBundleShortVersionString` and a `CFBundleVersion` equal to the commit count.
+- [ ] `Polish.app/Contents/Resources/PrivacyInfo.xcprivacy` is present and declares no tracking and no collected data.
+- [ ] `codesign -dv --entitlements - Polish.app` shows hardened runtime, the expected identity, and `com.apple.security.app-sandbox` on the Release build.
+- [ ] `spctl --assess --type execute --verbose Polish.app` says "accepted / Notarized Developer ID" (direct build).
+- [ ] Nothing in the bundle links a networking stack: `otool -L Polish.app/Contents/MacOS/Polish | grep -i -e network -e cfnetwork` is empty.
+- [ ] Little Snitch (or `nettop`) records zero outbound connections across a full session of the checks below.
+
+**Sandboxed hero flow** — the point of the TestFlight build is to prove Accessibility works from inside the sandbox. Grant Accessibility to the exported app first (System Settings → Privacy & Security → Accessibility).
+
+For each app: select one sentence with a deliberate typo, press ⌃⌥P, run **Fix grammar**, click **Replace**, then ⌘Z in the host app.
+
+- [ ] Notes (AX path) — capture, replace and the host app's own undo all work.
+- [ ] Mail, composing a new message (AX path) — same.
+- [ ] Safari, a textarea (AX path) — same.
+- [ ] Slack message box (clipboard path) — same, and the clipboard's previous contents still paste afterwards.
+- [ ] Chrome, a Google Docs or Gmail compose field (clipboard path) — same.
+- [ ] In each app: **Copy** puts the result on the clipboard and the selection is untouched.
+- [ ] If any capture fails with an AX error in the sandboxed build, record which app and stop — the sandbox blocks the hero flow and distribution has to move to notarized direct download (PRD "Sandbox").
+
+**Upload**
+
+- [ ] `scripts/release.sh testflight` uploads without validation errors (no missing icon size, no disallowed entitlement, unique build number).
+- [ ] The build appears in App Store Connect → TestFlight, finishes processing, and is installable by an external tester on a clean Apple Silicon Mac with Apple Intelligence on.
