@@ -97,7 +97,7 @@ Execute in order. Each task is one Claude Code session or prompt; commit at the 
 - Guardrail case offers "Copy original" only.
 - Done when: each error can be triggered in a debug menu and shows the right message.
 
-**T1.7 Onboarding** ✅
+**T1.7 Onboarding** — ✅ done (`3ca8eb0`; build + test pass, 48 tests; manual checklist in `docs/TESTING.md` still to run on a clean account)
 
 - First-launch window: 3 steps — what Polish does; enable Apple Intelligence (with availability status live); grant Accessibility (with Test button that reads current selection).
 - Done when: fresh install on a clean user account completes onboarding and hotkey works.
