@@ -178,10 +178,15 @@ Execute in order. Each task is one Claude Code session or prompt; commit at the 
 - Done when: the icon and badge change with the setting, and `codesign -d --entitlements - ` on the built app shows `network.client`.
 - Note: the app target's `CODE_SIGN_ENTITLEMENTS` must be set for the Debug configuration too, not just Release, or the `codesign` check above cannot be reproduced on a fresh clone.
 
-**T3.5 Store readiness**
+**T3.5 Direct-download release**
 
-- App Store screenshots script, listing copy in `docs/STORE.md` emphasizing on-device privacy and cross-app support, review notes explaining Accessibility use.
-- Done when: submitted for review.
+The App Store is not a route for this project: submission requires the paid Apple Developer Program, and Polish is signed ad-hoc. Ship it as a download instead.
+
+- Write `docs/RELEASE.md`: how to produce a Release build, zip it, and version it.
+- Landing copy emphasizing on-device-by-default privacy and cross-app support, and stating plainly that a custom endpoint sends text to that endpoint.
+- Install instructions covering the Gatekeeper warning (System Settings → Privacy & Security → Open Anyway) — the Control-click shortcut no longer works on macOS 26.
+- Note for users of a custom endpoint that an app update can prompt for Keychain access to the stored API key, because an ad-hoc signature changes with every build.
+- Done when: a zipped Release build installs and runs on a Mac that has never seen the project, following only the written instructions.
 
 ## Phase 4 — v1.x backlog (one task each, pick by usage data)
 

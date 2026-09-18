@@ -13,6 +13,11 @@ func mapsAvailability(framework: SystemLanguageModel.Availability, expected: Mod
 }
 
 @Test("context window is read from the model, never assumed to be 4096")
-func contextSizeIsPositive() {
+func contextSizeIsPositive() async throws {
+    guard ModelService.shared.availability == .ready else { return }
+
+    // See `appleProviderReportsContextSize`: a cold model reports 0 until a first call wakes it,
+    // which made this test fail on the first run after boot and pass on the retry.
+    _ = try? await ModelService.shared.tokenCount(for: "warm")
     #expect(ModelService.shared.contextSize > 0)
 }

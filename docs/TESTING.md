@@ -302,3 +302,10 @@ window on screen.
 - [ ] Kill the endpoint process part-way through a streaming answer: the popover shows the "closed the connection before it finished answering" message rather than committing the fragment.
 - [ ] Settings → Model: type `128` in Context size and tab out — the field snaps to 851, and the caption under it says so.
 - [ ] With that floored value, Summarize still runs normally instead of producing a blank result.
+
+## Unsigned distribution (ad-hoc signing)
+
+- [ ] A zipped Release build, copied to a Mac that has never seen the project, is blocked on first launch and opens after System Settings → Privacy & Security → **Open Anyway**.
+- [ ] With a custom endpoint configured and its API key saved, quitting and relaunching the *same* build keeps the key — Settings → Model still shows it filled in, and an action runs without re-entering it.
+- [ ] After replacing the app with a **newly built** copy, check whether the stored API key still works. An ad-hoc signature is tied to the exact build, so macOS may prompt for Keychain access or fail to read the key. Record which happens: a prompt the user can approve is acceptable, silently losing the key is not.
+- [ ] `codesign -dv Polish.app` reports `Signature=adhoc` and `TeamIdentifier=not set`, and `codesign -d --entitlements - Polish.app` still lists `com.apple.security.app-sandbox` and `com.apple.security.network.client`.
