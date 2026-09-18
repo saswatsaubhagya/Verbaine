@@ -6,6 +6,7 @@ struct ModelSettings: View {
     @State private var config = Preferences.remoteConfig()
     @State private var apiKey = ""
     @State private var test: TestState = .idle
+    @State private var keySaveError: String?
 
     /// Base URLs only. Every one of these speaks the same wire format, so a preset is a text
     /// prefill and nothing more — there is no per-provider code anywhere in the app.
@@ -38,6 +39,11 @@ struct ModelSettings: View {
                     }
                     TextField("Base URL", text: $config.baseURL, prompt: Text("https://api.openai.com/v1"))
                     SecureField("API key", text: $apiKey)
+                    if let keySaveError {
+                        Text(keySaveError)
+                            .font(.caption)
+                            .foregroundStyle(.red)
+                    }
                     TextField("Model", text: $config.model, prompt: Text("gpt-4o-mini"))
                     TextField("Context size", value: $config.contextSize, format: .number)
 
@@ -56,8 +62,9 @@ struct ModelSettings: View {
         .formStyle(.grouped)
         .padding()
         .onChange(of: config) { save() }
+        .onChange(of: config.host) { _, newHost in reloadKey(forHost: newHost) }
         .onChange(of: apiKey) { saveKey() }
-        .onAppear { apiKey = config.host.flatMap(APIKeyStore.load(forHost:)) ?? "" }
+        .onAppear { reloadKey(forHost: config.host) }
     }
 
     private var presetBinding: Binding<String> {
@@ -78,10 +85,38 @@ struct ModelSettings: View {
         test = .idle
     }
 
+    /// What the API-key field should show right after the endpoint's host changes: the new
+    /// host's own stored key, or empty when it has none. A pure lookup — factored out so the
+    /// host-scoping invariant (a key never follows the field to a different host) can be tested
+    /// without driving SwiftUI state.
+    static func apiKeyOnHostChange(to host: String?) -> String {
+        host.flatMap(APIKeyStore.load(forHost:)) ?? ""
+    }
+
+    /// Reloads `apiKey` for `host` synchronously, so the field can never carry the previous
+    /// host's key into a save under this one — the reload runs off `config.host` changing, before
+    /// the user's next keystroke can trigger `saveKey()`.
+    private func reloadKey(forHost host: String?) {
+        apiKey = Self.apiKeyOnHostChange(to: host)
+        keySaveError = nil
+    }
+
     private func saveKey() {
         guard let host = config.host else { return }
-        try? APIKeyStore.save(apiKey, forHost: host)
+        do {
+            try APIKeyStore.save(apiKey, forHost: host)
+            keySaveError = nil
+        } catch {
+            keySaveError = Self.keySaveErrorMessage(for: error)
+        }
         test = .idle
+    }
+
+    /// Maps a Keychain failure to the field's error line. The status code is safe to show; the
+    /// key itself never is, and never reaches this string.
+    static func keySaveErrorMessage(for error: any Error) -> String? {
+        guard case let APIKeyStore.StoreError.keychain(status) = error else { return nil }
+        return "Could not save the key (Keychain status \(status))."
     }
 
     private func runTest() {

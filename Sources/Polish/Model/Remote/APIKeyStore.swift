@@ -22,17 +22,27 @@ enum APIKeyStore {
         ]
     }
 
-    /// Replaces any key already stored for `host`.
+    /// Replaces any key already stored for `host` — but never by deleting first. Deleting before
+    /// adding would leave the host with no key at all if the add then failed, silently destroying
+    /// a key that previously worked. Instead this adds fresh, and only updates the existing item
+    /// in place once the Keychain reports one is already there.
     static func save(_ key: String, forHost host: String) throws {
-        try delete(forHost: host)
-        guard !key.isEmpty else { return }
+        guard !key.isEmpty else {
+            try delete(forHost: host)
+            return
+        }
 
-        var attributes = query(forHost: host)
-        attributes[kSecValueData as String] = Data(key.utf8)
-        attributes[kSecAttrAccessible as String] = kSecAttrAccessibleWhenUnlockedThisDeviceOnly
+        let base = query(forHost: host)
+        var addAttributes = base
+        addAttributes[kSecValueData as String] = Data(key.utf8)
+        addAttributes[kSecAttrAccessible as String] = kSecAttrAccessibleWhenUnlockedThisDeviceOnly
 
-        let status = SecItemAdd(attributes as CFDictionary, nil)
-        guard status == errSecSuccess else { throw StoreError.keychain(status) }
+        let addStatus = SecItemAdd(addAttributes as CFDictionary, nil)
+        if addStatus == errSecSuccess { return }
+        guard addStatus == errSecDuplicateItem else { throw StoreError.keychain(addStatus) }
+
+        let updateStatus = SecItemUpdate(base as CFDictionary, [kSecValueData as String: Data(key.utf8)] as CFDictionary)
+        guard updateStatus == errSecSuccess else { throw StoreError.keychain(updateStatus) }
     }
 
     /// `nil` for "no key stored" and for any Keychain failure alike: every caller's next move is
@@ -49,7 +59,8 @@ enum APIKeyStore {
         return String(data: data, encoding: .utf8)
     }
 
-    /// Deleting a key that is not there succeeds — `save` relies on that to overwrite.
+    /// Deleting a key that is not there succeeds — `save` relies on that for the empty-key
+    /// ("clear this host's key") case; overwriting an existing key no longer goes through delete.
     static func delete(forHost host: String) throws {
         let status = SecItemDelete(query(forHost: host) as CFDictionary)
         guard status == errSecSuccess || status == errSecItemNotFound else {
