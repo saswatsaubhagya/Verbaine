@@ -46,6 +46,10 @@ struct ModelSettings: View {
                     }
                     TextField("Model", text: $config.model, prompt: Text("gpt-4o-mini"))
                     TextField("Context size", value: $config.contextSize, format: .number)
+                    Text("In tokens, at least \(TokenBudget.minimumViableContextSize). "
+                        + "A 128k window is 128000, not 128.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
 
                     HStack {
                         Button("Test connection") { runTest() }
@@ -81,6 +85,9 @@ struct ModelSettings: View {
     }
 
     private func save() {
+        // Floored here as well as in `Preferences`, so the field shows the value that was
+        // actually stored rather than the unusable one that was typed.
+        config.contextSize = max(TokenBudget.minimumViableContextSize, config.contextSize)
         Preferences.setRemoteConfig(config, .standard)
         test = .idle
     }

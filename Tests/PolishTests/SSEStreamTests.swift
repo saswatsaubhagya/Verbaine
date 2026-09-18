@@ -55,14 +55,114 @@ func snapshotsAccumulate() async throws {
     #expect(received == ["Fix ", "Fix the ", "Fix the grammar."])
 }
 
-@Test("a stream that ends without [DONE] still finishes with everything it received")
-func snapshotsSurviveMissingTerminator() async throws {
-    let lines = StubLines(lines: [#"data: {"choices":[{"delta":{"content":"Half"}}]}"#])
+// MARK: - M1: finish_reason "length" is a truncated answer, not a finished one
+
+@Test("a finish_reason of length is read as a truncation, not as content or noise")
+func readsLengthFinishReason() {
+    let line = #"data: {"choices":[{"delta":{},"finish_reason":"length"}]}"#
+    #expect(SSEStream.event(from: line) == .finish(content: nil, truncated: true))
+}
+
+@Test("a last delta that arrives on the same frame as finish_reason length is still a truncation")
+func readsLengthFinishReasonCarryingContent() {
+    let line = #"data: {"choices":[{"delta":{"content":"cut"},"finish_reason":"length"}]}"#
+    #expect(SSEStream.event(from: line) == .finish(content: "cut", truncated: true))
+}
+
+@Test("a finish_reason of stop is a clean end, not a truncation")
+func readsStopFinishReason() {
+    let line = #"data: {"choices":[{"delta":{},"finish_reason":"stop"}]}"#
+    #expect(SSEStream.event(from: line) == .finish(content: nil, truncated: false))
+}
+
+@Test("a null finish_reason on an ordinary content frame changes nothing")
+func nullFinishReasonIsOrdinaryContent() {
+    let line = #"data: {"choices":[{"delta":{"content":"Hello"},"finish_reason":null}]}"#
+    #expect(SSEStream.event(from: line) == .content("Hello"))
+}
+
+@Test("an answer capped at the endpoint's output limit throws instead of being presented as whole")
+func lengthCappedAnswerThrows() async throws {
+    let lines = StubLines(lines: [
+        #"data: {"choices":[{"delta":{"content":"The first half of the "}}]}"#,
+        #"data: {"choices":[{"delta":{},"finish_reason":"length"}]}"#,
+        "data: [DONE]",
+    ])
+
+    await #expect(throws: RemoteError.answerTruncated) {
+        for try await _ in SSEStream.snapshots(lines: lines) {}
+    }
+}
+
+@Test("the truncation message names the output limit and sends the user to Settings")
+func truncationIsItsOwnUserFacingError() {
+    let error = UserFacingError(RemoteError.answerTruncated)
+    #expect(error.remedy == .modelSettings)
+    #expect(error.message.lowercased().contains("cut off"))
+    #expect(error != UserFacingError(RemoteError.malformedResponse))
+    #expect(error != UserFacingError(RemoteError.contextLengthExceeded))
+}
+
+@Test("a stream that terminates with finish_reason stop and no [DONE] is a clean success")
+func finishReasonStopWithoutDoneIsSuccess() async throws {
+    let lines = StubLines(lines: [
+        #"data: {"choices":[{"delta":{"content":"Whole answer."}}]}"#,
+        #"data: {"choices":[{"delta":{},"finish_reason":"stop"}]}"#,
+    ])
 
     var received: [String] = []
     for try await snapshot in SSEStream.snapshots(lines: lines) { received.append(snapshot) }
 
+    #expect(received == ["Whole answer."])
+}
+
+@Test("a last delta riding along with finish_reason stop is kept, not dropped")
+func finalContentOnStopFrameIsKept() async throws {
+    let lines = StubLines(lines: [
+        #"data: {"choices":[{"delta":{"content":"Whole "}}]}"#,
+        #"data: {"choices":[{"delta":{"content":"answer."},"finish_reason":"stop"}]}"#,
+    ])
+
+    var received: [String] = []
+    for try await snapshot in SSEStream.snapshots(lines: lines) { received.append(snapshot) }
+
+    #expect(received.last == "Whole answer.")
+}
+
+// MARK: - M2: a stream that just stops is a failure, not a success
+
+@Test("a connection that closes mid-answer throws rather than reporting the fragment as whole")
+func missingTerminatorThrows() async throws {
+    let lines = StubLines(lines: [#"data: {"choices":[{"delta":{"content":"Half"}}]}"#])
+
+    await #expect(throws: RemoteError.incompleteStream) {
+        for try await _ in SSEStream.snapshots(lines: lines) {}
+    }
+}
+
+@Test("an entirely empty stream is a failure too")
+func emptyStreamThrows() async throws {
+    await #expect(throws: RemoteError.incompleteStream) {
+        for try await _ in SSEStream.snapshots(lines: StubLines(lines: [])) {}
+    }
+}
+
+@Test("the fragment streamed before the connection dropped is still yielded before the throw")
+func fragmentIsYieldedBeforeIncompleteStreamThrows() async throws {
+    let lines = StubLines(lines: [#"data: {"choices":[{"delta":{"content":"Half"}}]}"#])
+
+    var received: [String] = []
+    await #expect(throws: RemoteError.incompleteStream) {
+        for try await snapshot in SSEStream.snapshots(lines: lines) { received.append(snapshot) }
+    }
     #expect(received == ["Half"])
+}
+
+@Test("an incomplete stream gets its own message, distinct from an unreadable reply")
+func incompleteStreamIsItsOwnUserFacingError() {
+    let error = UserFacingError(RemoteError.incompleteStream)
+    #expect(error.remedy == .retry)
+    #expect(error != UserFacingError(RemoteError.malformedResponse))
 }
 
 // MARK: - F1: an in-band error at HTTP 200

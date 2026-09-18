@@ -81,6 +81,13 @@ final class PopoverModel {
                     try await streamByParagraph(action, text: selection.text)
                 }
                 guard !Task.isCancelled else { return }
+                // A run that produced nothing is a failure, not a result. Left as `.result` the
+                // user can press Replace on it and paste emptiness over their own selection —
+                // reachable whenever the chunkers get a window too small to carve a part out of.
+                guard !output.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+                    phase = .failed(.emptyResult)
+                    return
+                }
                 phase = .result
             } catch is CancellationError {
                 return
@@ -140,6 +147,12 @@ final class PopoverModel {
     /// The body of `replace`, awaitable for the silent hotkey path.
     func replaceAndWait() async {
         let text = output
+        // The last line of defence for the same thing `run` guards: never overwrite the user's
+        // selection with nothing.
+        guard !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            phase = .failed(.emptyResult)
+            return
+        }
         do {
             try await WriteBackService.replace(selection: selection, with: text)
             UndoBuffer.shared.record(original: selection.text, result: text, selection: selection)

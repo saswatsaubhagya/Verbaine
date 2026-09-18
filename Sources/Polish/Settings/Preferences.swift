@@ -183,13 +183,20 @@ extension Preferences {
         RemoteConfig(
             baseURL: defaults.string(forKey: remoteBaseURLKey) ?? "",
             model: defaults.string(forKey: remoteModelKey) ?? "",
-            contextSize: defaults.object(forKey: remoteContextSizeKey) as? Int ?? RemoteConfig.defaultContextSize
+            contextSize: (defaults.object(forKey: remoteContextSizeKey) as? Int)
+                .map { max(TokenBudget.minimumViableContextSize, $0) }
+                ?? RemoteConfig.defaultContextSize
         )
     }
 
     static func setRemoteConfig(_ config: RemoteConfig, _ defaults: UserDefaults = .standard) {
         defaults.set(config.baseURL.trimmingCharacters(in: .whitespaces), forKey: remoteBaseURLKey)
         defaults.set(config.model.trimmingCharacters(in: .whitespaces), forKey: remoteModelKey)
-        defaults.set(max(1, config.contextSize), forKey: remoteContextSizeKey)
+        // Floored, not just made positive: a window under this leaves the chunkers no room at
+        // all and every action comes back empty. See `TokenBudget.minimumViableContextSize`.
+        defaults.set(
+            max(TokenBudget.minimumViableContextSize, config.contextSize),
+            forKey: remoteContextSizeKey
+        )
     }
 }

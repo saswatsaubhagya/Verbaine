@@ -17,6 +17,14 @@ enum RemoteError: Error, Equatable {
     case contextLengthExceeded
     /// A 200 whose body was not a chat completion.
     case malformedResponse
+    /// The endpoint reported `finish_reason: "length"` — it stopped at its own output cap, so the
+    /// text it sent is an incomplete answer. Distinct from `contextLengthExceeded`, which is the
+    /// *input* not fitting: this one is a cap on what comes back, and the endpoint reports it as
+    /// a success.
+    case answerTruncated
+    /// The stream ended without `[DONE]` and without a `finish_reason` — the connection closed
+    /// part-way through the answer. Whatever arrived is a fragment.
+    case incompleteStream
     /// The endpoint tried to redirect this request somewhere else. `OpenAICompatibleProvider`
     /// refuses every such redirect outright — following it could hand the API key and the
     /// request body (the user's selected text) to whatever host it points at — so this is what

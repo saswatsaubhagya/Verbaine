@@ -62,6 +62,12 @@ struct ParagraphRewriter: Sendable {
             done.append(rewritten.trimmingCharacters(in: .whitespacesAndNewlines))
             await onPart(Progress(part: index + 1, total: parts.count, text: done.joined(separator: "\n\n")))
         }
-        return done.joined(separator: "\n\n")
+        let result = done.joined(separator: "\n\n")
+        // No parts (a window too small to carve one out of) or nothing but whitespace back: an
+        // empty rewrite must not reach the popover as a result the user can press Replace on.
+        guard !result.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            throw UserFacingError.emptyResult
+        }
+        return result
     }
 }

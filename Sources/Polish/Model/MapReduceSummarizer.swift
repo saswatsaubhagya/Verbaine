@@ -49,7 +49,9 @@ struct MapReduceSummarizer: Sendable {
         onPart: @Sendable (Progress) async -> Void
     ) async throws -> String {
         let chunks = try await parts(of: text)
-        guard !chunks.isEmpty else { return "" }
+        // No chunks means the window leaves no room to summarize in at all. Returning "" here
+        // would show as a finished, empty summary the user could paste over their selection.
+        guard !chunks.isEmpty else { throw UserFacingError.emptyResult }
         let total = chunks.count + 1  // the map pass, plus the final reduce.
 
         // Map: one summary per chunk, each told what came before.
@@ -82,6 +84,9 @@ struct MapReduceSummarizer: Sendable {
         let result = try await ContextRetry.run(combined) {
             try await generator.respond(instructions: action.instructions, prompt: $0)
         }.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !result.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            throw UserFacingError.emptyResult
+        }
         await onPart(Progress(part: total, total: total, text: result))
         return result
     }

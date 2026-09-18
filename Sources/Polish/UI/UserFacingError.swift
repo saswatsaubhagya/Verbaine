@@ -166,6 +166,18 @@ struct UserFacingError: Error, Equatable {
                 message: "Your endpoint sent a reply Polish could not read.",
                 remedy: .retry
             )
+        case .answerTruncated:
+            self.init(
+                message: "Your endpoint stopped at its own output limit, so this answer is "
+                    + "cut off. Raise that limit for your endpoint, or select less text.",
+                remedy: .modelSettings
+            )
+        case .incompleteStream:
+            self.init(
+                message: "Your endpoint closed the connection before it finished answering, so "
+                    + "nothing here is complete.",
+                remedy: .retry
+            )
         case .unexpectedRedirect:
             self.init(
                 message: "Your endpoint tried to redirect this request to a different address, "
@@ -237,6 +249,12 @@ struct UserFacingError: Error, Equatable {
     )
     private static let unsupportedLanguage = UserFacingError(
         message: "The on-device model does not handle this language yet.",
+        remedy: .copyOriginal
+    )
+    /// M3: a generation that came back with nothing at all. Showing it as a result would let the
+    /// user press Replace and paste emptiness over their own selection.
+    static let emptyResult = UserFacingError(
+        message: "The model returned nothing for this selection, so there is nothing to paste.",
         remedy: .copyOriginal
     )
     private static let confused = UserFacingError(

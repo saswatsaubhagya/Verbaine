@@ -8,6 +8,10 @@ import Foundation
 enum SSEStream {
     enum Event: Equatable {
         case content(String)
+        /// The endpoint ended the answer itself, via `finish_reason`. `content` is any text that
+        /// rode along on the same frame. `truncated` is `finish_reason: "length"` — the answer was
+        /// cut off at an output cap the endpoint imposed, and is therefore incomplete.
+        case finish(content: String?, truncated: Bool)
         case done
         /// An in-band failure the endpoint reports inside a `data:` frame at HTTP 200 — OpenRouter,
         /// Groq and Together all do this. Classified the same way a real HTTP body is, by
@@ -24,6 +28,14 @@ enum SSEStream {
         struct Choice: Decodable {
             struct Delta: Decodable { let content: String? }
             let delta: Delta?
+            /// `"stop"`, `"length"`, `"content_filter"`, a tool-call reason, or absent on every
+            /// frame but the last. `"length"` is the one that means the answer is incomplete.
+            let finishReason: String?
+
+            enum CodingKeys: String, CodingKey {
+                case delta
+                case finishReason = "finish_reason"
+            }
         }
         let choices: [Choice]
     }
@@ -48,9 +60,21 @@ enum SSEStream {
         }
 
         guard let chunk = try? JSONDecoder().decode(Chunk.self, from: data),
-              let content = chunk.choices.first?.delta?.content,
-              !content.isEmpty
+              let choice = chunk.choices.first
         else { return .ignore }
+
+        let content = choice.delta?.content.flatMap { $0.isEmpty ? nil : $0 }
+
+        // Checked before the content: a frame can carry both the last delta and the reason the
+        // answer stopped, and `"length"` means the endpoint hit its own output cap. Presenting
+        // that text as a finished result is exactly the silent truncation the project forbids —
+        // the word-level diff would render the missing tail as a deletion and Replace would paste
+        // the cut-off text over the user's paragraph.
+        if let reason = choice.finishReason, !reason.isEmpty {
+            return .finish(content: content, truncated: reason.lowercased() == "length")
+        }
+
+        guard let content else { return .ignore }
         return .content(content)
     }
 
@@ -63,11 +87,25 @@ enum SSEStream {
             let task = Task {
                 do {
                     var answer = ""
+                    // Whether the endpoint ever said the answer was complete — a `[DONE]`
+                    // sentinel or a `finish_reason` that is not `"length"`. Until one of those
+                    // arrives, whatever has streamed so far is a fragment, not an answer.
+                    var completed = false
                     for try await line in lines {
                         switch event(from: line) {
                         case .content(let delta):
                             answer += delta
                             continuation.yield(answer)
+                        case .finish(let content, let truncated):
+                            guard !truncated else {
+                                continuation.finish(throwing: RemoteError.answerTruncated)
+                                return
+                            }
+                            if let content {
+                                answer += content
+                                continuation.yield(answer)
+                            }
+                            completed = true
                         case .done:
                             continuation.finish()
                             return
@@ -79,6 +117,13 @@ enum SSEStream {
                         case .ignore:
                             continue
                         }
+                    }
+                    // EOF with no terminator: the server closed the connection part-way through
+                    // the answer. Finishing quietly here would report a fragment as the whole
+                    // thing, so only an endpoint that actually said it was done finishes clean.
+                    guard completed else {
+                        continuation.finish(throwing: RemoteError.incompleteStream)
+                        return
                     }
                     continuation.finish()
                 } catch {

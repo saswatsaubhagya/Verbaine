@@ -15,6 +15,24 @@ struct TokenBudget: Sendable {
     /// A rewrite can come back longer than the input — expansion, politeness padding, tone changes.
     static let rewriteOutputRatio = 1.3
 
+    /// The smallest declared context window in which every path still has room to do its work.
+    ///
+    /// Derived from the arithmetic above rather than picked: the tightest path is a chunked
+    /// summary, whose per-chunk budget is
+    /// `contextSize − instructions − wrapper − margin − condensingOutputReserve − carry`, and
+    /// that has to come out at one token or more. With the worst-case instruction
+    /// (`Prompts.maxInstructionTokens`, the ceiling `PromptsTests` enforces) that is
+    /// `120 + 30 + 150 + 400 + 150 + 1 = 851`.
+    ///
+    /// Below this, `ParagraphRewriter.parts` and `MapReduceSummarizer.parts` return no parts at
+    /// all and the run produces the empty string — which, before this floor, was committed as a
+    /// result and could be pasted over the user's selection. Reachable only because the remote
+    /// provider's window is typed by hand in Settings: entering `128` meaning 128k gives a
+    /// per-chunk budget of zero.
+    static let minimumViableContextSize =
+        Prompts.maxInstructionTokens + wrapperTokens + margin
+            + condensingOutputReserve + MapReduceSummarizer.carryTokens + 1
+
     let contextSize: Int
     private let counter: any TokenCounting
 
