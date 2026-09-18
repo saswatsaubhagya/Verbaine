@@ -13,7 +13,7 @@ Execute in order. Each task is one Claude Code session or prompt; commit at the 
 
 ## Phase 0 — Spike (prove the risky parts first)
 
-**T0.1 Project scaffold**
+**T0.1 Project scaffold** — ✅ done (`1ab6464`)
 
 - Create an Xcode project `Polish`, macOS app, SwiftUI lifecycle, bundle id `com.saswat.polish`.
 - Set `LSUIElement = YES` (menu bar only, no Dock icon).
@@ -22,7 +22,7 @@ Execute in order. Each task is one Claude Code session or prompt; commit at the 
 - Add `.gitignore`, `README.md`, `docs/TESTING.md`.
 - Done when: app launches, icon appears in menu bar, Quit works.
 
-**T0.2 Foundation Models hello world**
+**T0.2 Foundation Models hello world** — ✅ done (`cb186ff`, 0.93 s for the sample)
 
 - Add `ModelService` actor wrapping `SystemLanguageModel.default`.
 - Implement `availability` check that maps every `SystemLanguageModel.Availability` case to a user-facing enum (`ready`, `intelligenceDisabled`, `modelDownloading`, `unsupportedDevice`).
@@ -30,7 +30,7 @@ Execute in order. Each task is one Claude Code session or prompt; commit at the 
 - Log `contextSize` and `tokenCount(for:)` for a sample string in debug.
 - Done when: a debug menu item sends "Fix grammar: I has a apple" and prints the corrected text to the console in under 3 s on M1.
 
-**T0.3 Selection capture via Accessibility**
+**T0.3 Selection capture via Accessibility** — ✅ done (`afe39e3`; build + test pass, manual Notes/Mail checklist in `docs/TESTING.md` still to run)
 
 - Add `AccessibilityPermission` helper: check `AXIsProcessTrusted()`, open System Settings pane on request.
 - Implement `AXSelectionReader`: get focused element of frontmost app, read `kAXSelectedTextAttribute`, `kAXSelectedTextRangeAttribute`, and bounds via `kAXBoundsForRangeParameterizedAttribute`.
