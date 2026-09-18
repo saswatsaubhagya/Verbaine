@@ -14,8 +14,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     static func trigger() async {
         do {
             let selection = try await SelectionCapture.capture()
-            // ponytail: T1.4 opens the action popover here; logging proves the pipeline until then.
             log.debug("captured \(selection.text.count) chars from \(selection.appBundleID ?? "unknown")")
+            PopoverController.show(selection: selection)
         } catch {
             log.error("capture failed: \(String(describing: error))")
         }

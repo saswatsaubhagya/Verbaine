@@ -43,6 +43,26 @@ actor ModelService {
         return response.content
     }
 
+    /// Streams one action's answer. Each element is the whole answer so far, not a delta —
+    /// `ResponseStream` emits cumulative snapshots, and the result pane rebinds the whole string
+    /// anyway. Cancelling the iteration cancels the generation.
+    func stream(instructions: String, prompt: String) -> AsyncThrowingStream<String, any Error> {
+        AsyncThrowingStream { continuation in
+            let task = Task {
+                do {
+                    let session = LanguageModelSession(model: model, instructions: instructions)
+                    for try await snapshot in session.streamResponse(to: prompt) {
+                        continuation.yield(snapshot.content)
+                    }
+                    continuation.finish()
+                } catch {
+                    continuation.finish(throwing: error)
+                }
+            }
+            continuation.onTermination = { _ in task.cancel() }
+        }
+    }
+
     /// Logs the context window and what a sample string costs against it. Debug builds only.
     func logBudget(for sample: String) async {
         do {

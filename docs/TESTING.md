@@ -79,3 +79,22 @@ Watch the log with `log stream --predicate 'subsystem == "com.saswat.polish"' --
 - [ ] Typing ⌃⌥P inside a text field does not insert a character in the host app (the hotkey swallows it).
 - [ ] Menu bar → "Improve selection" does the same as the hotkey.
 - [ ] Quit and relaunch: ⌃⌥P still works (the default is read from `UserDefaults` each launch).
+
+## T1.4 — Action popover UI
+
+Needs Accessibility permission and Apple Intelligence enabled. Run the built app.
+Watch the log with `log stream --predicate 'subsystem == "com.saswat.polish"' --level debug`.
+
+- [ ] Select text in Notes, press ⌃⌥P: the popover appears just below the selection, showing the selected text and a 6-button action grid.
+- [ ] Notes stays frontmost (its title bar stays active) and the selection stays highlighted while the popover is open.
+- [ ] "Change tone" opens a sub-menu listing Professional, Friendly, Direct, Apologetic.
+- [ ] Clicking "Improve" switches to the two-pane view, shows a spinner, and the right pane fills in as the model streams.
+- [ ] When streaming ends, changed words are highlighted: removals struck through in red on the left, insertions in green on the right.
+- [ ] ⏎ (Replace) replaces the text in Notes and closes the popover; ⌘Z in Notes restores the original.
+- [ ] ⌘C copies the result, closes the popover, and ⌘V in any app pastes the rewrite.
+- [ ] "Retry" re-runs the same action and the result pane refills.
+- [ ] Esc closes the popover and changes nothing in Notes.
+- [ ] Trigger the popover again while one is open: only one popover is on screen.
+- [ ] Select text in an app that reports no bounds (or in Slack, clipboard path): the popover appears at the mouse location instead.
+- [ ] Select text near the bottom-right corner of the screen: the whole popover stays on screen.
+- [ ] Click into a different app while the model is running, then press ⏎: the log shows `focusChanged`, nothing is pasted, and the error text appears in the popover.
