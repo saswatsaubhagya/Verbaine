@@ -113,3 +113,20 @@ Watch the log with `log stream --predicate 'subsystem == "com.saswat.polish"' --
 - [ ] Replace twice in a row: only one toast is on screen, and Undo takes back the second replace.
 - [ ] Click into a different app, then click Undo: the log shows `undo failed: focusChanged` and nothing changes.
 - [ ] Leave the toast to expire, then press ⌘Z in Mail itself: the host app's own undo still restores the original.
+
+## T1.6 — Error handling
+
+Run the built debug app. Every message below is reachable from the menu-bar **Debug → Errors (T1.6)**
+submenu, which throws the real error type through the same mapping the live failures use.
+
+- [ ] Each entry under Debug → Errors opens one panel with one sentence and at most one action button.
+- [ ] "Capture: not trusted" and both write-back permission entries offer **Open Settings**, which opens Privacy & Security → Accessibility.
+- [ ] "Model off: Intelligence disabled" offers **Open Settings**, which opens the Apple Intelligence pane.
+- [ ] "Capture: empty selection" / "no focused element" offer **Close** only — no Retry.
+- [ ] "Model: guardrail violation" (and the macOS 27 twin) offers **Copy original** and nothing else.
+- [ ] "Model: context exceeded" says the selection is too long and offers **Retry** — no silently truncated result.
+- [ ] "Unknown error" shows the generic sentence, not `The operation couldn’t be completed`.
+- [ ] Esc and **Close** both dismiss the error panel and change nothing.
+- [ ] Live path: turn Apple Intelligence off in System Settings, select text, ⌃⌥P → pick an action: the popover shows the "Turn on Apple Intelligence" message instead of a framework error.
+- [ ] Live path: press ⌃⌥P with nothing selected: the "Select some text first" panel appears at the mouse.
+- [ ] Live path: start a rewrite, click into another app, press ⏎: the popover shows the "cursor moved" message with **Copy result**, and clicking it puts the rewrite on the clipboard.

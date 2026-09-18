@@ -22,6 +22,42 @@ enum PopoverController {
             UndoToast.show(near: selection)
         }
 
+        present(PopoverView(model: model), near: selection, fallbackSize: NSSize(width: 460, height: 320))
+    }
+
+    /// Shows a failure that happened before there was a popover — capture, or an undo that could
+    /// not be pasted. Positioned at the mouse, because there is no selection to sit under.
+    static func show(error: UserFacingError, near selection: Selection? = nil) {
+        close()
+
+        let pane = ErrorPane(
+            error: error,
+            perform: { remedy in
+                switch remedy {
+                case .accessibilitySettings:
+                    AccessibilityPermission.openSettingsPane()
+                case .intelligenceSettings:
+                    SettingsPane.openAppleIntelligence()
+                case .retry, .copyOriginal, .copyResult, .dismiss:
+                    // Nothing to retry or copy out here: the action never started, or the text
+                    // it would hand back is already where the user left it.
+                    break
+                }
+                close()
+            },
+            onClose: close
+        )
+        .padding(14)
+        .frame(width: 360)
+
+        present(pane, near: selection, fallbackSize: NSSize(width: 360, height: 120))
+    }
+
+    private static func present(
+        _ content: some View,
+        near selection: Selection?,
+        fallbackSize: NSSize
+    ) {
         let panel = PopoverPanel(
             contentRect: .zero,
             styleMask: [.nonactivatingPanel, .titled, .fullSizeContentView, .closable],
@@ -35,8 +71,8 @@ enum PopoverController {
         panel.hidesOnDeactivate = false
         panel.isMovableByWindowBackground = true
         panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
-        panel.contentView = NSHostingView(rootView: PopoverView(model: model))
-        panel.setContentSize(panel.contentView?.fittingSize ?? NSSize(width: 460, height: 320))
+        panel.contentView = NSHostingView(rootView: content)
+        panel.setContentSize(panel.contentView?.fittingSize ?? fallbackSize)
         panel.setFrameTopLeftPoint(topLeft(for: selection, size: panel.frame.size))
         panel.makeKeyAndOrderFront(nil)
 
@@ -51,8 +87,8 @@ enum PopoverController {
     /// Top-left corner for a panel: just below the selection, or the mouse when the app does not
     /// report bounds. AX rects use a top-left screen origin, AppKit a bottom-left one.
     /// Shared with the undo toast, which appears where the popover was.
-    static func topLeft(for selection: Selection, size: NSSize) -> NSPoint {
-        guard let bounds = selection.bounds, let primary = NSScreen.screens.first else {
+    static func topLeft(for selection: Selection?, size: NSSize) -> NSPoint {
+        guard let bounds = selection?.bounds, let primary = NSScreen.screens.first else {
             let mouse = NSEvent.mouseLocation
             return NSPoint(x: mouse.x, y: mouse.y)
         }

@@ -18,6 +18,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             PopoverController.show(selection: selection)
         } catch {
             log.error("capture failed: \(String(describing: error))")
+            PopoverController.show(error: UserFacingError(error))
         }
     }
 }

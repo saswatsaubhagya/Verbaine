@@ -56,9 +56,8 @@ enum UndoToast {
             do {
                 try await UndoBuffer.shared.undo()
             } catch {
-                // ponytail: log only until T1.6 gives errors somewhere to go; the toast is gone
-                // by now and the user's text is untouched either way.
                 log.error("undo failed: \(String(describing: error))")
+                PopoverController.show(error: UserFacingError(error))
             }
         }
     }

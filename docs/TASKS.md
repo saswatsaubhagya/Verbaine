@@ -91,7 +91,7 @@ Execute in order. Each task is one Claude Code session or prompt; commit at the 
 - After Replace, show a small toast "Replaced · Undo" for 4 s; clicking it or pressing ⌘Z while popover focused runs write-back with the original.
 - Done when: Replace then Undo restores text in Slack and Mail.
 
-**T1.6 Error handling**
+**T1.6 Error handling** — ✅ done (`PENDING`; build + test pass, 43 tests)
 
 - Map `LanguageModelError.contextSizeExceeded`, `GenerationError.guardrailViolation`, model unavailable, focus changed, capture empty to specific user messages in `UserFacingError`.
 - Guardrail case offers "Copy original" only.

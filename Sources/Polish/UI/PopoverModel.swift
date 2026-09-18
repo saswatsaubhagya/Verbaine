@@ -11,7 +11,7 @@ final class PopoverModel {
         case actions
         case running
         case result
-        case failed(String)
+        case failed(UserFacingError)
     }
 
     private static let log = Logger(subsystem: "com.saswat.polish", category: "Popover")
@@ -39,6 +39,13 @@ final class PopoverModel {
         self.action = action
         generation?.cancel()
         output = ""
+
+        // Asking an unavailable model produces a framework error a sentence later; the
+        // availability check says the useful thing (turn Apple Intelligence on) instead.
+        if let unavailable = UserFacingError(ModelService.shared.availability) {
+            phase = .failed(unavailable)
+            return
+        }
         phase = .running
 
         generation = Task { [selection] in
@@ -54,9 +61,8 @@ final class PopoverModel {
             } catch is CancellationError {
                 return
             } catch {
-                // ponytail: raw message until T1.6 maps errors to UserFacingError.
                 Self.log.error("generation failed: \(String(describing: error))")
-                phase = .failed(error.localizedDescription)
+                phase = .failed(UserFacingError(error))
             }
         }
     }
@@ -75,15 +81,24 @@ final class PopoverModel {
                 onReplaced()
             } catch {
                 Self.log.error("replace failed: \(String(describing: error))")
-                phase = .failed(error.localizedDescription)
+                phase = .failed(UserFacingError(error))
             }
         }
     }
 
     func copy() {
+        copy(output)
+    }
+
+    /// The remedy for a model that declined: hand back what the user selected, unchanged.
+    func copyOriginal() {
+        copy(selection.text)
+    }
+
+    private func copy(_ text: String) {
         let pasteboard = NSPasteboard.general
         pasteboard.clearContents()
-        pasteboard.setString(output, forType: .string)
+        pasteboard.setString(text, forType: .string)
         onClose()
     }
 

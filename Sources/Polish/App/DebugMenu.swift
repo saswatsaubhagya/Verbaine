@@ -24,6 +24,20 @@ struct DebugMenu: View {
             Button("Improve selection (T0.5)") {
                 Task { await Self.improveSelection() }
             }
+            Menu("Errors (T1.6)") {
+                ForEach(DebugErrors.all, id: \.name) { sample in
+                    Button(sample.name) {
+                        PopoverController.show(error: UserFacingError(sample.error))
+                    }
+                }
+                Divider()
+                ForEach(DebugErrors.unavailable, id: \.name) { sample in
+                    Button(sample.name) {
+                        guard let error = UserFacingError(sample.availability) else { return }
+                        PopoverController.show(error: error)
+                    }
+                }
+            }
         }
     }
 

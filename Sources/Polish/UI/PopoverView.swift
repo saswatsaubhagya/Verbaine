@@ -12,17 +12,34 @@ struct PopoverView: View {
             case .running, .result:
                 resultPanes
                 footer
-            case .failed(let message):
-                Text(message)
-                    .font(.callout)
-                    .foregroundStyle(.red)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                footer
+            case .failed(let error):
+                ErrorPane(error: error, perform: apply, onClose: model.onClose)
             }
         }
         .padding(14)
         .frame(width: 460, height: 320, alignment: .topLeading)
         .onExitCommand { model.onClose() }
+    }
+
+    /// What each remedy means once there is a popover: retry the action, or fall back to the
+    /// clipboard. Settings remedies close the popover — the user has to leave anyway.
+    private func apply(_ remedy: UserFacingError.Remedy) {
+        switch remedy {
+        case .retry:
+            model.retry()
+        case .copyOriginal:
+            model.copyOriginal()
+        case .copyResult:
+            model.copy()
+        case .accessibilitySettings:
+            AccessibilityPermission.openSettingsPane()
+            model.onClose()
+        case .intelligenceSettings:
+            SettingsPane.openAppleIntelligence()
+            model.onClose()
+        case .dismiss:
+            model.onClose()
+        }
     }
 
     private var actionGrid: some View {
