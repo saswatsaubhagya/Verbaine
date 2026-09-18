@@ -5,6 +5,7 @@ macOS menu-bar app that rewrites or summarizes text selected in any app, fully o
 - Product spec: [docs/PRD.md](docs/PRD.md)
 - Build plan: [docs/TASKS.md](docs/TASKS.md)
 - Manual test checklists: [docs/TESTING.md](docs/TESTING.md)
+- UI design tokens and screens: [docs/DESIGN.md](docs/DESIGN.md)
 
 ## Requirements
 
