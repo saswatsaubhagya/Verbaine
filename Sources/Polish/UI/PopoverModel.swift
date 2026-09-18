@@ -20,8 +20,8 @@ final class PopoverModel {
     private(set) var phase: Phase = .actions
     private(set) var output = ""
     private(set) var action: Action?
-    /// "Part 3 of 8" while a long rewrite runs, `nil` for a single-pass action.
-    private(set) var progress: ParagraphRewriter.Progress?
+    /// "Part 3 of 8" while a long rewrite or summary runs, `nil` for a single-pass action.
+    private(set) var progress: PartProgress?
     /// Dismisses the popover: Esc, Copy, or a failure the user closes.
     var onClose: () -> Void = {}
     /// Dismisses the popover and hands over to the undo toast (T1.5).
@@ -53,10 +53,10 @@ final class PopoverModel {
 
         generation = Task { [selection] in
             do {
-                // Non-rewrites over budget still go single-pass until T2.3 lands map-reduce.
-                if try await TokenBudget().fitsInOnePass(action: action, text: selection.text)
-                    || !action.isRewrite {
+                if try await TokenBudget().fitsInOnePass(action: action, text: selection.text) {
                     try await streamSinglePass(action, text: selection.text)
+                } else if action == .summarize {
+                    try await runMapReduce(action, text: selection.text)
                 } else {
                     try await streamByParagraph(action, text: selection.text)
                 }
@@ -81,14 +81,24 @@ final class PopoverModel {
         }
     }
 
-    /// Long input: one call per paragraph, the result growing a paragraph at a time. Only rewrites
-    /// take this path — summaries are map-reduce (T2.3).
+    /// Long input: one call per paragraph, the result growing a paragraph at a time. Everything
+    /// but Summarize takes this path — Shorten included, because shortening paragraph by paragraph
+    /// keeps the facts a map-reduce would throw away.
     private func streamByParagraph(_ action: Action, text: String) async throws {
-        try await ParagraphRewriter().run(text, action: action) { step in
-            await MainActor.run {
-                self.progress = step
-                self.output = step.text
-            }
+        try await ParagraphRewriter().run(text, action: action, onPart: publish)
+    }
+
+    /// Long input, Summarize: a summary per chunk, then a summary of those. Intermediate summaries
+    /// show in the pane so the user sees movement; the last step replaces them with the answer.
+    private func runMapReduce(_ action: Action, text: String) async throws {
+        try await MapReduceSummarizer().run(text, action: action, onPart: publish)
+    }
+
+    @Sendable
+    private func publish(_ step: PartProgress) async {
+        await MainActor.run {
+            self.progress = step
+            self.output = step.text
         }
     }
 

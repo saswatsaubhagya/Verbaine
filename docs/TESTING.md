@@ -214,3 +214,14 @@ Needs the real model: the unit tests stub it, so paragraph fidelity over a long 
 - [ ] **Cancel** part-way through stops the run within one part and returns to the action grid; nothing is written back.
 - [ ] **Replace** writes the whole stitched result, and ⌘Z in Notes undoes it in one step.
 - [ ] A short selection still streams token by token with no "Part" label — the single-pass path is unchanged.
+
+## T2.3 Map-reduce summarize — manual
+
+Needs the real model: the unit tests stub it, so summary quality over a long thread is only provable on device. Use a 5,000-word thread (`Tests/Fixtures/chat-thread.txt`, repeated until it is that long, pasted into Notes).
+
+- [ ] Select the whole thread, ⌃⌥P, **Summarize** — the footer shows "Part 1 of N", counting up to N, with no context-size error at any point.
+- [ ] The final result is three bullets (or one short paragraph, per Settings → Summary style), not a wall of per-chunk summaries.
+- [ ] The summary mentions things from the start, middle and end of the thread — the carried-forward context is doing its job.
+- [ ] **Cancel** part-way through stops within one part and returns to the action grid.
+- [ ] **Copy** puts the summary on the clipboard; the original thread in Notes is untouched.
+- [ ] A short selection still streams token by token with no "Part" label — the single-pass path is unchanged.

@@ -16,11 +16,7 @@ extension ModelService: TextGenerating {}
 /// queue behind each other anyway while making progress reporting a lie.
 struct ParagraphRewriter: Sendable {
     /// Cumulative state after each paragraph: the stitched text so far, and where we are.
-    struct Progress: Sendable, Equatable {
-        let part: Int
-        let total: Int
-        let text: String
-    }
+    typealias Progress = PartProgress
 
     private let generator: any TextGenerating
     private let budget: TokenBudget

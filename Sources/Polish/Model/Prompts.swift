@@ -37,6 +37,15 @@ enum Prompts {
         }
     }
 
+    /// The map pass of a long summary: denser than the final answer, and told to treat the
+    /// carried-forward context as context rather than material to summarize again.
+    static let summarizeChunk = """
+        Summarize the user's text in at most four short sentences. \
+        Keep names, numbers, decisions and open questions; drop pleasantries. \
+        Any text under "Earlier:" is a summary of what came before — use it for continuity, \
+        do not repeat it. Return only the summary, with no preamble.
+        """
+
     static let shorten = """
         Rewrite the user's text about 40% shorter. \
         Keep every fact, name, number and commitment; cut filler and repetition instead. \
@@ -77,6 +86,7 @@ enum Prompts {
             Action.grid.map { instructions(for: $0) }
                 + Tone.allCases.map(changeTone)
                 + SummaryStyle.allCases.map(summarize)
+                + [summarizeChunk]
         ))
     }
 
