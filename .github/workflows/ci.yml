@@ -38,7 +38,9 @@ jobs:
             build
           APP=build/dd/Build/Products/Release/Verbaine.app
           codesign -dv "$APP"
-          ditto -c -k --keepParent "$APP" "Verbaine-$VERSION.zip"
+          # DMG with an /Applications shortcut: user drags the app across, the usual Mac install.
+          mkdir -p build/dmg && cp -R "$APP" build/dmg/ && ln -s /Applications build/dmg/Applications
+          hdiutil create -volname Verbaine -srcfolder build/dmg -fs HFS+ -format UDZO "Verbaine-$VERSION.dmg"
 
       - name: Publish GitHub release
         if: github.event_name != 'pull_request'
@@ -47,6 +49,6 @@ jobs:
         run: |
           # ponytail: one release per day; a later build the same day replaces it.
           gh release delete "$VERSION" --cleanup-tag --yes 2>/dev/null || true
-          gh release create "$VERSION" Verbaine-*.zip --target "$GITHUB_SHA" \
+          gh release create "$VERSION" Verbaine-*.dmg --target "$GITHUB_SHA" \
             --title "$VERSION" --generate-notes \
-            --notes "Ad-hoc signed. First launch: System Settings → Privacy & Security → Open Anyway (see README)."
+            --notes "Open the DMG and drag Verbaine onto Applications. Ad-hoc signed. First launch: System Settings → Privacy & Security → Open Anyway (see README)."

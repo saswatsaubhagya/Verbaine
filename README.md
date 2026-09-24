@@ -15,7 +15,7 @@ Website source: [`site/`](site/) (static HTML, open `site/index.html`).
 
 Verbaine is signed ad-hoc, not with an Apple Developer certificate, so macOS will refuse to open it on the first launch. To install it:
 
-1. Move `Verbaine.app` to `/Applications`.
+1. Download `Verbaine-<version>.dmg` from Releases, open it, and drag Verbaine onto the Applications shortcut.
 2. Double-click it. macOS will say it cannot verify the app is free of malware — this is expected for an app distributed outside the App Store.
 3. Open System Settings → Privacy & Security, scroll to the bottom, and click **Open Anyway** next to the message about Verbaine.
 4. Launch it again and confirm.
