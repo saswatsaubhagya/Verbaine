@@ -8,205 +8,437 @@
 <link rel="icon" href="logo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg: #fbfbfd;
+  --bg: #f7f5fc;
   --surface: #ffffff;
-  --ink: #1d1d1f;
-  --ink-2: rgba(29,29,31,.62);
-  --line: rgba(0,0,0,.09);
-  --accent: #007aff;
-  --add: #1f9d45;
+  --surface-2: #f1eef9;
+  --ink: #1c1830;
+  --ink-2: #5f5a78;
+  --ink-3: #8a85a0;
+  --line: rgba(40,20,90,.1);
+  --violet: #6d4ce8;
+  --violet-soft: rgba(109,76,232,.12);
+  --lavender: #c7b6f6;
+  --glass: rgba(255,255,255,.72);
+  --add: #1a9346;
   --add-bg: rgba(48,209,88,.2);
   --del: #d70015;
-  --del-bg: rgba(255,69,58,.08);
+  --del-bg: rgba(255,69,58,.09);
+  --shadow: 0 30px 80px -30px rgba(50,20,120,.35), 0 8px 24px -12px rgba(50,20,120,.2);
   --display: "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
   --body: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
   --mono: ui-monospace, "SF Mono", Menlo, monospace;
 }
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #161618;
-    --surface: #222225;
-    --ink: rgba(255,255,255,.92);
-    --ink-2: rgba(255,255,255,.58);
-    --line: rgba(255,255,255,.12);
-    --accent: #0a84ff;
+    --bg: #110e1c;
+    --surface: #1b1729;
+    --surface-2: #231e35;
+    --ink: #f1eefa;
+    --ink-2: #aaa4c2;
+    --ink-3: #807a9a;
+    --line: rgba(200,180,255,.12);
+    --violet: #9d84ff;
+    --violet-soft: rgba(157,132,255,.16);
+    --lavender: #5b47a8;
+    --glass: rgba(34,29,52,.78);
     --add: #30d158;
-    --add-bg: rgba(48,209,88,.26);
+    --add-bg: rgba(48,209,88,.24);
     --del: #ff6961;
-    --del-bg: rgba(255,69,58,.14);
+    --del-bg: rgba(255,69,58,.15);
+    --shadow: 0 30px 80px -30px rgba(0,0,0,.8), 0 8px 24px -12px rgba(0,0,0,.6);
   }
 }
 * { box-sizing: border-box; }
-html { -webkit-text-size-adjust: 100%; }
-body {
-  margin: 0;
-  background: var(--bg);
-  color: var(--ink);
-  font: 17px/1.55 var(--body);
-}
-a { color: var(--accent); }
-a:focus-visible, .button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 6px; }
-.wrap { max-width: 1040px; margin: 0 auto; padding: 0 24px; }
-h1, h2 { font-family: var(--display); font-weight: 700; letter-spacing: -.02em; line-height: 1.05; margin: 0; }
-h2 { font-size: clamp(28px, 4vw, 40px); margin-bottom: 20px; }
-p { margin: 0 0 1em; max-width: 62ch; }
-kbd { font: 500 .85em var(--mono); padding: 1px 6px; border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 5px; background: var(--surface); }
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; scroll-padding-top: 80px; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 17px/1.55 var(--body); overflow-x: hidden; }
+a { color: inherit; }
+:focus-visible { outline: 2px solid var(--violet); outline-offset: 3px; border-radius: 8px; }
+.wrap { max-width: 1120px; margin: 0 auto; padding-inline: 24px; }
+h1, h2, h3 { font-family: var(--display); letter-spacing: -.025em; margin: 0; }
+h2 { font-size: clamp(34px, 5vw, 56px); font-weight: 800; line-height: 1.02; }
+p { margin: 0; }
+kbd { font: 500 .82em var(--mono); padding: 2px 7px; border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 6px; background: var(--surface); color: var(--ink); }
+.sub { color: var(--ink-2); font-size: 19px; max-width: 54ch; margin-top: 16px; }
+.center { text-align: center; }
+.center .sub { margin-inline: auto; }
 
-/* header */
-.top { display: flex; align-items: center; justify-content: space-between; padding: 20px 0; }
-.brand { display: flex; align-items: center; gap: 10px; font: 700 20px var(--display); color: var(--ink); text-decoration: none; }
-.brand img { width: 32px; height: 32px; border-radius: 8px; }
-.top nav a { color: var(--ink-2); text-decoration: none; margin-left: 20px; font-size: 15px; }
-.top nav a:hover { color: var(--ink); }
+/* buttons */
+.btn { display: inline-flex; align-items: center; gap: 10px; padding: 14px 24px; border-radius: 999px; font-weight: 600; font-size: 16px; text-decoration: none; transition: transform .15s, box-shadow .15s; }
+.btn:active { transform: scale(.98); }
+.btn-primary { background: var(--ink); color: var(--bg); box-shadow: 0 10px 30px -10px rgba(60,30,140,.5); }
+.btn-primary:hover { box-shadow: 0 14px 34px -10px rgba(60,30,140,.7); }
+.btn-ghost { border: 1px solid var(--line); background: var(--glass); backdrop-filter: blur(10px); }
+.btn-ghost:hover { background: var(--surface); }
+.btn svg { width: 18px; height: 18px; }
+
+/* nav */
+.nav { position: sticky; top: 0; z-index: 10; backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px); background: color-mix(in srgb, var(--bg) 70%, transparent); border-bottom: 1px solid transparent; transition: border-color .2s; }
+.nav.scrolled { border-bottom-color: var(--line); }
+.nav .wrap { display: flex; align-items: center; justify-content: space-between; height: 64px; }
+.brand { display: flex; align-items: center; gap: 10px; font: 800 20px var(--display); text-decoration: none; letter-spacing: -.02em; }
+.brand img { width: 30px; height: 30px; }
+.nav-links { display: flex; align-items: center; gap: 28px; font-size: 15px; }
+.nav-links a { text-decoration: none; color: var(--ink-2); }
+.nav-links a:hover { color: var(--ink); }
+.nav-links .btn { padding: 8px 16px; font-size: 14px; color: var(--bg); }
+.nav-links .btn:hover { color: var(--bg); }
 
 /* hero */
-.hero { padding-block: 72px 88px; }
-.hero h1 { font-size: clamp(44px, 8vw, 92px); max-width: 12ch; }
-.hero .lede { font-size: 20px; color: var(--ink-2); margin: 24px 0 32px; max-width: 46ch; }
-.button {
-  display: inline-block; padding: 12px 22px; border-radius: 10px;
-  background: var(--accent); color: #fff; font-weight: 600; text-decoration: none;
-}
-.button:hover { filter: brightness(1.08); }
-.hero .note { font-size: 14px; color: var(--ink-2); margin-top: 12px; }
+.hero { position: relative; padding-block: 96px 40px; }
+.aurora { position: absolute; inset: -120px 0 auto; height: 900px; z-index: -1; pointer-events: none;
+  background:
+    radial-gradient(600px 400px at 20% 20%, color-mix(in srgb, var(--lavender) 60%, transparent), transparent 70%),
+    radial-gradient(500px 380px at 80% 10%, color-mix(in srgb, var(--violet) 22%, transparent), transparent 70%),
+    radial-gradient(700px 300px at 50% 70%, color-mix(in srgb, var(--lavender) 35%, transparent), transparent 70%);
+  filter: blur(20px); }
+.badge { display: inline-flex; align-items: center; gap: 8px; padding: 6px 14px 6px 8px; border-radius: 999px; background: var(--glass); border: 1px solid var(--line); font-size: 14px; color: var(--ink-2); backdrop-filter: blur(10px); }
+.badge b { background: var(--violet); color: #fff; font-weight: 600; font-size: 12px; padding: 2px 8px; border-radius: 999px; }
+.hero h1 { font-size: clamp(48px, 9vw, 112px); font-weight: 800; line-height: .95; letter-spacing: -.045em; margin: 28px auto 0; max-width: 11ch; }
+.hero .sub { font-size: clamp(18px, 2vw, 21px); }
+.hero-ctas { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 36px; }
+.hero-meta { font-size: 14px; color: var(--ink-3); margin-top: 16px; }
 
-/* the demo: one Slack draft, fixed in place */
-.demo {
-  margin: 64px 0 0; background: var(--surface); border: 1px solid var(--line);
-  border-radius: 14px; padding: 28px 32px; max-width: 760px;
-  box-shadow: 0 24px 60px -30px rgba(0,0,0,.35);
-}
-.demo-head { display: flex; justify-content: space-between; font-size: 13px; color: var(--ink-2); margin-bottom: 14px; }
-.demo-text { font-size: clamp(19px, 2.6vw, 24px); line-height: 1.6; margin: 0; max-width: none; }
-.demo del, .demo ins { border-radius: 3px; padding: 0 2px; text-decoration: none; transition: all .35s ease; }
-.demo del { color: var(--del); background: var(--del-bg); text-decoration: line-through; }
-.demo ins { color: var(--add); background: var(--add-bg); }
-/* before: only the draft shows; after: diff appears word by word */
-.demo:not(.fixed) ins { display: none; }
-.demo:not(.fixed) del { color: inherit; background: none; text-decoration: none; }
-.demo.fixed ins, .demo.fixed del { animation: pop .35s ease backwards; animation-delay: calc(var(--i) * 90ms); }
-@keyframes pop { from { opacity: 0; } }
-.demo-foot { display: flex; gap: 10px; margin-top: 20px; }
-.chip { font-size: 13px; padding: 5px 12px; border-radius: 7px; border: 1px solid var(--line); color: var(--ink-2); }
-.chip.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
-@media (prefers-reduced-motion: reduce) {
-  .demo.fixed ins, .demo.fixed del { animation: none; }
-}
+/* mac mock */
+.stage { margin-top: 72px; perspective: 1600px; }
+.mac { position: relative; max-width: 980px; margin: 0 auto; border-radius: 16px; background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow); overflow: hidden; transform: rotateX(8deg); transform-origin: top center; transition: transform 1.2s cubic-bezier(.2,.8,.2,1); }
+.mac.in { transform: none; }
+.mac-bar { display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 16px; border-bottom: 1px solid var(--line); background: var(--surface-2); font-size: 13px; color: var(--ink-3); }
+.mac-bar i { width: 12px; height: 12px; border-radius: 50%; background: #ff5f57; }
+.mac-bar i:nth-child(2) { background: #febc2e; }
+.mac-bar i:nth-child(3) { background: #28c840; margin-right: 12px; }
+.chat { display: grid; grid-template-columns: 200px 1fr; min-height: 440px; text-align: left; }
+.side { border-right: 1px solid var(--line); padding: 18px 14px; font-size: 14px; color: var(--ink-2); background: color-mix(in srgb, var(--surface-2) 50%, transparent); }
+.side div { padding: 5px 10px; border-radius: 6px; }
+.side .on { background: var(--violet-soft); color: var(--ink); font-weight: 600; }
+.side h4 { margin: 0 0 8px 10px; font-size: 12px; color: var(--ink-3); font-weight: 600; }
+.side h4:not(:first-child) { margin-top: 20px; }
+.thread { position: relative; display: flex; flex-direction: column; justify-content: flex-end; padding: 24px; gap: 18px; }
+.msg { display: flex; gap: 12px; font-size: 15px; }
+.av { flex: none; width: 36px; height: 36px; border-radius: 9px; background: linear-gradient(135deg, #f8b4c8, #c79cf5); }
+.av.b { background: linear-gradient(135deg, #9ad8ff, #7b8cff); }
+.msg b { font-size: 14px; }
+.msg span { color: var(--ink-3); font-size: 12px; margin-left: 6px; }
+.composer { border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; font-size: 16px; line-height: 1.6; background: var(--surface); }
+.composer .t { border-radius: 3px; transition: background .3s; }
+.mac[data-s="1"] .composer .t, .mac[data-s="2"] .composer .t, .mac[data-s="3"] .composer .t { background: color-mix(in srgb, var(--violet) 26%, transparent); }
+.composer .new { display: none; }
+.mac[data-s="4"] .composer .old { display: none; }
+.mac[data-s="4"] .composer .new { display: inline; animation: flash 1.2s ease; }
+@keyframes flash { from { background: var(--add-bg); } }
 
-section { padding: 80px 0; border-top: 1px solid var(--line); }
+/* verbaine popover */
+.pop { position: absolute; right: 28px; top: 24px; width: min(440px, calc(100% - 40px)); padding: 12px; border-radius: 14px; background: var(--glass); backdrop-filter: saturate(180%) blur(30px); -webkit-backdrop-filter: saturate(180%) blur(30px); border: 1px solid var(--line); box-shadow: var(--shadow); opacity: 0; transform: translateY(10px) scale(.97); transition: opacity .3s, transform .3s; pointer-events: none; }
+.mac[data-s="2"] .pop, .mac[data-s="3"] .pop { opacity: 1; transform: none; }
+.pop-head { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--ink-2); margin-bottom: 10px; }
+.pop-head img { width: 18px; height: 18px; }
+.pop-head em { margin-left: auto; font-style: normal; display: inline-flex; align-items: center; gap: 5px; }
+.pop-head em::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--add); }
+.tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.tile { padding: 9px; border-radius: 10px; border: 1px solid var(--line); background: color-mix(in srgb, var(--surface) 60%, transparent); font-size: 12px; font-weight: 500; transition: all .2s; }
+.tile svg { display: block; width: 18px; height: 18px; margin-bottom: 5px; stroke: var(--ink-2); }
+.mac[data-s="2"] .tile.hit { background: var(--violet-soft); border-color: color-mix(in srgb, var(--violet) 40%, transparent); transition-delay: .7s; }
+.result { display: none; }
+.mac[data-s="3"] .tiles { display: none; }
+.mac[data-s="3"] .result { display: block; }
+.result p { font-size: 14px; line-height: 1.6; padding: 10px 12px; border-radius: 10px; background: color-mix(in srgb, var(--surface) 70%, transparent); border: 1px solid var(--line); }
+.result .w { opacity: 0; animation: in .25s ease forwards; animation-delay: calc(var(--i) * 70ms); }
+@keyframes in { from { opacity: 0; } to { opacity: 1; } }
+.pop-foot { display: flex; gap: 6px; margin-top: 10px; align-items: center; }
+.pb { font-size: 12px; padding: 5px 12px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); }
+.pb.p { background: var(--violet); color: #fff; border-color: transparent; }
+.pop-foot small { margin-left: auto; color: var(--ink-3); font-size: 11px; }
+ins, del { text-decoration: none; border-radius: 3px; padding: 0 2px; }
+ins { color: var(--add); background: var(--add-bg); }
+del { color: var(--del); background: var(--del-bg); text-decoration: line-through; }
 
-/* flow — a real sequence, so it gets numbers */
-.steps { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; counter-reset: s; }
-.steps li { counter-increment: s; }
-.steps li::before { content: counter(s); display: block; font: 700 56px/1 var(--display); color: var(--accent); margin-bottom: 12px; }
-.steps h3 { font-size: 19px; margin: 0 0 6px; }
-.steps p { color: var(--ink-2); font-size: 16px; }
+/* apps strip */
+.apps { padding-block: 72px 24px; text-align: center; color: var(--ink-3); font-size: 15px; }
+.app-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px 40px; margin-top: 18px; font: 600 22px var(--display); color: var(--ink-2); letter-spacing: -.02em; }
 
-/* actions */
-.actions { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0 48px; margin: 0; }
-.actions div { padding: 18px 0; border-bottom: 1px solid var(--line); }
-.actions dt { font-weight: 600; }
-.actions dd { margin: 4px 0 0; color: var(--ink-2); font-size: 16px; }
+section.block { padding-block: 120px; }
 
-/* privacy */
-.privacy .big { font: 500 clamp(24px, 3.4vw, 34px)/1.3 var(--display); max-width: 30ch; letter-spacing: -.01em; }
-.privacy .big + p { color: var(--ink-2); margin-top: 20px; }
+/* bento */
+.bento { display: grid; grid-template-columns: repeat(6, 1fr); gap: 16px; margin-top: 56px; }
+.card { position: relative; border-radius: 24px; background: var(--surface); border: 1px solid var(--line); padding: 32px; overflow: hidden; display: flex; flex-direction: column; }
+.card h3 { font-size: 24px; font-weight: 600; line-height: 1.15; }
+.card p { color: var(--ink-2); font-size: 16px; margin-top: 8px; max-width: 40ch; }
+.card .viz { margin-top: auto; padding-top: 28px; }
+.c4 { grid-column: span 4; } .c3 { grid-column: span 3; } .c2 { grid-column: span 2; }
+.card.hero-card { background: linear-gradient(160deg, #5b3dd6, #24165e); color: #fff; border: 0; }
+.card.hero-card p { color: rgba(255,255,255,.75); }
+.menubar { display: flex; align-items: center; justify-content: flex-end; gap: 18px; padding: 8px 14px; border-radius: 10px; background: rgba(255,255,255,.1); font-size: 13px; color: rgba(255,255,255,.8); }
+.menubar img { width: 18px; height: 18px; display: block; }
+.dropdown { margin: 10px 0 0 auto; width: 250px; padding: 8px; border-radius: 12px; background: rgba(255,255,255,.14); backdrop-filter: blur(20px); font-size: 13px; }
+.dropdown div { padding: 6px 10px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; }
+.dropdown kbd { background: rgba(255,255,255,.12); color: #fff; border-color: rgba(255,255,255,.2); }
+.dropdown .st { color: #8ef0a8; }
+.dropdown .st::before { content: "●  "; }
+.dropdown hr { border: 0; border-top: 1px solid rgba(255,255,255,.15); margin: 6px 4px; }
+.pills { display: flex; flex-wrap: wrap; gap: 8px; }
+.pills span { padding: 7px 14px; border-radius: 999px; background: var(--surface-2); font-size: 14px; font-weight: 500; }
+.pills span.fb { background: var(--violet-soft); color: var(--violet); }
+.mini-diff { font-size: 17px; line-height: 1.8; padding: 16px 18px; border-radius: 14px; background: var(--surface-2); }
+.toast { display: inline-flex; align-items: center; gap: 10px; height: 38px; padding: 0 8px 0 16px; border-radius: 999px; background: var(--glass); border: 1px solid var(--line); box-shadow: var(--shadow); font-size: 14px; }
+.toast b { color: var(--violet); font-weight: 600; }
+.toast kbd { font-size: 12px; }
+.prog { font-size: 14px; }
+.prog-top { display: flex; justify-content: space-between; margin-bottom: 10px; }
+.prog-top span { color: var(--ink-3); }
+.track { height: 6px; border-radius: 3px; background: var(--surface-2); overflow: hidden; }
+.track i { display: block; height: 100%; width: 37.5%; background: var(--violet); border-radius: 3px; animation: grow 6s steps(8) infinite; }
+@keyframes grow { from { width: 0; } to { width: 100%; } }
+.field { display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface-2); font: 13px var(--mono); color: var(--ink-2); }
+.field + .field { margin-top: 8px; }
+.field b { margin-left: auto; font: 600 11px var(--body); padding: 2px 8px; border-radius: 999px; background: rgba(255,159,10,.18); color: #c77700; }
 
-/* install */
-.install ol { padding-left: 1.3em; max-width: 62ch; }
-.install li { margin-bottom: 10px; }
-.reqs { color: var(--ink-2); font-size: 15px; margin-top: 28px; }
+/* actions playground */
+.tabs { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 44px; }
+.tab { font: 500 15px var(--body); padding: 10px 18px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--ink-2); cursor: pointer; transition: all .15s; }
+.tab:hover { color: var(--ink); }
+.tab[aria-selected="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.panes { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 28px; }
+.pane { border-radius: 20px; padding: 28px; background: var(--surface); border: 1px solid var(--line); min-height: 220px; }
+.pane h4 { margin: 0 0 12px; font-size: 13px; font-weight: 600; color: var(--ink-3); }
+.pane .txt { font-size: 18px; line-height: 1.65; }
+.pane.after { border-color: color-mix(in srgb, var(--violet) 35%, transparent); box-shadow: 0 0 0 4px var(--violet-soft); }
+.pane .txt ul { margin: 0; padding-left: 1.2em; }
+.fade { animation: in .35s ease; }
 
-footer { padding: 40px 0 56px; border-top: 1px solid var(--line); font-size: 14px; color: var(--ink-2); }
+/* privacy band */
+.band { background: #16112a; color: #f1eefa; border-radius: 32px; padding: 96px clamp(24px, 6vw, 88px); position: relative; overflow: hidden; }
+.band::before { content: ""; position: absolute; inset: auto -10% -60% 30%; height: 500px; background: radial-gradient(closest-side, rgba(157,132,255,.45), transparent); pointer-events: none; }
+.band h2 { max-width: 16ch; position: relative; }
+.band .sub { color: rgba(241,238,250,.7); position: relative; }
+.facts { position: relative; display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; margin-top: 64px; padding-top: 40px; border-top: 1px solid rgba(255,255,255,.12); }
+.facts h3 { font-size: 20px; font-weight: 600; }
+.facts p { color: rgba(241,238,250,.62); font-size: 15px; margin-top: 6px; }
+
+/* install — a real sequence, so numbered */
+.steps { list-style: none; padding: 0; margin: 56px 0 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; counter-reset: s; }
+.steps li { counter-increment: s; padding: 28px; border-radius: 20px; background: var(--surface); border: 1px solid var(--line); font-size: 16px; color: var(--ink-2); }
+.steps li::before { content: counter(s); display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; background: var(--violet-soft); color: var(--violet); font: 800 17px var(--display); margin-bottom: 18px; }
+.steps strong { color: var(--ink); }
+.reqs { margin-top: 28px; color: var(--ink-3); font-size: 15px; text-align: center; }
+
+/* final cta */
+.final { text-align: center; padding-block: 140px; position: relative; overflow: hidden; }
+.final .aurora { inset: 0; height: auto; }
+.final img { width: 120px; height: 120px; filter: drop-shadow(0 20px 40px rgba(109,76,232,.4)); }
+.final h2 { margin-top: 24px; }
+
+footer { border-top: 1px solid var(--line); padding-block: 36px; font-size: 14px; color: var(--ink-3); }
 footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+footer a { color: var(--ink-2); text-decoration: none; }
+footer a:hover { color: var(--ink); }
 
-@media (max-width: 720px) {
-  .wrap { padding: 0 16px; }
-  .top nav a:not(:last-child) { display: none; }
-  .hero { padding-block: 40px 56px; }
-  .demo { padding: 20px; margin-top: 40px; }
-  .steps, .actions { grid-template-columns: 1fr; }
-  section { padding: 56px 0; }
+@media (max-width: 900px) {
+  .bento { grid-template-columns: 1fr 1fr; }
+  .c4, .c3 { grid-column: span 2; } .c2 { grid-column: span 1; }
+  .steps { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 640px) {
+  .wrap { padding-inline: 16px; }
+  .nav-links a:not(.btn) { display: none; }
+  .hero { padding-top: 56px; }
+  .chat { grid-template-columns: 1fr; min-height: 500px; }
+  .side { display: none; }
+  .thread { padding: 16px; }
+  .pop { right: 12px; left: 12px; width: auto; top: 12px; }
+  .bento, .panes, .facts, .steps { grid-template-columns: 1fr; }
+  .c4, .c3, .c2 { grid-column: auto; }
+  .card { padding: 24px; }
+  section.block { padding-block: 80px; }
+  .band { padding-block: 64px; border-radius: 24px; }
+  .final { padding-block: 96px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before { animation: none !important; transition: none !important; }
+  .result .w { opacity: 1; }
 }
 </style>
 </head>
 <body>
-<header class="wrap top">
-  <a class="brand" href="#"><img src="logo.png" alt="">Verbaine</a>
-  <nav>
-    <a href="#how">How it works</a>
-    <a href="#privacy">Privacy</a>
-    <a href="https://github.com/saswatsaubhagya/Verbaine">GitHub</a>
-  </nav>
+
+<header class="nav" id="nav">
+  <div class="wrap">
+    <a class="brand" href="#top"><img src="logo.png" alt="">Verbaine</a>
+    <nav class="nav-links">
+      <a href="#features">Features</a>
+      <a href="#actions">Actions</a>
+      <a href="#privacy">Privacy</a>
+      <a href="#install">Install</a>
+      <a class="btn btn-primary" href="https://github.com/saswatsaubhagya/Verbaine/releases/latest">Download</a>
+    </nav>
+  </div>
 </header>
 
-<main>
-  <div class="wrap hero">
-    <h1>Better writing in every Mac app.</h1>
-    <p class="lede">Select text in Slack, Mail, Notes or your browser, press <kbd>⌃⌥P</kbd>, and Verbaine fixes, rewrites or summarizes it right there. The model runs on your Mac. Nothing is sent anywhere.</p>
-    <a class="button" href="https://github.com/saswatsaubhagya/Verbaine/releases/latest">Download for Mac</a>
-    <p class="note">Free. Apple Silicon, macOS 26.4 or later, Apple Intelligence on.</p>
+<main id="top">
+  <div class="hero center">
+    <div class="aurora"></div>
+    <div class="wrap">
+      <span class="badge"><b>Free</b> Runs on Apple's on-device model</span>
+      <h1>Write better in every Mac app.</h1>
+      <p class="sub">Select text in Slack, Mail, Chrome or anywhere else. Press <kbd>⌃⌥P</kbd>. Verbaine fixes, rewrites or summarizes it in place, without sending a word off your Mac.</p>
+      <div class="hero-ctas">
+        <a class="btn btn-primary" href="https://github.com/saswatsaubhagya/Verbaine/releases/latest">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16.4 12.6c0-2.6 2.1-3.8 2.2-3.9-1.2-1.8-3.1-2-3.7-2-1.6-.2-3.1.9-3.9.9-.8 0-2-.9-3.4-.9-1.7 0-3.3 1-4.2 2.6-1.8 3.1-.5 7.7 1.3 10.2.9 1.2 1.9 2.6 3.2 2.6 1.3-.1 1.8-.8 3.3-.8 1.6 0 2 .8 3.4.8 1.4 0 2.3-1.3 3.1-2.5 1-1.4 1.4-2.8 1.4-2.9-.1 0-2.7-1-2.7-4.1zM13.9 5c.7-.9 1.2-2 1-3.2-1 0-2.2.7-3 1.5-.6.7-1.2 1.9-1 3.1 1.1.1 2.2-.6 3-1.4z"/></svg>
+          Download for Mac
+        </a>
+        <a class="btn btn-ghost" href="https://github.com/saswatsaubhagya/Verbaine">View source</a>
+      </div>
+      <p class="hero-meta">Apple Silicon, macOS 26.4 or later</p>
 
-    <figure class="demo" id="demo" aria-label="Example: a Slack message before and after Fix grammar">
-      <div class="demo-head"><span>#design-review</span><span id="demo-state">Draft</span></div>
-      <p class="demo-text">
-        hey <del style="--i:0">team,</del><ins style="--i:1">team —</ins> i <del style="--i:2">has</del><ins style="--i:3">have</ins> pushed the new
-        onboarding <del style="--i:4">flow</del><ins style="--i:5">flow.</ins> <del style="--i:6">its</del><ins style="--i:7">It's</ins> ready
-        for review, <del style="--i:8">let</del><ins style="--i:9">so let</ins> me know <del style="--i:10">what do you think</del><ins style="--i:11">what you think</ins> before friday
-      </p>
-      <div class="demo-foot"><span class="chip primary">Replace</span><span class="chip">Copy</span><span class="chip">Esc</span></div>
-    </figure>
+      <div class="stage">
+        <div class="mac" id="mac" data-s="0" role="img" aria-label="Animated example: a Slack draft is selected, Verbaine's Improve action rewrites it, and the result replaces the draft">
+          <div class="mac-bar"><i></i><i></i><i></i># launch-week</div>
+          <div class="chat">
+            <aside class="side" aria-hidden="true">
+              <h4>Channels</h4>
+              <div># general</div>
+              <div class="on"># launch-week</div>
+              <div># design-review</div>
+              <div># random</div>
+              <h4>Direct messages</h4>
+              <div>Priya</div>
+              <div>Marcus</div>
+            </aside>
+            <div class="thread" aria-hidden="true">
+              <div class="msg"><div class="av"></div><div><b>Priya</b><span>10:42</span><br>Is the onboarding flow ready for review? Design wants to sign off today.</div></div>
+              <div class="msg"><div class="av b"></div><div><b>Marcus</b><span>10:44</span><br>Waiting on this too 👀</div></div>
+              <div class="composer">
+                <span class="t old">hey, i has pushed the new onboarding flow its ready for review let me know what do you think</span><span class="new">Hi! I've pushed the new onboarding flow, and it's ready for review. Let me know what you think.</span>
+              </div>
+              <div class="pop">
+                <div class="pop-head"><img src="logo.png" alt="">Verbaine<em>On-device</em></div>
+                <div class="tiles">
+                  <div class="tile"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7" stroke-linecap="round"><path d="M4 12l5 5L20 6"/></svg>Fix grammar</div>
+                  <div class="tile hit"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7" stroke-linecap="round"><path d="M12 3l2 5 5 2-5 2-2 5-2-5-5-2 5-2z"/></svg>Improve</div>
+                  <div class="tile"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7" stroke-linecap="round"><path d="M5 7h14M5 12h10M5 17h6"/></svg>Summarize</div>
+                  <div class="tile"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7" stroke-linecap="round"><path d="M4 12h10M10 8l4 4-4 4M18 6v12"/></svg>Shorten</div>
+                  <div class="tile"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7" stroke-linecap="round"><path d="M4 18c3-8 13-8 16 0M9 9h.01M15 9h.01"/></svg>Change tone</div>
+                  <div class="tile"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>Expand</div>
+                </div>
+                <div class="result"><p id="result"></p></div>
+                <div class="pop-foot"><span class="pb p">Replace</span><span class="pb">Copy</span><small>esc to dismiss</small></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <section id="how">
+  <div class="wrap apps">
+    Works in the apps you already write in
+    <div class="app-row"><span>Slack</span><span>Mail</span><span>Chrome</span><span>Notes</span><span>Discord</span><span>VS Code</span><span>Arc</span><span>Figma</span></div>
+  </div>
+
+  <section class="block" id="features">
     <div class="wrap">
-      <h2>Three keystrokes, no copy-paste</h2>
+      <div class="center">
+        <h2>Help that stays out of your way</h2>
+        <p class="sub">A menu-bar app with one shortcut. No new window to switch to, no text to paste back.</p>
+      </div>
+      <div class="bento">
+        <article class="card hero-card c4">
+          <h3>Runs on your Mac, not a server</h3>
+          <p>Verbaine uses the language model Apple already installs with macOS. No account, no subscription, no per-request cost, and it works offline.</p>
+          <div class="viz" aria-hidden="true">
+            <div class="menubar"><span>Wed 10:44</span><img src="logo.png" alt=""></div>
+            <div class="dropdown">
+              <div><span class="st">On-device model</span></div>
+              <hr>
+              <div>Improve selection <kbd>⌃⌥P</kbd></div>
+              <div>Settings… <kbd>⌘,</kbd></div>
+            </div>
+          </div>
+        </article>
+        <article class="card c2">
+          <h3>Works where Writing Tools don't</h3>
+          <p>Including Slack, Discord and browsers.</p>
+          <div class="viz pills" aria-hidden="true"><span class="fb">Slack</span><span class="fb">Chrome</span><span>Mail</span><span class="fb">Discord</span><span>Notes</span><span class="fb">VS Code</span><span>Pages</span><span class="fb">Arc</span></div>
+        </article>
+        <article class="card c3">
+          <h3>See every change</h3>
+          <p>Edits are highlighted word by word, so you know exactly what's different before you accept it.</p>
+          <div class="viz" aria-hidden="true"><div class="mini-diff">Thanks <del>for you</del> <ins>for your</ins> patience, <del>we will</del> <ins>we'll</ins> ship <del>it</del> tomorrow.</div></div>
+        </article>
+        <article class="card c3">
+          <h3>Undo works like it always has</h3>
+          <p>Replace pastes the result into the app, so that app's own <kbd>⌘Z</kbd> brings your original back.</p>
+          <div class="viz" aria-hidden="true"><span class="toast">Replaced <b>Undo</b> <kbd>⌘Z</kbd></span></div>
+        </article>
+        <article class="card c2">
+          <h3>Long text, handled honestly</h3>
+          <p>Too long for one pass? It's split at sentence boundaries, never cut off silently.</p>
+          <div class="viz prog" aria-hidden="true"><div class="prog-top"><b>Summarizing</b><span>Part 3 of 8</span></div><div class="track"><i></i></div></div>
+        </article>
+        <article class="card c4">
+          <h3>Bring your own model if you want one</h3>
+          <p>Point Verbaine at any OpenAI-compatible endpoint. The key is stored in your Keychain, and the menu bar tells you whenever text is leaving your Mac.</p>
+          <div class="viz" aria-hidden="true">
+            <div class="field">https://api.example.com/v1<b>Remote</b></div>
+            <div class="field">API key ••••••••••••••••  Keychain</div>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="actions" style="padding-top:0">
+    <div class="wrap">
+      <div class="center">
+        <h2>Six actions. One shortcut.</h2>
+        <p class="sub">Pick one from the panel, or give each its own hotkey. Try them here.</p>
+      </div>
+      <div class="tabs" role="tablist" id="tabs"></div>
+      <div class="panes">
+        <div class="pane"><h4>Your text</h4><div class="txt" id="before"></div></div>
+        <div class="pane after"><h4 id="after-label">Result</h4><div class="txt" id="after" aria-live="polite"></div></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="wrap" id="privacy">
+    <div class="band">
+      <h2>Your words stay on your Mac.</h2>
+      <p class="sub">Legal, finance, healthcare, or a company that bans cloud AI tools: Verbaine works without a network connection, so nothing you write is uploaded.</p>
+      <div class="facts">
+        <div><h3>No account</h3><p>Nothing to sign up for and nothing to log in to.</p></div>
+        <div><h3>No cloud by default</h3><p>Text goes online only if you set up your own endpoint, and the menu bar shows it.</p></div>
+        <div><h3>No history kept</h3><p>Each action starts fresh. Nothing carries over between requests.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <section class="block" id="install">
+    <div class="wrap">
+      <div class="center">
+        <h2>Install in a minute</h2>
+        <p class="sub">Verbaine isn't notarized yet, so macOS asks you to approve it once.</p>
+      </div>
       <ol class="steps">
-        <li><h3>Select</h3><p>Highlight text in any app, including Slack, Chrome and other apps the built-in Writing Tools skip.</p></li>
-        <li><h3>Press <kbd>⌃⌥P</kbd></h3><p>A small panel opens next to your selection. Pick an action.</p></li>
-        <li><h3>Replace or copy</h3><p>Changed words are highlighted. Replace puts the result back in place, and <kbd>⌘Z</kbd> still undoes it.</p></li>
+        <li><strong>Download</strong> the latest release and move Verbaine to Applications.</li>
+        <li><strong>Open it.</strong> macOS says it can't verify the app. That's expected.</li>
+        <li>In <strong>System Settings → Privacy &amp; Security</strong>, click Open Anyway.</li>
+        <li><strong>Allow Accessibility</strong> when asked, so Verbaine can read your selection.</li>
       </ol>
+      <p class="reqs">Needs an Apple Silicon Mac, macOS 26.4 or later, and Apple Intelligence turned on.</p>
     </div>
   </section>
 
-  <section>
+  <div class="final">
+    <div class="aurora"></div>
     <div class="wrap">
-      <h2>What it can do</h2>
-      <dl class="actions">
-        <div><dt>Fix grammar</dt><dd>Spelling, grammar and punctuation only. Your words and tone stay.</dd></div>
-        <div><dt>Improve</dt><dd>Clearer and more natural, about the same length.</dd></div>
-        <div><dt>Summarize</dt><dd>Three bullets or two sentences. Long threads are summarized in parts.</dd></div>
-        <div><dt>Shorten</dt><dd>Cuts about 40% and keeps every fact.</dd></div>
-        <div><dt>Change tone</dt><dd>Professional, friendly, direct or apologetic.</dd></div>
-        <div><dt>Expand</dt><dd>Turns bullet points or a terse note into full sentences.</dd></div>
-      </dl>
+      <img src="logo.png" alt="">
+      <h2>Try it on your next message.</h2>
+      <p class="sub" style="margin-inline:auto">Free, private, and ready in the menu bar.</p>
+      <div class="hero-ctas"><a class="btn btn-primary" href="https://github.com/saswatsaubhagya/Verbaine/releases/latest">Download for Mac</a></div>
     </div>
-  </section>
-
-  <section class="privacy" id="privacy">
-    <div class="wrap">
-      <h2>Private by default</h2>
-      <p class="big">Verbaine uses Apple's on-device model, which already ships with macOS. No account, no subscription, no server.</p>
-      <p>Prefer a bigger model? You can point Verbaine at your own OpenAI-compatible endpoint. Your key stays in the Keychain, and the menu bar shows when text is leaving your Mac.</p>
-    </div>
-  </section>
-
-  <section class="install" id="install">
-    <div class="wrap">
-      <h2>Installing</h2>
-      <p>Verbaine isn't notarized yet, so macOS asks you to approve it once.</p>
-      <ol>
-        <li>Download the latest release and move <code>Verbaine.app</code> to Applications.</li>
-        <li>Open it. macOS says it can't verify the app — that's expected.</li>
-        <li>Go to System Settings → Privacy &amp; Security and click <strong>Open Anyway</strong>.</li>
-        <li>Open Verbaine again, then grant Accessibility access when asked so it can read your selection.</li>
-      </ol>
-      <p class="reqs">Requires an Apple Silicon Mac with macOS 26.4 or later and Apple Intelligence turned on in System Settings.</p>
-    </div>
-  </section>
+  </div>
 </main>
 
 <footer>
@@ -217,11 +449,59 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
 </footer>
 
 <script>
-// ponytail: one-shot reveal when the demo scrolls into view; reduced-motion users just see the end state
-const demo = document.getElementById('demo');
-const fix = () => { demo.classList.add('fixed'); document.getElementById('demo-state').textContent = 'Fix grammar'; };
-if (matchMedia('(prefers-reduced-motion: reduce)').matches) fix();
-else new IntersectionObserver(([e], o) => { if (e.isIntersecting) { setTimeout(fix, 900); o.disconnect(); } }, { threshold: .6 }).observe(demo);
+// nav hairline once scrolled
+const nav = document.getElementById('nav');
+addEventListener('scroll', () => nav.classList.toggle('scrolled', scrollY > 8), { passive: true });
+
+// hero demo: 0 draft → 1 selected → 2 panel → 3 result streams → 4 replaced, then loop
+const mac = document.getElementById('mac');
+const improved = `<del>hey,</del> <ins>Hi!</ins> <del>i has</del> <ins>I've</ins> pushed the new onboarding <del>flow</del> <ins>flow, and</ins> <del>its</del> <ins>it's</ins> ready for <del>review</del> <ins>review.</ins> <del>let</del> <ins>Let</ins> me know <del>what do you think</del> <ins>what you think.</ins>`;
+// split on spaces outside tags so each word (or whole ins/del) fades in on its own
+document.getElementById('result').innerHTML = improved.split(/ (?![^<]*<\/)/)
+  .map((w, i) => `<span class="w" style="--i:${i}">${w} </span>`).join('');
+const times = [1400, 1600, 1800, 3800, 3000]; // ms per stage
+let s = 0;
+function step() {
+  mac.dataset.s = s; // display:none → block on stage 3 restarts the word stream
+  setTimeout(() => { s = (s + 1) % 5; step(); }, times[s]);
+}
+if (matchMedia('(prefers-reduced-motion: reduce)').matches) { mac.dataset.s = 3; mac.classList.add('in'); }
+else new IntersectionObserver(([e], o) => {
+  if (!e.isIntersecting) return;
+  mac.classList.add('in'); setTimeout(step, 600); o.disconnect();
+}, { threshold: .35 }).observe(mac);
+
+// actions playground
+const actions = {
+  'Fix grammar': ['Me and the team was going to review it tomorow, but their is a blocker.',
+    '<del>Me and the team was</del> <ins>The team and I were</ins> going to review it <del>tomorow,</del> <ins>tomorrow,</ins> but <del>their</del> <ins>there</ins> is a blocker.'],
+  'Improve': ['So basically the thing is that the build keeps failing and we dont really know why yet.',
+    'The build keeps failing, and we haven\'t found the cause yet.'],
+  'Summarize': ['We met with the vendor on Tuesday. They can deliver the first batch by the 14th, but only if we confirm the order this week. Pricing stays the same as last quarter. Legal still needs to review the new data clause before anyone signs, and Sam will follow up with them tomorrow.',
+    '<ul><li>Vendor can deliver the first batch by the 14th if we confirm this week.</li><li>Pricing is unchanged from last quarter.</li><li>Legal must review the data clause first; Sam follows up tomorrow.</li></ul>'],
+  'Shorten': ['I just wanted to quickly reach out and let you know that I will unfortunately not be able to make it to the meeting that is scheduled for Thursday afternoon.',
+    'I can\'t make Thursday afternoon\'s meeting.'],
+  'Change tone': ['This is the third time I\'ve asked. Send the report today.',
+    'Just following up on the report. Could you send it over today? Thanks!'],
+  'Expand': ['- demo moved to fri<br>- need slides from design<br>- sam out mon',
+    'The demo has moved to Friday. We still need the slides from the design team, and Sam is out on Monday, so let\'s have everything ready before then.'],
+};
+const tabs = document.getElementById('tabs');
+const after = document.getElementById('after');
+function show(name) {
+  for (const t of tabs.children) t.setAttribute('aria-selected', t.textContent === name);
+  document.getElementById('before').innerHTML = actions[name][0];
+  after.innerHTML = actions[name][1];
+  document.getElementById('after-label').textContent = name === 'Change tone' ? 'Friendly' : name;
+  after.classList.remove('fade'); void after.offsetWidth; after.classList.add('fade');
+}
+for (const name in actions) {
+  const b = document.createElement('button');
+  b.className = 'tab'; b.setAttribute('role', 'tab'); b.textContent = name;
+  b.onclick = () => show(name);
+  tabs.append(b);
+}
+show('Fix grammar');
 </script>
 </body>
 </html>
