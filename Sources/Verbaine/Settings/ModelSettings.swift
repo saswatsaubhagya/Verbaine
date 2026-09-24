@@ -72,7 +72,11 @@ struct ModelSettings: View {
     }
 
     private var presetBinding: Binding<String> {
-        Binding(get: { "" }, set: { if !$0.isEmpty { config.baseURL = $0 } })
+        // Shows the preset whose URL is in the field; "Choose…" once the URL is hand-edited.
+        Binding(
+            get: { Self.presets.contains { $0.url == config.baseURL } ? config.baseURL : "" },
+            set: { if !$0.isEmpty { config.baseURL = $0 } }
+        )
     }
 
     @ViewBuilder private var testLabel: some View {
