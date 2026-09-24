@@ -43,6 +43,7 @@ func contextExceededSaysSelectLess() {
     #expect(mapped.message.contains("too long"))
 }
 
+#if compiler(>=6.4) // macOS 27 SDK only
 @available(macOS 27.0, *)
 @Test("the macOS 27 error family maps to the same messages as the 26 one")
 func newErrorFamilyMatchesOld() {
@@ -59,6 +60,7 @@ func newErrorFamilyMatchesOld() {
         == UserFacingError(LanguageModelSession.GenerationError.guardrailViolation(context))
     )
 }
+#endif
 
 @Test("an unavailable model is an error before the action runs", arguments: [
     (ModelAvailability.intelligenceDisabled, UserFacingError.Remedy.intelligenceSettings),

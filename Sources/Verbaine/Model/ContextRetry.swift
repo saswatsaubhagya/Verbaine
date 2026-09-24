@@ -11,9 +11,12 @@ enum ContextRetry {
     /// True if `error` is the framework's "prompt did not fit the window" error, in any of the
     /// three vocabularies `UserFacingError` maps.
     static func isContextSizeExceeded(_ error: any Error) -> Bool {
+        // `LanguageModelError` is macOS 27 SDK only; `#available` alone still fails to compile on Xcode 26.
+        #if compiler(>=6.4)
         if #available(macOS 27.0, *), let error = error as? LanguageModelError {
             if case .contextSizeExceeded = error { return true }
         }
+        #endif
         if let error = error as? LanguageModelSession.GenerationError {
             if case .exceededContextWindowSize = error { return true }
         }

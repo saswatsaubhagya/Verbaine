@@ -29,6 +29,7 @@ enum DebugErrors {
 
         // macOS 27 throws these instead of the `GenerationError` equivalents above, so both
         // families need a menu entry on a machine that can produce both.
+        #if compiler(>=6.4)
         if #available(macOS 27.0, *) {
             samples += [
                 ("Model 27: context exceeded", LanguageModelError.contextSizeExceeded(
@@ -43,6 +44,7 @@ enum DebugErrors {
                 ("Model 27: timeout", LanguageModelError.timeout(.init(debugDescription: "debug menu"))),
             ]
         }
+        #endif
 
         samples.append(("Unknown error", CocoaError(.fileNoSuchFile)))
         return samples

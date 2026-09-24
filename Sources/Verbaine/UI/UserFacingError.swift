@@ -191,6 +191,8 @@ struct UserFacingError: Error, Equatable {
     /// `LanguageModelError` what macOS 27 throws for the same conditions. `nil` if the error is
     /// neither.
     private static func model(_ error: any Error) -> UserFacingError? {
+        // `LanguageModelError` is macOS 27 SDK only; `#available` alone still fails to compile on Xcode 26.
+        #if compiler(>=6.4)
         if #available(macOS 27.0, *), let error = error as? LanguageModelError {
             switch error {
             case .contextSizeExceeded:
@@ -207,6 +209,7 @@ struct UserFacingError: Error, Equatable {
                 return confused
             }
         }
+        #endif
 
         if let error = error as? LanguageModelSession.GenerationError {
             switch error {
