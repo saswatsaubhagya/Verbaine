@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Verbaine — writing help in every Mac app</title>
+<meta name="description" content="Verbaine fixes, improves and summarizes text you select in any Mac app, using the model already on your Mac. No account, no cloud.">
+<link rel="icon" href="logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #fbfbfd;
+  --surface: #ffffff;
+  --ink: #1d1d1f;
+  --ink-2: rgba(29,29,31,.62);
+  --line: rgba(0,0,0,.09);
+  --accent: #007aff;
+  --add: #1f9d45;
+  --add-bg: rgba(48,209,88,.2);
+  --del: #d70015;
+  --del-bg: rgba(255,69,58,.08);
+  --display: "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
+  --body: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
+  --mono: ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #161618;
+    --surface: #222225;
+    --ink: rgba(255,255,255,.92);
+    --ink-2: rgba(255,255,255,.58);
+    --line: rgba(255,255,255,.12);
+    --accent: #0a84ff;
+    --add: #30d158;
+    --add-bg: rgba(48,209,88,.26);
+    --del: #ff6961;
+    --del-bg: rgba(255,69,58,.14);
+  }
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font: 17px/1.55 var(--body);
+}
+a { color: var(--accent); }
+a:focus-visible, .button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 6px; }
+.wrap { max-width: 1040px; margin: 0 auto; padding: 0 24px; }
+h1, h2 { font-family: var(--display); font-weight: 700; letter-spacing: -.02em; line-height: 1.05; margin: 0; }
+h2 { font-size: clamp(28px, 4vw, 40px); margin-bottom: 20px; }
+p { margin: 0 0 1em; max-width: 62ch; }
+kbd { font: 500 .85em var(--mono); padding: 1px 6px; border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 5px; background: var(--surface); }
+
+/* header */
+.top { display: flex; align-items: center; justify-content: space-between; padding: 20px 0; }
+.brand { display: flex; align-items: center; gap: 10px; font: 700 20px var(--display); color: var(--ink); text-decoration: none; }
+.brand img { width: 32px; height: 32px; border-radius: 8px; }
+.top nav a { color: var(--ink-2); text-decoration: none; margin-left: 20px; font-size: 15px; }
+.top nav a:hover { color: var(--ink); }
+
+/* hero */
+.hero { padding-block: 72px 88px; }
+.hero h1 { font-size: clamp(44px, 8vw, 92px); max-width: 12ch; }
+.hero .lede { font-size: 20px; color: var(--ink-2); margin: 24px 0 32px; max-width: 46ch; }
+.button {
+  display: inline-block; padding: 12px 22px; border-radius: 10px;
+  background: var(--accent); color: #fff; font-weight: 600; text-decoration: none;
+}
+.button:hover { filter: brightness(1.08); }
+.hero .note { font-size: 14px; color: var(--ink-2); margin-top: 12px; }
+
+/* the demo: one Slack draft, fixed in place */
+.demo {
+  margin: 64px 0 0; background: var(--surface); border: 1px solid var(--line);
+  border-radius: 14px; padding: 28px 32px; max-width: 760px;
+  box-shadow: 0 24px 60px -30px rgba(0,0,0,.35);
+}
+.demo-head { display: flex; justify-content: space-between; font-size: 13px; color: var(--ink-2); margin-bottom: 14px; }
+.demo-text { font-size: clamp(19px, 2.6vw, 24px); line-height: 1.6; margin: 0; max-width: none; }
+.demo del, .demo ins { border-radius: 3px; padding: 0 2px; text-decoration: none; transition: all .35s ease; }
+.demo del { color: var(--del); background: var(--del-bg); text-decoration: line-through; }
+.demo ins { color: var(--add); background: var(--add-bg); }
+/* before: only the draft shows; after: diff appears word by word */
+.demo:not(.fixed) ins { display: none; }
+.demo:not(.fixed) del { color: inherit; background: none; text-decoration: none; }
+.demo.fixed ins, .demo.fixed del { animation: pop .35s ease backwards; animation-delay: calc(var(--i) * 90ms); }
+@keyframes pop { from { opacity: 0; } }
+.demo-foot { display: flex; gap: 10px; margin-top: 20px; }
+.chip { font-size: 13px; padding: 5px 12px; border-radius: 7px; border: 1px solid var(--line); color: var(--ink-2); }
+.chip.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+@media (prefers-reduced-motion: reduce) {
+  .demo.fixed ins, .demo.fixed del { animation: none; }
+}
+
+section { padding: 80px 0; border-top: 1px solid var(--line); }
+
+/* flow — a real sequence, so it gets numbers */
+.steps { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; counter-reset: s; }
+.steps li { counter-increment: s; }
+.steps li::before { content: counter(s); display: block; font: 700 56px/1 var(--display); color: var(--accent); margin-bottom: 12px; }
+.steps h3 { font-size: 19px; margin: 0 0 6px; }
+.steps p { color: var(--ink-2); font-size: 16px; }
+
+/* actions */
+.actions { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0 48px; margin: 0; }
+.actions div { padding: 18px 0; border-bottom: 1px solid var(--line); }
+.actions dt { font-weight: 600; }
+.actions dd { margin: 4px 0 0; color: var(--ink-2); font-size: 16px; }
+
+/* privacy */
+.privacy .big { font: 500 clamp(24px, 3.4vw, 34px)/1.3 var(--display); max-width: 30ch; letter-spacing: -.01em; }
+.privacy .big + p { color: var(--ink-2); margin-top: 20px; }
+
+/* install */
+.install ol { padding-left: 1.3em; max-width: 62ch; }
+.install li { margin-bottom: 10px; }
+.reqs { color: var(--ink-2); font-size: 15px; margin-top: 28px; }
+
+footer { padding: 40px 0 56px; border-top: 1px solid var(--line); font-size: 14px; color: var(--ink-2); }
+footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+
+@media (max-width: 720px) {
+  .wrap { padding: 0 16px; }
+  .top nav a:not(:last-child) { display: none; }
+  .hero { padding-block: 40px 56px; }
+  .demo { padding: 20px; margin-top: 40px; }
+  .steps, .actions { grid-template-columns: 1fr; }
+  section { padding: 56px 0; }
+}
+</style>
+</head>
+<body>
+<header class="wrap top">
+  <a class="brand" href="#"><img src="logo.png" alt="">Verbaine</a>
+  <nav>
+    <a href="#how">How it works</a>
+    <a href="#privacy">Privacy</a>
+    <a href="https://github.com/saswatsaubhagya/Verbaine">GitHub</a>
+  </nav>
+</header>
+
+<main>
+  <div class="wrap hero">
+    <h1>Better writing in every Mac app.</h1>
+    <p class="lede">Select text in Slack, Mail, Notes or your browser, press <kbd>⌃⌥P</kbd>, and Verbaine fixes, rewrites or summarizes it right there. The model runs on your Mac. Nothing is sent anywhere.</p>
+    <a class="button" href="https://github.com/saswatsaubhagya/Verbaine/releases/latest">Download for Mac</a>
+    <p class="note">Free. Apple Silicon, macOS 26.4 or later, Apple Intelligence on.</p>
+
+    <figure class="demo" id="demo" aria-label="Example: a Slack message before and after Fix grammar">
+      <div class="demo-head"><span>#design-review</span><span id="demo-state">Draft</span></div>
+      <p class="demo-text">
+        hey <del style="--i:0">team,</del><ins style="--i:1">team —</ins> i <del style="--i:2">has</del><ins style="--i:3">have</ins> pushed the new
+        onboarding <del style="--i:4">flow</del><ins style="--i:5">flow.</ins> <del style="--i:6">its</del><ins style="--i:7">It's</ins> ready
+        for review, <del style="--i:8">let</del><ins style="--i:9">so let</ins> me know <del style="--i:10">what do you think</del><ins style="--i:11">what you think</ins> before friday
+      </p>
+      <div class="demo-foot"><span class="chip primary">Replace</span><span class="chip">Copy</span><span class="chip">Esc</span></div>
+    </figure>
+  </div>
+
+  <section id="how">
+    <div class="wrap">
+      <h2>Three keystrokes, no copy-paste</h2>
+      <ol class="steps">
+        <li><h3>Select</h3><p>Highlight text in any app, including Slack, Chrome and other apps the built-in Writing Tools skip.</p></li>
+        <li><h3>Press <kbd>⌃⌥P</kbd></h3><p>A small panel opens next to your selection. Pick an action.</p></li>
+        <li><h3>Replace or copy</h3><p>Changed words are highlighted. Replace puts the result back in place, and <kbd>⌘Z</kbd> still undoes it.</p></li>
+      </ol>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <h2>What it can do</h2>
+      <dl class="actions">
+        <div><dt>Fix grammar</dt><dd>Spelling, grammar and punctuation only. Your words and tone stay.</dd></div>
+        <div><dt>Improve</dt><dd>Clearer and more natural, about the same length.</dd></div>
+        <div><dt>Summarize</dt><dd>Three bullets or two sentences. Long threads are summarized in parts.</dd></div>
+        <div><dt>Shorten</dt><dd>Cuts about 40% and keeps every fact.</dd></div>
+        <div><dt>Change tone</dt><dd>Professional, friendly, direct or apologetic.</dd></div>
+        <div><dt>Expand</dt><dd>Turns bullet points or a terse note into full sentences.</dd></div>
+      </dl>
+    </div>
+  </section>
+
+  <section class="privacy" id="privacy">
+    <div class="wrap">
+      <h2>Private by default</h2>
+      <p class="big">Verbaine uses Apple's on-device model, which already ships with macOS. No account, no subscription, no server.</p>
+      <p>Prefer a bigger model? You can point Verbaine at your own OpenAI-compatible endpoint. Your key stays in the Keychain, and the menu bar shows when text is leaving your Mac.</p>
+    </div>
+  </section>
+
+  <section class="install" id="install">
+    <div class="wrap">
+      <h2>Installing</h2>
+      <p>Verbaine isn't notarized yet, so macOS asks you to approve it once.</p>
+      <ol>
+        <li>Download the latest release and move <code>Verbaine.app</code> to Applications.</li>
+        <li>Open it. macOS says it can't verify the app — that's expected.</li>
+        <li>Go to System Settings → Privacy &amp; Security and click <strong>Open Anyway</strong>.</li>
+        <li>Open Verbaine again, then grant Accessibility access when asked so it can read your selection.</li>
+      </ol>
+      <p class="reqs">Requires an Apple Silicon Mac with macOS 26.4 or later and Apple Intelligence turned on in System Settings.</p>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>Verbaine</span>
+    <a href="https://github.com/saswatsaubhagya/Verbaine">Source on GitHub</a>
+  </div>
+</footer>
+
+<script>
+// ponytail: one-shot reveal when the demo scrolls into view; reduced-motion users just see the end state
+const demo = document.getElementById('demo');
+const fix = () => { demo.classList.add('fixed'); document.getElementById('demo-state').textContent = 'Fix grammar'; };
+if (matchMedia('(prefers-reduced-motion: reduce)').matches) fix();
+else new IntersectionObserver(([e], o) => { if (e.isIntersecting) { setTimeout(fix, 900); o.disconnect(); } }, { threshold: .6 }).observe(demo);
+</script>
+</body>
+</html>
