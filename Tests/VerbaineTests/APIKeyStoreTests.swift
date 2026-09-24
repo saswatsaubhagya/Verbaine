@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-@testable import Polish
+@testable import Verbaine
 
 /// A host nobody will ever configure, so the test cannot collide with a real stored key.
 private func scratchHost() -> String { "test-\(UUID().uuidString).invalid" }

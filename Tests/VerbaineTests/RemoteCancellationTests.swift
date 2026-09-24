@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-@testable import Polish
+@testable import Verbaine
 
 /// F2: cancelling the task that is draining a remote stream must surface as a cancellation, not
 /// as a truncated success.

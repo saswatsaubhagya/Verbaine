@@ -1,9 +1,9 @@
 import Foundation
 import Testing
-@testable import Polish
+@testable import Verbaine
 
 private func scratchDefaults() -> UserDefaults {
-    UserDefaults(suiteName: "polish.tests.\(UUID().uuidString)")!
+    UserDefaults(suiteName: "verbaine.tests.\(UUID().uuidString)")!
 }
 
 private let releaseNote = CustomAction(

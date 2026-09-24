@@ -56,7 +56,7 @@ struct UserFacingError: Error, Equatable {
         switch error {
         case .accessibilityNotTrusted:
             self.init(
-                message: "Polish needs Accessibility permission to read the text you select.",
+                message: "Verbaine needs Accessibility permission to read the text you select.",
                 remedy: .accessibilitySettings
             )
         case .noFrontmostApp, .noFocusedElement:
@@ -81,7 +81,7 @@ struct UserFacingError: Error, Equatable {
         switch error {
         case .accessibilityNotTrusted:
             self.init(
-                message: "Polish needs Accessibility permission to paste the result back.",
+                message: "Verbaine needs Accessibility permission to paste the result back.",
                 remedy: .accessibilitySettings
             )
         case .sourceAppGone:
@@ -104,7 +104,7 @@ struct UserFacingError: Error, Equatable {
             return nil
         case .intelligenceDisabled:
             self.init(
-                message: "Turn on Apple Intelligence in System Settings to use Polish.",
+                message: "Turn on Apple Intelligence in System Settings to use Verbaine.",
                 remedy: .intelligenceSettings
             )
         case .modelDownloading:
@@ -114,7 +114,7 @@ struct UserFacingError: Error, Equatable {
             )
         case .unsupportedDevice:
             self.init(
-                message: "This Mac cannot run Apple Intelligence, so Polish cannot rewrite text.",
+                message: "This Mac cannot run Apple Intelligence, so Verbaine cannot rewrite text.",
                 remedy: .dismiss
             )
         case .remoteNotConfigured:
@@ -156,14 +156,14 @@ struct UserFacingError: Error, Equatable {
             )
         case .unreachable:
             self.init(
-                message: "Polish could not reach your endpoint. Check your connection and the base URL.",
+                message: "Verbaine could not reach your endpoint. Check your connection and the base URL.",
                 remedy: .modelSettings
             )
         case .contextLengthExceeded:
             self = Self.tooLong
         case .malformedResponse:
             self.init(
-                message: "Your endpoint sent a reply Polish could not read.",
+                message: "Your endpoint sent a reply Verbaine could not read.",
                 remedy: .retry
             )
         case .answerTruncated:
@@ -181,7 +181,7 @@ struct UserFacingError: Error, Equatable {
         case .unexpectedRedirect:
             self.init(
                 message: "Your endpoint tried to redirect this request to a different address, "
-                    + "which Polish refused for safety. Check the base URL in Settings.",
+                    + "which Verbaine refused for safety. Check the base URL in Settings.",
                 remedy: .modelSettings
             )
         }
@@ -263,7 +263,32 @@ struct UserFacingError: Error, Equatable {
     )
 }
 
+extension UserFacingError {
+    /// The heading above the message, as the board's error states are drawn (row 4): a short
+    /// statement of what happened, with `message` as the explanation under it.
+    var title: String {
+        switch remedy {
+        case .retry: "Something went wrong"
+        case .copyOriginal: "Verbaine can't process this text"
+        case .copyResult: "Verbaine couldn't replace the text"
+        case .accessibilitySettings: "Accessibility permission needed"
+        case .intelligenceSettings: "Apple Intelligence is turned off"
+        case .modelSettings: "Your endpoint needs attention"
+        case .dismiss: "Nothing to polish"
+        }
+    }
+}
+
 extension UserFacingError.Remedy {
+    /// The dismiss button's wording next to a remedy — "Not now" reads better than Close when
+    /// the remedy opens System Settings (board row 4b).
+    var dismissTitle: String {
+        switch self {
+        case .accessibilitySettings, .intelligenceSettings, .modelSettings: "Not now"
+        default: "Close"
+        }
+    }
+
     /// Button title, or `nil` for `dismiss` — that one gets a plain Close.
     var title: String? {
         switch self {
@@ -286,8 +311,8 @@ enum SettingsPane {
         open("x-apple.systempreferences:com.apple.Siri-Settings.extension")
     }
 
-    /// Polish's own Settings window, for the remedies that point at the Model tab.
-    static func openPolishSettings() {
+    /// Verbaine's own Settings window, for the remedies that point at the Model tab.
+    static func openVerbaineSettings() {
         NSApp.activate(ignoringOtherApps: true)
         NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
     }

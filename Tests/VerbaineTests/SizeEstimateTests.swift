@@ -1,5 +1,5 @@
 import Testing
-@testable import Polish
+@testable import Verbaine
 
 /// T2.4 — the estimate the popover shows before anything runs, against `PRD.md`
 /// "Strategy by text length".

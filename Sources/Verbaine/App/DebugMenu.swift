@@ -5,7 +5,7 @@ import os
 /// Scratch menu for the Phase 0 spike. Every entry here exists to satisfy a task's "Done when"
 /// by hand; none of it ships. Delete the whole file once Phase 0 closes (T0.6).
 struct DebugMenu: View {
-    private static let log = Logger(subsystem: "com.saswat.polish", category: "Debug")
+    private static let log = Logger(subsystem: "in.saswatsaubhagya.verbaine", category: "Debug")
 
     var body: some View {
         Menu("Debug") {
@@ -23,6 +23,12 @@ struct DebugMenu: View {
             }
             Button("Improve selection (T0.5)") {
                 Task { await Self.improveSelection() }
+            }
+            Button("Show popover over a sample selection") {
+                PopoverController.show(selection: Self.sampleSelection)
+            }
+            Button("Show undo toast") {
+                UndoToast.show(near: Self.sampleSelection)
             }
             Button("Show onboarding (T1.7)") {
                 OnboardingWindow.show()
@@ -45,6 +51,23 @@ struct DebugMenu: View {
                 }
             }
         }
+    }
+
+    /// The board's own sample text, so the popover can be checked against `docs/DESIGN.md`
+    /// without hunting for a real selection in another app.
+    @MainActor
+    private static var sampleSelection: Selection {
+        Selection(
+            text: """
+                Hey team, just wanted to circle back on the deploy window that we talked about \
+                yesterday. I think we should probably push it to Thursday because the QA run \
+                isn't finished yet and I don't want to risk breaking anything over the weekend.
+                """,
+            bounds: NSScreen.main.map { CGRect(x: $0.frame.midX - 200, y: 260, width: 400, height: 60) },
+            appBundleID: "com.tinyspeck.slackmacgap",
+            element: nil,
+            source: .clipboard
+        )
     }
 
     /// Exercises the facade: AX where it works, ⌘C where it does not.

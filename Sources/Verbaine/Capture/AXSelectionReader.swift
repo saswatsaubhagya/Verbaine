@@ -12,7 +12,7 @@ import os
 /// IPC round-trip to another process; keeping them on one actor keeps the ordering obvious.
 @MainActor
 enum AXSelectionReader {
-    private static let log = Logger(subsystem: "com.saswat.polish", category: "AXSelectionReader")
+    private static let log = Logger(subsystem: "in.saswatsaubhagya.verbaine", category: "AXSelectionReader")
 
     /// Reads the selection from whichever app is frontmost right now.
     static func read() throws(CaptureError) -> Selection {

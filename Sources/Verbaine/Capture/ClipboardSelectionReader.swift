@@ -10,7 +10,7 @@ import os
 /// with the user's own clipboard restored.
 @MainActor
 enum ClipboardSelectionReader {
-    private static let log = Logger(subsystem: "com.saswat.polish", category: "ClipboardSelectionReader")
+    private static let log = Logger(subsystem: "in.saswatsaubhagya.verbaine", category: "ClipboardSelectionReader")
 
     /// How long to wait for the copied text to show up before giving up. Slack answers in
     /// ~30 ms locally; 300 ms is the budget T0.4 sets for a slow app under load.

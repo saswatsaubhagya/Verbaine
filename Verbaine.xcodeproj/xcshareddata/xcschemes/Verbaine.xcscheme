@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "AA00000000000000000060"
-               BuildableName = "Polish.app"
-               BlueprintName = "Polish"
-               ReferencedContainer = "container:Polish.xcodeproj">
+               BuildableName = "Verbaine.app"
+               BlueprintName = "Verbaine"
+               ReferencedContainer = "container:Verbaine.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -33,9 +33,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "AA00000000000000000061"
-               BuildableName = "PolishTests.xctest"
-               BlueprintName = "PolishTests"
-               ReferencedContainer = "container:Polish.xcodeproj">
+               BuildableName = "VerbaineTests.xctest"
+               BlueprintName = "VerbaineTests"
+               ReferencedContainer = "container:Verbaine.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -55,9 +55,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "AA00000000000000000060"
-            BuildableName = "Polish.app"
-            BlueprintName = "Polish"
-            ReferencedContainer = "container:Polish.xcodeproj">
+            BuildableName = "Verbaine.app"
+            BlueprintName = "Verbaine"
+            ReferencedContainer = "container:Verbaine.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -72,9 +72,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "AA00000000000000000060"
-            BuildableName = "Polish.app"
-            BlueprintName = "Polish"
-            ReferencedContainer = "container:Polish.xcodeproj">
+            BuildableName = "Verbaine.app"
+            BlueprintName = "Verbaine"
+            ReferencedContainer = "container:Verbaine.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

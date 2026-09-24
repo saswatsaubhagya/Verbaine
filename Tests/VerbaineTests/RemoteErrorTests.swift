@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-@testable import Polish
+@testable import Verbaine
 
 @Test("every HTTP status the endpoints actually return maps to its own failure", arguments: [
     (401, RemoteError.unauthorized),

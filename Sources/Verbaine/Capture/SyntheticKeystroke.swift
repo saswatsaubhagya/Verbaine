@@ -8,7 +8,7 @@ import os
 /// if the user had typed them, which is the only way to get text in and out of Electron apps
 /// while leaving their own undo stack intact. Needs the same Accessibility trust as reading.
 enum SyntheticKeystroke {
-    private static let log = Logger(subsystem: "com.saswat.polish", category: "SyntheticKeystroke")
+    private static let log = Logger(subsystem: "in.saswatsaubhagya.verbaine", category: "SyntheticKeystroke")
 
     static func postCommandC() { post(key: CGKeyCode(kVK_ANSI_C)) }
     static func postCommandV() { post(key: CGKeyCode(kVK_ANSI_V)) }

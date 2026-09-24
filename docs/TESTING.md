@@ -6,17 +6,17 @@ Record the result and the date next to each run. All T0.1–T0.5 checklists belo
 
 ## T0.1 — Project scaffold
 
-- [x] `xcodebuild -project Polish.xcodeproj -scheme Polish -destination 'platform=macOS' build` succeeds.
-- [x] Launching `Polish.app` shows a wand icon in the menu bar.
+- [x] `xcodebuild -project Verbaine.xcodeproj -scheme Verbaine -destination 'platform=macOS' build` succeeds.
+- [x] Launching `Verbaine.app` shows a wand icon in the menu bar.
 - [x] No Dock icon and no app window appear on launch (`LSUIElement`).
-- [x] The menu lists "Improve selection", "Settings…", "Quit Polish".
+- [x] The menu lists "Improve selection", "Settings…", "Quit Verbaine".
 - [x] "Settings…" opens the placeholder Settings window.
-- [x] "Quit Polish" (or ⌘Q with the menu open) terminates the app and removes the menu bar icon.
+- [x] "Quit Verbaine" (or ⌘Q with the menu open) terminates the app and removes the menu bar icon.
 
 ## T0.2 — Foundation Models hello world
 
 Needs Apple Intelligence enabled (Settings → Apple Intelligence & Siri). Watch the log with
-`log stream --predicate 'subsystem == "com.saswat.polish"' --level debug` while clicking.
+`log stream --predicate 'subsystem == "in.saswatsaubhagya.verbaine"' --level debug` while clicking.
 
 - [x] Debug → "Model availability" logs `ready` on a machine with Apple Intelligence on.
 - [x] Debug → "Fix grammar sample (T0.2)" logs `contextSize=… tokens=…` for the sample.
@@ -25,8 +25,8 @@ Needs Apple Intelligence enabled (Settings → Apple Intelligence & Siri). Watch
 
 ## T0.3 — Selection capture via Accessibility
 
-Needs Accessibility permission (System Settings → Privacy & Security → Accessibility → Polish).
-Watch the log with `log stream --predicate 'subsystem == "com.saswat.polish"' --level debug`.
+Needs Accessibility permission (System Settings → Privacy & Security → Accessibility → Verbaine).
+Watch the log with `log stream --predicate 'subsystem == "in.saswatsaubhagya.verbaine"' --level debug`.
 
 - [x] With permission **not** granted, Debug → "Read AX selection (T0.3)" logs `not trusted`, shows the system prompt and opens the Accessibility pane.
 - [x] With permission granted and text selected in Notes, the same item logs `app=com.apple.Notes`, a non-nil `bounds` and the exact selected text.
@@ -38,7 +38,7 @@ Watch the log with `log stream --predicate 'subsystem == "com.saswat.polish"' --
 ## T0.4 — Selection capture via clipboard fallback
 
 Needs Accessibility permission (posting ⌘C requires the same trust as reading).
-Watch the log with `log stream --predicate 'subsystem == "com.saswat.polish"' --level debug`.
+Watch the log with `log stream --predicate 'subsystem == "in.saswatsaubhagya.verbaine"' --level debug`.
 
 Before each run, copy a marker string (e.g. `MARKER-123`) so the clipboard restore is checkable.
 
@@ -53,7 +53,7 @@ Before each run, copy a marker string (e.g. `MARKER-123`) so the clipboard resto
 ## T0.5 — Paste-based write-back
 
 Needs Accessibility permission and Apple Intelligence enabled.
-Watch the log with `log stream --predicate 'subsystem == "com.saswat.polish"' --level debug`.
+Watch the log with `log stream --predicate 'subsystem == "in.saswatsaubhagya.verbaine"' --level debug`.
 
 Before each run, copy a marker string (e.g. `MARKER-123`) so the clipboard restore is checkable.
 
@@ -70,7 +70,7 @@ Before each run, copy a marker string (e.g. `MARKER-123`) so the clipboard resto
 ## T1.1 — Global hotkey
 
 Needs Accessibility permission. Run the built app (not the Xcode preview) so the hotkey registers.
-Watch the log with `log stream --predicate 'subsystem == "com.saswat.polish"' --level debug`.
+Watch the log with `log stream --predicate 'subsystem == "in.saswatsaubhagya.verbaine"' --level debug`.
 
 - [ ] With Slack frontmost and text selected, ⌃⌥P logs `hotkey fired` then `captured N chars from com.tinyspeck.slackmacgap`.
 - [ ] Same with Safari frontmost (`com.apple.Safari`) and text selected on a page.
@@ -83,7 +83,7 @@ Watch the log with `log stream --predicate 'subsystem == "com.saswat.polish"' --
 ## T1.4 — Action popover UI
 
 Needs Accessibility permission and Apple Intelligence enabled. Run the built app.
-Watch the log with `log stream --predicate 'subsystem == "com.saswat.polish"' --level debug`.
+Watch the log with `log stream --predicate 'subsystem == "in.saswatsaubhagya.verbaine"' --level debug`.
 
 - [ ] Select text in Notes, press ⌃⌥P: the popover appears just below the selection, showing the selected text and a 6-button action grid.
 - [ ] Notes stays frontmost (its title bar stays active) and the selection stays highlighted while the popover is open.
@@ -102,7 +102,7 @@ Watch the log with `log stream --predicate 'subsystem == "com.saswat.polish"' --
 ## T1.5 — Undo buffer and toast
 
 Needs Accessibility permission and Apple Intelligence enabled. Run the built app.
-Watch the log with `log stream --predicate 'subsystem == "com.saswat.polish"' --level debug`.
+Watch the log with `log stream --predicate 'subsystem == "in.saswatsaubhagya.verbaine"' --level debug`.
 
 - [ ] Select text in Mail, ⌃⌥P → Improve → ⏎: the popover closes and a "Replaced · Undo" capsule appears where the popover was.
 - [ ] The toast disappears on its own after ~4 s and changes nothing.
@@ -134,9 +134,9 @@ submenu, which throws the real error type through the same mapping the live fail
 ## T1.7 — Onboarding
 
 Fresh install on a clean user account, or Debug → "Reset onboarding flag (T1.7)" then relaunch.
-Watch the log with `log stream --predicate 'subsystem == "com.saswat.polish"' --level debug`.
+Watch the log with `log stream --predicate 'subsystem == "in.saswatsaubhagya.verbaine"' --level debug`.
 
-- [ ] First launch shows the "Welcome to Polish" window centred on screen, on step 1 of 3.
+- [ ] First launch shows the "Welcome to Verbaine" window centred on screen, on step 1 of 3.
 - [ ] Step 1 names ⌃⌥P and says everything runs on this Mac; **Continue** is enabled.
 - [ ] With Apple Intelligence **off**, step 2 says so, **Continue** is disabled, and "Open Apple Intelligence settings" opens the right pane.
 - [ ] Turn Apple Intelligence on without touching the window: within ~1 s the line flips to a green check and **Continue** enables.
@@ -162,7 +162,7 @@ Open with the menu-bar item → **Settings…** (⌘,).
 - [ ] Record a combination another app owns (e.g. ⌘Space): "Another app already uses that shortcut." appears and the previous shortcut still fires.
 - [ ] **Reset** returns to ⌃⌥P and ⌃⌥P fires again.
 - [ ] Set "Summarize as" to Paragraph, then summarize a selection: the result is prose, not "- " bullets. Switch back to Bullet points: bullets again.
-- [ ] Toggle **Launch Polish at login** on; check System Settings → General → Login Items shows Polish; toggle off and it disappears. (Needs the app in /Applications; if it fails, the toggle snaps back and shows the reason.)
+- [ ] Toggle **Launch Verbaine at login** on; check System Settings → General → Login Items shows Verbaine; toggle off and it disappears. (Needs the app in /Applications; if it fails, the toggle snaps back and shows the reason.)
 - [ ] Apps tab lists the six default bundle IDs.
 - [ ] **Add…** → pick an app: its bundle ID appears once. Adding the same app twice leaves one entry.
 - [ ] Select an entry → **Remove**: it disappears and **Remove** disables again.
@@ -170,7 +170,7 @@ Open with the menu-bar item → **Settings…** (⌘,).
 - [ ] **Reset** on the Apps tab restores the six defaults.
 - [ ] About shows the name, version and build, and says nothing leaves the Mac.
 - [ ] About → **Show onboarding again** opens the onboarding window.
-- [ ] **Persistence:** change the shortcut, summary style and the app list, quit Polish, relaunch → all three come back as set, and the new shortcut fires without opening Settings first.
+- [ ] **Persistence:** change the shortcut, summary style and the app list, quit Verbaine, relaunch → all three come back as set, and the new shortcut fires without opening Settings first.
 
 ## T1.9 — Release build
 
@@ -180,11 +180,11 @@ exported app from `/Applications`, not from DerivedData — sandbox and notariza
 **Artefacts**
 
 - [ ] The app icon is the paper-and-sparkle mark in Finder, the Dock's ⌘Tab-less app list, and About; at 16 pt in a Get Info panel it still reads as two lines plus a sparkle.
-- [ ] `plutil -p Polish.app/Contents/Info.plist` shows `LSUIElement`, `LSApplicationCategoryType = public.app-category.productivity`, `CFBundleShortVersionString` and a `CFBundleVersion` equal to the commit count.
-- [ ] `Polish.app/Contents/Resources/PrivacyInfo.xcprivacy` is present and declares no tracking and no collected data.
-- [ ] `codesign -dv --entitlements - Polish.app` shows hardened runtime, the expected identity, and `com.apple.security.app-sandbox` on the Release build.
-- [ ] `spctl --assess --type execute --verbose Polish.app` says "accepted / Notarized Developer ID" (direct build).
-- [ ] Nothing in the bundle links a networking stack: `otool -L Polish.app/Contents/MacOS/Polish | grep -i -e network -e cfnetwork` is empty.
+- [ ] `plutil -p Verbaine.app/Contents/Info.plist` shows `LSUIElement`, `LSApplicationCategoryType = public.app-category.productivity`, `CFBundleShortVersionString` and a `CFBundleVersion` equal to the commit count.
+- [ ] `Verbaine.app/Contents/Resources/PrivacyInfo.xcprivacy` is present and declares no tracking and no collected data.
+- [ ] `codesign -dv --entitlements - Verbaine.app` shows hardened runtime, the expected identity, and `com.apple.security.app-sandbox` on the Release build.
+- [ ] `spctl --assess --type execute --verbose Verbaine.app` says "accepted / Notarized Developer ID" (direct build).
+- [ ] Nothing in the bundle links a networking stack: `otool -L Verbaine.app/Contents/MacOS/Verbaine | grep -i -e network -e cfnetwork` is empty.
 - [ ] Little Snitch (or `nettop`) records zero outbound connections across a full session of the checks below.
 
 **Sandboxed hero flow** — the point of the TestFlight build is to prove Accessibility works from inside the sandbox. Grant Accessibility to the exported app first (System Settings → Privacy & Security → Accessibility).
@@ -229,13 +229,13 @@ Needs the real model: the unit tests stub it, so summary quality over a long thr
 ## T3.4 Services menu — manual
 
 The Services menu is a system feature: it reads `NSServices` out of the installed app's bundle, so
-nothing here is provable from a unit test. Build and run Polish once first (the services cache only
+nothing here is provable from a unit test. Build and run Verbaine once first (the services cache only
 learns about a new entry after the app has launched from its built location); if the items do not
 appear, run `/System/Library/CoreServices/pbs -flush` and log out and back in.
 
-- [ ] TextEdit: type a sentence with a clumsy phrasing, select it, right-click → **Services** — "Polish: Improve" and "Polish: Summarize" both appear.
-- [ ] **Polish: Improve** replaces the selection in place with the rewritten text; ⌘Z in TextEdit undoes it in one step.
-- [ ] **Polish: Summarize** on a few paragraphs replaces them with the summary.
+- [ ] TextEdit: type a sentence with a clumsy phrasing, select it, right-click → **Services** — "Verbaine: Improve" and "Verbaine: Summarize" both appear.
+- [ ] **Verbaine: Improve** replaces the selection in place with the rewritten text; ⌘Z in TextEdit undoes it in one step.
+- [ ] **Verbaine: Summarize** on a few paragraphs replaces them with the summary.
 - [ ] The same two items appear in Mail and in Safari (in an editable field), and Improve replaces there too.
 - [ ] With nothing selected the items are greyed out; with a selection of whitespace only, the system beep/alert says "Select some text first."
 - [ ] A very long selection (the 3,000-word document from T2.2) fails with the over-long message rather than hanging or silently truncating — Services runs single-pass only.
@@ -252,7 +252,7 @@ what only the running app proves is the Settings editor, the grid and the global
 - [ ] **Shortcut** → record ⌃⌥R; the list row shows "⌃⌥R". **Clear** removes it and the row shows no shortcut.
 - [ ] Select text in Notes, ⌃⌥P — "Rewrite as release note" appears in the grid after **Expand**; running it returns a release note.
 - [ ] With that action's result on screen, ⏎ copies (the action's default button) rather than replacing; **Replace** still works from the mouse.
-- [ ] Quit and relaunch Polish: the action is still there, with its shortcut.
+- [ ] Quit and relaunch Verbaine: the action is still there, with its shortcut.
 - [ ] Select text in Slack and press ⌃⌥R — the action runs and replaces with no popover, the toast confirms it. (T3.1 done-when, silent since T3.2.)
 - [ ] Give a second custom action a different shortcut; both fire their own action. Give one a shortcut already owned by another app — Settings says the combination is taken and the old one is kept.
 - [ ] **Remove** deletes the action; its shortcut stops firing without a relaunch.
@@ -282,7 +282,7 @@ window on screen.
 - [ ] Picking "Custom endpoint" reveals Base URL, API key, Model and Context size.
 - [ ] Choosing a preset fills the Base URL field and leaves the other fields alone.
 - [ ] Typed values survive closing and reopening Settings.
-- [ ] The API key field is masked, and the key does not appear in `defaults read com.saswat.polish`.
+- [ ] The API key field is masked, and the key does not appear in `defaults read in.saswatsaubhagya.verbaine`.
 - [ ] Switching back to "Apple on-device" hides the fields but keeps the stored values.
 
 ## T3.9 — Remote visibility
@@ -293,7 +293,7 @@ window on screen.
 - [ ] A rewrite against the remote endpoint streams into the result pane, and the word-level diff highlights as it does on-device.
 - [ ] Replace still pastes into Slack, and ⌘Z in Slack still restores the original.
 - [ ] Switching back to Apple on-device takes effect on the very next action.
-- [ ] `codesign -d --entitlements - build/.../Polish.app` lists `com.apple.security.network.client` and no `network.server`.
+- [ ] `codesign -d --entitlements - build/.../Verbaine.app` lists `com.apple.security.network.client` and no `network.server`.
 - [ ] A custom endpoint whose base URL redirects to a different host is refused rather than followed: the request fails with the "check the base URL in Settings" message, and the API key is not sent onward.
 
 ## Final review fix wave (M1–M5)
@@ -308,4 +308,69 @@ window on screen.
 - [ ] A zipped Release build, copied to a Mac that has never seen the project, is blocked on first launch and opens after System Settings → Privacy & Security → **Open Anyway**.
 - [ ] With a custom endpoint configured and its API key saved, quitting and relaunching the *same* build keeps the key — Settings → Model still shows it filled in, and an action runs without re-entering it.
 - [ ] After replacing the app with a **newly built** copy, check whether the stored API key still works. An ad-hoc signature is tied to the exact build, so macOS may prompt for Keychain access or fail to read the key. Record which happens: a prompt the user can approve is acceptable, silently losing the key is not.
-- [ ] `codesign -dv Polish.app` reports `Signature=adhoc` and `TeamIdentifier=not set`, and `codesign -d --entitlements - Polish.app` still lists `com.apple.security.app-sandbox` and `com.apple.security.network.client`.
+- [ ] `codesign -dv Verbaine.app` reports `Signature=adhoc` and `TeamIdentifier=not set`, and `codesign -d --entitlements - Verbaine.app` still lists `com.apple.security.app-sandbox` and `com.apple.security.network.client`.
+
+## Design parity — the board (`docs/DESIGN.md`)
+
+Run with the board open beside the app, in light **and** dark appearance (System Settings →
+Appearance), on a 2× display.
+
+**Popover, step 1 (board row 1)**
+
+- [ ] Panel is 320 pt wide, corner radius 14, glass fill with a hairline edge and a soft shadow — no square title bar.
+- [ ] Six tiles, 94 × 62 in a 3 × 2 grid: glyph over an 11 pt medium label, faint fill at rest, darker on hover.
+- [ ] Keys 1–6 run the matching tile; the footer reads "1–6 pick · esc close" with an `esc` chip top-right.
+- [ ] Press 5 (Change tone): the tile turns accent-tinted, a tone row opens in place, the panel grows downward with its top-left corner unmoved, and the footer switches to "1–4 tone · esc back".
+- [ ] Keys 1–4 now pick a tone; Esc closes the sub-row without closing the popover; Esc again closes the popover.
+- [ ] Size line reads "142 words · fits in one pass", or "… · long text, N parts" over the single-pass limit.
+- [ ] Over 12,000 tokens only Fix grammar and Summarize are enabled; the rest are dimmed and the amber warning line is present.
+- [ ] Custom actions appear as pills under a "YOURS" header.
+
+**Result (board row 2)**
+
+- [ ] Panel grows to 560 pt in place; the top-left corner does not move.
+- [ ] Header: action title, an accent "On-device" chip (or "<endpoint> · cloud" when a remote endpoint is configured).
+- [ ] Two panes under 9.5 pt uppercase "ORIGINAL"/"RESULT" headers, each scrolling on its own, capped at 400 pt total.
+- [ ] Unchanged words are 45% ink; removals are struck through in red on a faint red field; additions sit on a green field.
+- [ ] Footer reads "142 → 38 words"; Retry, Copy ⌘C and Replace ⏎ are present, with ⏎ on the action's default button.
+- [ ] Change tone result shows the four tones in the header; clicking one re-runs against the original without reopening.
+
+**Long text (board row 3)**
+
+- [ ] While parts run: "Part 3 of 8" over a full-bleed 2 pt track whose accent fill advances per part.
+- [ ] Only Cancel shows while running — Replace and Copy appear when the last part lands.
+
+**Errors (board row 4)**
+
+- [ ] A failure shows a bold heading, the sentence under it, an `esc` chip, and one remedy button ("Not now" instead of Close when the remedy opens System Settings).
+
+**Placement (board row 4, placement rule)**
+
+- [ ] Popover sits 8 pt below the selection, left edges aligned.
+- [ ] With the selection near the bottom of the screen (less than 400 pt of room below), the popover flips above the selection instead of being squashed.
+
+**Undo toast (board row 5)**
+
+- [ ] 30 pt pill, fully rounded, glass, "Replaced" with an accent "Undo ⌘Z".
+- [ ] A hairline countdown shrinks along the bottom edge and the toast disappears at 4 s.
+- [ ] Hovering the toast pauses the countdown; moving away resumes it.
+
+**Menu bar (board rows 3 and 7)**
+
+- [ ] The menu-bar mark is the two-line-plus-sparkle template image: black in light mode, white in dark, white while the menu is open.
+- [ ] The dropdown lists all six actions, then custom actions, then Settings… and Quit Verbaine.
+- [ ] With a remote endpoint configured, the mark changes to a cloud.
+
+**Onboarding (board row 5/7)** — Settings → About → Reset onboarding.
+
+- [ ] Window is 520 × 420; headline is 22 pt semibold over a 13 pt subtitle.
+- [ ] Step 1 shows the three numbered cards (Select / Pick an action / Replaced) and the "Nothing leaves your Mac" line.
+- [ ] Steps 2 and 3 show a status card with a green check when satisfied, amber when not, and the footer reads "Step n of 3" with Back / Continue (the last button reads "Start using Verbaine").
+
+**Settings (board row 6)**
+
+- [ ] Window is 640 × 430; tabs read General, Actions, Apps, Model, About.
+- [ ] General: right-aligned labels "Verbaine shortcut:", "Startup:", "Summary style:" with a segmented Bullets/Paragraph control.
+- [ ] Actions: a table with Action / Default button / Hotkey columns, built-ins first, then a "CUSTOM" section; double-clicking a custom action opens the edit sheet.
+- [ ] Apps: "DEFAULT TONE PER APP" over the tone list, "USING CLIPBOARD FALLBACK" over the bundle-ID list, with the explanation line underneath.
+- [ ] About: app icon, name, version, "macOS 26 or later · Apple silicon", and Reset onboarding.

@@ -20,7 +20,7 @@ final class UndoBuffer {
         let recordedAt: ContinuousClock.Instant
     }
 
-    private static let log = Logger(subsystem: "com.saswat.polish", category: "UndoBuffer")
+    private static let log = Logger(subsystem: "in.saswatsaubhagya.verbaine", category: "UndoBuffer")
 
     private var entry: Entry?
 

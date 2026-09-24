@@ -1,5 +1,5 @@
 import Testing
-@testable import Polish
+@testable import Verbaine
 
 @Test("every instruction fits the 120-token prompt budget", arguments: Prompts.all)
 func instructionFitsTokenBudget(instruction: String) async throws {

@@ -1,5 +1,5 @@
 import Testing
-@testable import Polish
+@testable import Verbaine
 
 @MainActor
 @Test("Electron and Chromium apps take the clipboard path", arguments: [

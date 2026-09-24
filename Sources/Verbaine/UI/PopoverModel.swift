@@ -14,7 +14,7 @@ final class PopoverModel {
         case failed(UserFacingError)
     }
 
-    private static let log = Logger(subsystem: "com.saswat.polish", category: "Popover")
+    private static let log = Logger(subsystem: "in.saswatsaubhagya.verbaine", category: "Popover")
 
     let selection: Selection
     private(set) var phase: Phase = .actions
@@ -24,6 +24,8 @@ final class PopoverModel {
     private(set) var progress: PartProgress?
     /// Size of the selection, shown on the action grid; `nil` until it has been measured (T2.4).
     private(set) var estimate: SizeEstimate?
+    /// Change tone's sub-row, open in place under the grid. Esc closes it before the popover.
+    var isPickingTone = false
     /// Dismisses the popover: Esc, Copy, or a failure the user closes.
     var onClose: () -> Void = {}
     /// Dismisses the popover and hands over to the undo toast (T1.5).
@@ -50,6 +52,15 @@ final class PopoverModel {
             paragraphs: TextChunker.paragraphs(selection.text).count,
             singlePassLimit: limit
         )
+    }
+
+    /// Esc: back out of the tone row if it is open, otherwise close.
+    func escape() {
+        if isPickingTone {
+            isPickingTone = false
+        } else {
+            onClose()
+        }
     }
 
     var diff: [DiffEngine.Segment] {

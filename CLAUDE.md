@@ -8,7 +8,7 @@ T0.1–T0.3 done: menu-bar app scaffolded, `ModelService` talks to the on-device
 
 ## Product
 
-**Polish** — macOS menu-bar app that rewrites/summarizes text selected in *any* app (Slack, Mail, Chrome, Notes) using Apple's on-device Foundation Models by default. No network, no account, no cloud — unless the user configures their own endpoint, and the menu bar and popover say so whenever that's active.
+**Verbaine** — macOS menu-bar app that rewrites/summarizes text selected in *any* app (Slack, Mail, Chrome, Notes) using Apple's on-device Foundation Models by default. No network, no account, no cloud — unless the user configures their own endpoint, and the menu bar and popover say so whenever that's active.
 
 ## Working method
 
@@ -19,17 +19,17 @@ T0.1–T0.3 done: menu-bar app scaffolded, `ModelService` talks to the on-device
 Xcode 26, macOS 26.4 deployment target, Apple Silicon only. (26.4, not 26.0: `SystemLanguageModel.tokenCount(for:)` is 26.4+, and the architecture depends on measuring rather than estimating tokens.) There is no SwiftPM package — the `.xcodeproj` is the build system:
 
 ```sh
-xcodebuild -project Polish.xcodeproj -scheme Polish -destination 'platform=macOS' build
-xcodebuild -project Polish.xcodeproj -scheme Polish -destination 'platform=macOS' test
+xcodebuild -project Verbaine.xcodeproj -scheme Verbaine -destination 'platform=macOS' build
+xcodebuild -project Verbaine.xcodeproj -scheme Verbaine -destination 'platform=macOS' test
 ```
 
-Both must pass before a task is done. Target folders are file-system synchronized, so a new file under `Sources/Polish/` joins the app target with no `.xcodeproj` edit. Keep Swift file basenames unique across the target — duplicates collide on `.stringsdata` output and fail the build. Runtime needs Apple Intelligence enabled and Accessibility permission granted to the app.
+Both must pass before a task is done. Target folders are file-system synchronized, so a new file under `Sources/Verbaine/` joins the app target with no `.xcodeproj` edit. Keep Swift file basenames unique across the target — duplicates collide on `.stringsdata` output and fail the build. Runtime needs Apple Intelligence enabled and Accessibility permission granted to the app.
 
 ## Non-negotiable constraints
 
 - Swift 6 strict concurrency, SwiftUI + AppKit. No third-party dependencies unless a task explicitly names one.
 - Never hard-code the 4096-token window. Read `SystemLanguageModel.default.contextSize` and measure with `tokenCount(for:)` before every model call.
-- All prompts live in `Sources/Polish/Model/Prompts.swift`, one static string per action, each ≤120 tokens.
+- All prompts live in `Sources/Verbaine/Model/Prompts.swift`, one static string per action, each ≤120 tokens.
 - One fresh `LanguageModelSession` per action — no history carried between calls.
 - UI-only tasks add a manual checklist to `docs/TESTING.md`; tasks with logic add unit tests.
 - The remote API key lives in the Keychain only, keyed by endpoint host. Never in `UserDefaults`, never in a log line, never in a user-facing message.

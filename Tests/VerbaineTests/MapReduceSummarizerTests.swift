@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-@testable import Polish
+@testable import Verbaine
 
 /// One token per word, as in `TextChunkerTests`, so the packing arithmetic is the only variable.
 private struct WordCounter: TokenCounting {

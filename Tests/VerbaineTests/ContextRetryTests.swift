@@ -1,7 +1,7 @@
 import Foundation
 import FoundationModels
 import Testing
-@testable import Polish
+@testable import Verbaine
 
 /// One token per word, as elsewhere in these tests.
 private struct WordCounter: TokenCounting {

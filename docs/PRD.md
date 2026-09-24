@@ -1,14 +1,14 @@
-# PRD: Polish — On-Device Writing Assistant for macOS
+# PRD: Verbaine — On-Device Writing Assistant for macOS
 
 2026-09-18 · Saswat
 
 ## Overview
 
-Polish is a menu-bar Mac app that fixes, improves, or summarizes any text you select in any app, on-device by default, using Apple's Foundation Models framework. Select text in Slack, Mail, Notes or a browser, press a hotkey, pick an action, and either copy the result or replace the selection in place. No account, no cloud, no data leaves the Mac — unless you configure your own API endpoint, and the menu bar says so whenever that's active.
+Verbaine is a menu-bar Mac app that fixes, improves, or summarizes any text you select in any app, on-device by default, using Apple's Foundation Models framework. Select text in Slack, Mail, Notes or a browser, press a hotkey, pick an action, and either copy the result or replace the selection in place. No account, no cloud, no data leaves the Mac — unless you configure your own API endpoint, and the menu bar says so whenever that's active.
 
 **One-line pitch:** Grammarly-style writing help for every Mac app, private by design and free to run because the model ships with macOS.
 
-*Working name: Polish. Alternatives to consider: Tidy, Redraft, Quill.*
+*Working name: Verbaine. Alternatives to consider: Tidy, Redraft, Quill.*
 
 ## Problem & opportunity
 
@@ -53,7 +53,7 @@ Apple's on-device model changes the economics. Every Apple Silicon Mac on macOS 
 
 ## Target users
 
-| Persona | Situation | What they need from Polish |
+| Persona | Situation | What they need from Verbaine |
 | --- | --- | --- |
 | Non-native English professional | Writes 30–50 Slack messages and 10 emails a day; second-guesses grammar and tone before sending | Fix grammar and make it sound natural in one keystroke, without leaving Slack |
 | Engineer / IC | Terse, rushed messages; long threads to catch up on | Improve clarity, summarize a pasted thread, turn notes into a tidy update |
@@ -84,7 +84,7 @@ The popover shows original and result side by side, with changed words highlight
 **Flow 2 — Summarize a long thread**
 
 1. User selects a thread or long email (may be several thousand words).
-2. Chooses Summarize. Polish shows a token estimate and, if over budget, says "Long text, summarizing in N parts".
+2. Chooses Summarize. Verbaine shows a token estimate and, if over budget, says "Long text, summarizing in N parts".
 3. Chunked map-reduce runs (see Context limit section); progress bar shows parts completed.
 4. Result appears as 3–5 bullets or a short paragraph (user setting). Copy is primary here since a summary rarely replaces the source.
 
@@ -94,7 +94,7 @@ Power users assign per-action hotkeys, e.g. ⌃⌥G = fix grammar and replace im
 
 **Flow 4 — Undo**
 
-After a Replace, Polish keeps the original for 60 seconds. ⌘Z in the popover or clicking the toast restores it. Polish also tries to keep the host app's native undo stack intact by replacing via a paste operation rather than raw Accessibility writes.
+After a Replace, Verbaine keeps the original for 60 seconds. ⌘Z in the popover or clicking the toast restores it. Verbaine also tries to keep the host app's native undo stack intact by replacing via a paste operation rather than raw Accessibility writes.
 
 **Entry points**
 
@@ -103,8 +103,8 @@ After a Replace, Polish keeps the original for 60 seconds. ⌘Z in the popover o
 | Global hotkey | Default ⌃⌥P; user-configurable | Primary, works everywhere |
 | Floating button on selection | Small pill appears near selected text after ~400 ms | Optional, off by default; some users find it noisy |
 | Menu bar icon | Click → act on current selection or clipboard | Fallback when hotkey conflicts |
-| macOS Services menu | Right-click → Services → Polish: Improve | Free integration in Cocoa apps; unreliable in Electron |
-| Clipboard mode | Copy text, open Polish, act on clipboard | Last resort for apps where selection can't be read |
+| macOS Services menu | Right-click → Services → Verbaine: Improve | Free integration in Cocoa apps; unreliable in Electron |
+| Clipboard mode | Copy text, open Verbaine, act on clipboard | Last resort for apps where selection can't be read |
 
 ## Feature set
 
@@ -123,7 +123,7 @@ The 4K window is a constraint, but short-text transformations are exactly what a
 
 **Additional features that suit a small local model (v1.x–v2)**
 
-1. **Reply drafts.** Select an incoming message, choose Reply → Polish drafts a short response you can edit before sending. Fits easily in budget because the input is one message.
+1. **Reply drafts.** Select an incoming message, choose Reply → Verbaine drafts a short response you can edit before sending. Fits easily in budget because the input is one message.
 2. **Explain / simplify.** Select jargon or a dense paragraph and get a plain-English version. Useful for engineers reading legal or product text.
 3. **Extract action items.** From a selected thread or meeting note, produce a checklist. Uses `@Generable` structured output so the result is a real list, not free text.
 4. **Bullets ↔ prose.** Convert a list into a paragraph or vice versa.
@@ -218,7 +218,7 @@ Slack (Electron) exposes limited AX attributes for its composer, so the pasteboa
 - Streaming via `streamResponse` so text appears progressively in the popover.
 - Structured actions (action items, classify) use `@Generable` types; plain rewrites return `String`.
 - Prompts live in a versioned `Prompts.swift` with one instruction string per action, each under 120 tokens.
-- Content guardrails: the framework's safety filter may refuse some inputs (e.g. text containing profanity in a Slack rant). Catch `GenerationError.guardrailViolation` and show "Polish can't process this text" rather than a generic error.
+- Content guardrails: the framework's safety filter may refuse some inputs (e.g. text containing profanity in a Slack rant). Catch `GenerationError.guardrailViolation` and show "Verbaine can't process this text" rather than a generic error.
 
 **3. Result UI**
 
@@ -299,7 +299,7 @@ Step-by-step build tasks for Claude Code: see `TASKS.md`.
 | Paste-based replace fires into the wrong field if focus changes | Text pasted somewhere unexpected | Verify frontmost app and focused element match the capture before pasting; abort and show Copy instead |
 | Apple expands Writing Tools to cover the same use cases | Product becomes redundant | Lean on cross-app coverage, custom actions, and summarization of long text; ship fast |
 | Apple Intelligence not enabled or unavailable in the user's region/language | App does nothing after install | Availability check at launch with step-by-step enable guide; state requirements clearly on the store page |
-| Undo mismatch: host app undo restores partial state | Data loss feel | Keep Polish's own 60 s undo buffer independent of the host |
+| Undo mismatch: host app undo restores partial state | Data loss feel | Keep Verbaine's own 60 s undo buffer independent of the host |
 
 **Open questions**
 

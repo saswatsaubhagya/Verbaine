@@ -1,10 +1,10 @@
 import Foundation
 import Testing
-@testable import Polish
+@testable import Verbaine
 
 /// A defaults domain of its own per test, so nothing touches the real preferences.
 private func scratchDefaults() -> UserDefaults {
-    UserDefaults(suiteName: "polish.tests.\(UUID().uuidString)")!
+    UserDefaults(suiteName: "verbaine.tests.\(UUID().uuidString)")!
 }
 
 @Test("the provider falls back to the on-device model and round-trips")

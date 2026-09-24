@@ -1,7 +1,7 @@
 import Foundation
 import Testing
-@testable import Polish
+@testable import Verbaine
 
-@Test func hostAppBundleIdentifierIsPolish() {
-    #expect(Bundle.main.bundleIdentifier == "com.saswat.polish")
+@Test func hostAppBundleIdentifierIsVerbaine() {
+    #expect(Bundle.main.bundleIdentifier == "in.saswatsaubhagya.verbaine")
 }

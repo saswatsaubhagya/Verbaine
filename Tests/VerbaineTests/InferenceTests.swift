@@ -1,5 +1,5 @@
 import Testing
-@testable import Polish
+@testable import Verbaine
 
 @Test("the on-device model is the default provider and is not remote")
 func defaultProviderIsApple() {

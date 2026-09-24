@@ -1,5 +1,5 @@
 import Testing
-@testable import Polish
+@testable import Verbaine
 
 @MainActor
 @Test("the same frontmost app passes the focus guard")
@@ -10,7 +10,7 @@ func sameAppPassesGuard() {
 @MainActor
 @Test("a different frontmost app fails the focus guard", arguments: [
     ("com.apple.Notes", "com.tinyspeck.slackmacgap"),
-    ("com.apple.Notes", "com.saswat.polish"),
+    ("com.apple.Notes", "in.saswatsaubhagya.verbaine"),
 ])
 func differentAppFailsGuard(captured: String, current: String) {
     #expect(!WriteBackService.isSameApp(captured: captured, current: current))

@@ -1,5 +1,5 @@
 import Testing
-@testable import Polish
+@testable import Verbaine
 
 /// Counts a fixed number of tokens per call so the arithmetic under test is the only variable.
 private struct StubCounter: TokenCounting {

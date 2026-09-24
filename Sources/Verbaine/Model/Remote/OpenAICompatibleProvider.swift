@@ -11,7 +11,7 @@ struct OpenAICompatibleProvider: InferenceProvider {
     private let config: RemoteConfig
     private let apiKey: String
     private let session: URLSession
-    private let log = Logger(subsystem: "com.saswat.polish", category: "RemoteProvider")
+    private let log = Logger(subsystem: "in.saswatsaubhagya.verbaine", category: "RemoteProvider")
 
     init(config: RemoteConfig, apiKey: String, session: URLSession = .shared) {
         self.config = config

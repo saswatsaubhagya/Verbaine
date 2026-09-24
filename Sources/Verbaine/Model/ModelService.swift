@@ -11,7 +11,7 @@ actor ModelService: InferenceProvider {
     static let shared = ModelService()
 
     private let model = SystemLanguageModel.default
-    private let log = Logger(subsystem: "com.saswat.polish", category: "ModelService")
+    private let log = Logger(subsystem: "in.saswatsaubhagya.verbaine", category: "ModelService")
 
     /// Whether the model will answer right now. Cheap and safe to poll from the UI.
     nonisolated var availability: ModelAvailability {

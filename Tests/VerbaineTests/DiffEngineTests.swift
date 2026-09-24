@@ -1,5 +1,5 @@
 import Testing
-@testable import Polish
+@testable import Verbaine
 
 private func words(_ text: String) -> [String] {
     text.split(whereSeparator: \.isWhitespace).map(String.init)

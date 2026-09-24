@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Let a user point Polish at their own OpenAI-compatible endpoint with their own API key, while Apple's on-device model stays the default and the UI always says when text is leaving the Mac.
+**Goal:** Let a user point Verbaine at their own OpenAI-compatible endpoint with their own API key, while Apple's on-device model stays the default and the UI always says when text is leaving the Mac.
 
 **Architecture:** `ParagraphRewriter.swift` and `TokenBudget.swift` already declare `TextGenerating` and `TokenCounting`, and `ModelService` is their only conformer. Task 1 composes them into one `InferenceProvider` protocol and adds an `Inference.current` resolver that every caller goes through; Tasks 2–3 add a second conformer that speaks the OpenAI `/chat/completions` wire format over `URLSession`; Task 4 makes the remote case visible and legal.
 
@@ -15,16 +15,16 @@
 - Swift 6 strict concurrency. Every type crossing a boundary is `Sendable`.
 - No third-party dependencies. Security.framework and Foundation only.
 - Never hard-code 4096. Read `contextSize` from the provider.
-- All prompts stay in `Sources/Polish/Model/Prompts.swift`, one static string per action, each ≤ 120 tokens. This feature adds no prompts.
+- All prompts stay in `Sources/Verbaine/Model/Prompts.swift`, one static string per action, each ≤ 120 tokens. This feature adds no prompts.
 - One fresh session per action, no history carried between calls — for remote this means one `URLRequest` per action, with `messages` rebuilt from scratch every time.
 - Never truncate silently. Every failure maps to a `UserFacingError` sentence plus one remedy.
 - The API key lives only in the Keychain. Never in `UserDefaults`, never in a log line, never in an error message.
-- Target folders are file-system synchronized: a new file under `Sources/Polish/` joins the app target with no `.xcodeproj` edit. Swift file basenames must stay unique across the target.
+- Target folders are file-system synchronized: a new file under `Sources/Verbaine/` joins the app target with no `.xcodeproj` edit. Swift file basenames must stay unique across the target.
 - Build and test commands, both must pass before any task is done:
 
 ```sh
-xcodebuild -project Polish.xcodeproj -scheme Polish -destination 'platform=macOS' build
-xcodebuild -project Polish.xcodeproj -scheme Polish -destination 'platform=macOS' test
+xcodebuild -project Verbaine.xcodeproj -scheme Verbaine -destination 'platform=macOS' build
+xcodebuild -project Verbaine.xcodeproj -scheme Verbaine -destination 'platform=macOS' test
 ```
 
 - Tests use swift-testing (`@Test`, `#expect`), not XCTest. No test may touch the network or the real `UserDefaults.standard`.
@@ -33,16 +33,16 @@ xcodebuild -project Polish.xcodeproj -scheme Polish -destination 'platform=macOS
 
 | File | Responsibility | Task |
 | --- | --- | --- |
-| `Sources/Polish/Model/InferenceProvider.swift` | The one protocol every provider conforms to; `TextGenerating` and `TokenCounting` move here | 1 |
-| `Sources/Polish/Model/Inference.swift` | `Inference.current` — resolves the active provider from `Preferences` on every call | 1 |
-| `Sources/Polish/Model/Remote/RemoteConfig.swift` | Base URL, model name, declared context size; `Preferences` storage | 2 |
-| `Sources/Polish/Model/Remote/APIKeyStore.swift` | Keychain save / load / delete, keyed by endpoint host | 2 |
-| `Sources/Polish/Settings/ModelSettings.swift` | The Settings "Model" tab, including Test connection | 2 |
-| `Sources/Polish/Model/Remote/RemoteError.swift` | HTTP status and `URLError` → a typed error | 3 |
-| `Sources/Polish/Model/Remote/SSEStream.swift` | SSE lines → cumulative content snapshots | 3 |
-| `Sources/Polish/Model/Remote/OpenAICompatibleProvider.swift` | The `InferenceProvider` that talks to the endpoint | 3 |
-| `Sources/Polish/App/PolishApp.swift` | Menu-bar symbol swaps when remote is active | 4 |
-| `Sources/Polish/UI/PopoverView.swift` | `via <model> · cloud` line under the action grid | 4 |
+| `Sources/Verbaine/Model/InferenceProvider.swift` | The one protocol every provider conforms to; `TextGenerating` and `TokenCounting` move here | 1 |
+| `Sources/Verbaine/Model/Inference.swift` | `Inference.current` — resolves the active provider from `Preferences` on every call | 1 |
+| `Sources/Verbaine/Model/Remote/RemoteConfig.swift` | Base URL, model name, declared context size; `Preferences` storage | 2 |
+| `Sources/Verbaine/Model/Remote/APIKeyStore.swift` | Keychain save / load / delete, keyed by endpoint host | 2 |
+| `Sources/Verbaine/Settings/ModelSettings.swift` | The Settings "Model" tab, including Test connection | 2 |
+| `Sources/Verbaine/Model/Remote/RemoteError.swift` | HTTP status and `URLError` → a typed error | 3 |
+| `Sources/Verbaine/Model/Remote/SSEStream.swift` | SSE lines → cumulative content snapshots | 3 |
+| `Sources/Verbaine/Model/Remote/OpenAICompatibleProvider.swift` | The `InferenceProvider` that talks to the endpoint | 3 |
+| `Sources/Verbaine/App/VerbaineApp.swift` | Menu-bar symbol swaps when remote is active | 4 |
+| `Sources/Verbaine/UI/PopoverView.swift` | `via <model> · cloud` line under the action grid | 4 |
 
 ---
 
@@ -51,14 +51,14 @@ xcodebuild -project Polish.xcodeproj -scheme Polish -destination 'platform=macOS
 Pure refactor. No behaviour changes, no new capability. It is its own task so that the 115 existing tests prove the seam is neutral before anything remote exists.
 
 **Files:**
-- Create: `Sources/Polish/Model/InferenceProvider.swift`
-- Create: `Sources/Polish/Model/Inference.swift`
-- Modify: `Sources/Polish/Model/ParagraphRewriter.swift` (delete the `TextGenerating` declaration and the `ModelService` conformance, change the convenience `init`)
-- Modify: `Sources/Polish/Model/TokenBudget.swift` (delete the `TokenCounting` declaration and the `ModelService` conformance, change the convenience `init`)
-- Modify: `Sources/Polish/Model/TextChunker.swift`, `Sources/Polish/Model/MapReduceSummarizer.swift` (convenience `init` signature)
-- Modify: `Sources/Polish/Model/ModelService.swift` (add the two new members)
-- Modify: `Sources/Polish/UI/PopoverModel.swift`, `Sources/Polish/Model/CustomAction.swift`, `Sources/Polish/App/ServicesProvider.swift`, `Sources/Polish/App/DebugMenu.swift` (`ModelService.shared` → `Inference.current`)
-- Test: `Tests/PolishTests/InferenceTests.swift`
+- Create: `Sources/Verbaine/Model/InferenceProvider.swift`
+- Create: `Sources/Verbaine/Model/Inference.swift`
+- Modify: `Sources/Verbaine/Model/ParagraphRewriter.swift` (delete the `TextGenerating` declaration and the `ModelService` conformance, change the convenience `init`)
+- Modify: `Sources/Verbaine/Model/TokenBudget.swift` (delete the `TokenCounting` declaration and the `ModelService` conformance, change the convenience `init`)
+- Modify: `Sources/Verbaine/Model/TextChunker.swift`, `Sources/Verbaine/Model/MapReduceSummarizer.swift` (convenience `init` signature)
+- Modify: `Sources/Verbaine/Model/ModelService.swift` (add the two new members)
+- Modify: `Sources/Verbaine/UI/PopoverModel.swift`, `Sources/Verbaine/Model/CustomAction.swift`, `Sources/Verbaine/App/ServicesProvider.swift`, `Sources/Verbaine/App/DebugMenu.swift` (`ModelService.shared` → `Inference.current`)
+- Test: `Tests/VerbaineTests/InferenceTests.swift`
 
 **Interfaces:**
 - Consumes: nothing.
@@ -66,11 +66,11 @@ Pure refactor. No behaviour changes, no new capability. It is its own task so th
 
 - [ ] **Step 1: Write the failing test**
 
-Create `Tests/PolishTests/InferenceTests.swift`:
+Create `Tests/VerbaineTests/InferenceTests.swift`:
 
 ```swift
 import Testing
-@testable import Polish
+@testable import Verbaine
 
 @Test("the on-device model is the default provider and is not remote")
 func defaultProviderIsApple() {
@@ -87,12 +87,12 @@ func appleProviderReportsContextSize() {
 
 - [ ] **Step 2: Run the test to verify it fails**
 
-Run: `xcodebuild -project Polish.xcodeproj -scheme Polish -destination 'platform=macOS' test`
+Run: `xcodebuild -project Verbaine.xcodeproj -scheme Verbaine -destination 'platform=macOS' test`
 Expected: FAIL to compile — "cannot find 'Inference' in scope".
 
 - [ ] **Step 3: Create the protocol file**
 
-Create `Sources/Polish/Model/InferenceProvider.swift`. The two protocol declarations move here verbatim from `ParagraphRewriter.swift` and `TokenBudget.swift`, so their doc comments come along:
+Create `Sources/Verbaine/Model/InferenceProvider.swift`. The two protocol declarations move here verbatim from `ParagraphRewriter.swift` and `TokenBudget.swift`, so their doc comments come along:
 
 ```swift
 import Foundation
@@ -130,13 +130,13 @@ protocol InferenceProvider: TextGenerating, TokenCounting, Sendable {
 
 - [ ] **Step 4: Delete the two moved declarations**
 
-In `Sources/Polish/Model/ParagraphRewriter.swift`, delete the `protocol TextGenerating` block and the line `extension ModelService: TextGenerating {}`.
+In `Sources/Verbaine/Model/ParagraphRewriter.swift`, delete the `protocol TextGenerating` block and the line `extension ModelService: TextGenerating {}`.
 
-In `Sources/Polish/Model/TokenBudget.swift`, delete the `protocol TokenCounting` block and the line `extension ModelService: TokenCounting {}`.
+In `Sources/Verbaine/Model/TokenBudget.swift`, delete the `protocol TokenCounting` block and the line `extension ModelService: TokenCounting {}`.
 
 - [ ] **Step 5: Conform `ModelService`**
 
-In `Sources/Polish/Model/ModelService.swift`, add the two missing members next to the existing `availability` and `contextSize`, and declare the conformance on the actor:
+In `Sources/Verbaine/Model/ModelService.swift`, add the two missing members next to the existing `availability` and `contextSize`, and declare the conformance on the actor:
 
 ```swift
 actor ModelService: InferenceProvider {
@@ -153,7 +153,7 @@ actor ModelService: InferenceProvider {
 
 - [ ] **Step 6: Create the resolver**
 
-Create `Sources/Polish/Model/Inference.swift`:
+Create `Sources/Verbaine/Model/Inference.swift`:
 
 ```swift
 import Foundation
@@ -172,7 +172,7 @@ Task 2 replaces the body. Keeping it a one-liner here is what makes this task a 
 
 - [ ] **Step 7: Widen the convenience initialisers**
 
-In `Sources/Polish/Model/TokenBudget.swift`:
+In `Sources/Verbaine/Model/TokenBudget.swift`:
 
 ```swift
     init(service: any InferenceProvider = Inference.current) {
@@ -180,7 +180,7 @@ In `Sources/Polish/Model/TokenBudget.swift`:
     }
 ```
 
-In `Sources/Polish/Model/ParagraphRewriter.swift`:
+In `Sources/Verbaine/Model/ParagraphRewriter.swift`:
 
 ```swift
     init(service: any InferenceProvider = Inference.current) {
@@ -188,21 +188,21 @@ In `Sources/Polish/Model/ParagraphRewriter.swift`:
     }
 ```
 
-Apply the identical change — `service: ModelService = .shared` becomes `service: any InferenceProvider = Inference.current` — to the convenience `init` in `Sources/Polish/Model/TextChunker.swift` and `Sources/Polish/Model/MapReduceSummarizer.swift`. Their bodies stay exactly as they are.
+Apply the identical change — `service: ModelService = .shared` becomes `service: any InferenceProvider = Inference.current` — to the convenience `init` in `Sources/Verbaine/Model/TextChunker.swift` and `Sources/Verbaine/Model/MapReduceSummarizer.swift`. Their bodies stay exactly as they are.
 
 - [ ] **Step 8: Move the direct call sites**
 
 Replace `ModelService.shared` with `Inference.current` at these five sites, changing nothing else on the line:
 
-- `Sources/Polish/UI/PopoverModel.swift:45` — `tokenCount(for: selection.text)`
-- `Sources/Polish/UI/PopoverModel.swift:67` — `UserFacingError(Inference.current.availability)`
-- `Sources/Polish/UI/PopoverModel.swift:96` — `await Inference.current.stream(...)`
-- `Sources/Polish/Model/CustomAction.swift:43-44` — both the `availability` guard and the `tokenCount` call
-- `Sources/Polish/App/ServicesProvider.swift:62` — `respond(instructions:prompt:)`
+- `Sources/Verbaine/UI/PopoverModel.swift:45` — `tokenCount(for: selection.text)`
+- `Sources/Verbaine/UI/PopoverModel.swift:67` — `UserFacingError(Inference.current.availability)`
+- `Sources/Verbaine/UI/PopoverModel.swift:96` — `await Inference.current.stream(...)`
+- `Sources/Verbaine/Model/CustomAction.swift:43-44` — both the `availability` guard and the `tokenCount` call
+- `Sources/Verbaine/App/ServicesProvider.swift:62` — `respond(instructions:prompt:)`
 
-In `Sources/Polish/App/DebugMenu.swift`, move lines 13, 70, 104 and 108 the same way.
+In `Sources/Verbaine/App/DebugMenu.swift`, move lines 13, 70, 104 and 108 the same way.
 
-**Leave `Sources/Polish/Onboarding/OnboardingModel.swift:30` on `ModelService.shared`.** Onboarding exists to get Apple Intelligence switched on; a configured remote key must not satisfy that gate. Add a comment on that line saying so:
+**Leave `Sources/Verbaine/Onboarding/OnboardingModel.swift:30` on `ModelService.shared`.** Onboarding exists to get Apple Intelligence switched on; a configured remote key must not satisfy that gate. Add a comment on that line saying so:
 
 ```swift
         // Deliberately not `Inference.current`: onboarding is about Apple Intelligence being on,
@@ -212,19 +212,19 @@ In `Sources/Polish/App/DebugMenu.swift`, move lines 13, 70, 104 and 108 the same
 
 - [ ] **Step 10: Run the full suite**
 
-Run: `xcodebuild -project Polish.xcodeproj -scheme Polish -destination 'platform=macOS' build` then the `test` command.
+Run: `xcodebuild -project Verbaine.xcodeproj -scheme Verbaine -destination 'platform=macOS' build` then the `test` command.
 Expected: build succeeds; all 115 existing tests plus the 2 new ones pass. Any existing test that fails here is a refactor mistake, not a stale expectation — fix the source, not the test.
 
 - [ ] **Step 11: Commit**
 
 ```bash
-git add Sources/Polish/Model/InferenceProvider.swift Sources/Polish/Model/Inference.swift \
-        Sources/Polish/Model/ModelService.swift Sources/Polish/Model/TokenBudget.swift \
-        Sources/Polish/Model/ParagraphRewriter.swift Sources/Polish/Model/TextChunker.swift \
-        Sources/Polish/Model/MapReduceSummarizer.swift Sources/Polish/UI/PopoverModel.swift \
-        Sources/Polish/Model/CustomAction.swift Sources/Polish/App/ServicesProvider.swift \
-        Sources/Polish/App/DebugMenu.swift Sources/Polish/Onboarding/OnboardingModel.swift \
-        Tests/PolishTests/InferenceTests.swift
+git add Sources/Verbaine/Model/InferenceProvider.swift Sources/Verbaine/Model/Inference.swift \
+        Sources/Verbaine/Model/ModelService.swift Sources/Verbaine/Model/TokenBudget.swift \
+        Sources/Verbaine/Model/ParagraphRewriter.swift Sources/Verbaine/Model/TextChunker.swift \
+        Sources/Verbaine/Model/MapReduceSummarizer.swift Sources/Verbaine/UI/PopoverModel.swift \
+        Sources/Verbaine/Model/CustomAction.swift Sources/Verbaine/App/ServicesProvider.swift \
+        Sources/Verbaine/App/DebugMenu.swift Sources/Verbaine/Onboarding/OnboardingModel.swift \
+        Tests/VerbaineTests/InferenceTests.swift
 git commit -m "refactor: route inference through an InferenceProvider protocol (T3.6)"
 ```
 
@@ -235,11 +235,11 @@ git commit -m "refactor: route inference through an InferenceProvider protocol (
 Everything the user fills in, with nothing yet consuming it. `Inference.current` still returns the on-device provider at the end of this task — Task 3 flips it.
 
 **Files:**
-- Create: `Sources/Polish/Model/Remote/RemoteConfig.swift`
-- Create: `Sources/Polish/Model/Remote/APIKeyStore.swift`
-- Create: `Sources/Polish/Settings/ModelSettings.swift`
-- Modify: `Sources/Polish/Settings/SettingsView.swift:7-18` (add the tab)
-- Test: `Tests/PolishTests/RemoteConfigTests.swift`, `Tests/PolishTests/APIKeyStoreTests.swift`
+- Create: `Sources/Verbaine/Model/Remote/RemoteConfig.swift`
+- Create: `Sources/Verbaine/Model/Remote/APIKeyStore.swift`
+- Create: `Sources/Verbaine/Settings/ModelSettings.swift`
+- Modify: `Sources/Verbaine/Settings/SettingsView.swift:7-18` (add the tab)
+- Test: `Tests/VerbaineTests/RemoteConfigTests.swift`, `Tests/VerbaineTests/APIKeyStoreTests.swift`
 
 **Interfaces:**
 - Consumes: nothing from Task 1 beyond it having landed.
@@ -251,16 +251,16 @@ Everything the user fills in, with nothing yet consuming it. `Inference.current`
 
 - [ ] **Step 1: Write the failing config test**
 
-Create `Tests/PolishTests/RemoteConfigTests.swift`:
+Create `Tests/VerbaineTests/RemoteConfigTests.swift`:
 
 ```swift
 import Foundation
 import Testing
-@testable import Polish
+@testable import Verbaine
 
 /// A defaults domain of its own per test, so nothing touches the real preferences.
 private func scratchDefaults() -> UserDefaults {
-    UserDefaults(suiteName: "polish.tests.\(UUID().uuidString)")!
+    UserDefaults(suiteName: "verbaine.tests.\(UUID().uuidString)")!
 }
 
 @Test("the provider falls back to the on-device model and round-trips")
@@ -317,12 +317,12 @@ func endpointURLRejectsGarbage() {
 
 - [ ] **Step 2: Run it to verify it fails**
 
-Run: `xcodebuild -project Polish.xcodeproj -scheme Polish -destination 'platform=macOS' test`
+Run: `xcodebuild -project Verbaine.xcodeproj -scheme Verbaine -destination 'platform=macOS' test`
 Expected: FAIL to compile — "cannot find 'RemoteConfig' in scope".
 
 - [ ] **Step 3: Write `RemoteConfig`**
 
-Create `Sources/Polish/Model/Remote/RemoteConfig.swift`:
+Create `Sources/Verbaine/Model/Remote/RemoteConfig.swift`:
 
 ```swift
 import Foundation
@@ -381,7 +381,7 @@ struct RemoteConfig: Equatable, Sendable {
 
 - [ ] **Step 4: Add the `Preferences` accessors**
 
-Append to `Sources/Polish/Settings/Preferences.swift`, following the file's existing extension-per-topic layout:
+Append to `Sources/Verbaine/Settings/Preferences.swift`, following the file's existing extension-per-topic layout:
 
 ```swift
 // MARK: Inference provider
@@ -420,17 +420,17 @@ extension Preferences {
 
 - [ ] **Step 5: Run the config tests**
 
-Run: `xcodebuild -project Polish.xcodeproj -scheme Polish -destination 'platform=macOS' test`
+Run: `xcodebuild -project Verbaine.xcodeproj -scheme Verbaine -destination 'platform=macOS' test`
 Expected: PASS, all config tests green.
 
 - [ ] **Step 6: Write the failing Keychain test**
 
-Create `Tests/PolishTests/APIKeyStoreTests.swift`:
+Create `Tests/VerbaineTests/APIKeyStoreTests.swift`:
 
 ```swift
 import Foundation
 import Testing
-@testable import Polish
+@testable import Verbaine
 
 /// A host nobody will ever configure, so the test cannot collide with a real stored key.
 private func scratchHost() -> String { "test-\(UUID().uuidString).invalid" }
@@ -477,12 +477,12 @@ func deletingAbsentKeyIsFine() throws {
 
 - [ ] **Step 7: Run it to verify it fails**
 
-Run: `xcodebuild -project Polish.xcodeproj -scheme Polish -destination 'platform=macOS' test`
+Run: `xcodebuild -project Verbaine.xcodeproj -scheme Verbaine -destination 'platform=macOS' test`
 Expected: FAIL to compile — "cannot find 'APIKeyStore' in scope".
 
 - [ ] **Step 8: Write `APIKeyStore`**
 
-Create `Sources/Polish/Model/Remote/APIKeyStore.swift`:
+Create `Sources/Verbaine/Model/Remote/APIKeyStore.swift`:
 
 ```swift
 import Foundation
@@ -490,11 +490,11 @@ import Security
 
 /// The API key, and only the API key, in the Keychain.
 ///
-/// Filed per endpoint host: pointing Polish at a different provider must not silently send the old
+/// Filed per endpoint host: pointing Verbaine at a different provider must not silently send the old
 /// provider's key to the new one. Nothing here ever returns the key inside an error, and no call
 /// site logs the value.
 enum APIKeyStore {
-    static let service = "com.saswat.polish.apikey"
+    static let service = "in.saswatsaubhagya.verbaine.apikey"
 
     enum StoreError: Error, Equatable {
         /// The Keychain refused, with its own status code. The code is safe to show; the key is not.
@@ -548,12 +548,12 @@ enum APIKeyStore {
 
 - [ ] **Step 9: Run the Keychain tests**
 
-Run: `xcodebuild -project Polish.xcodeproj -scheme Polish -destination 'platform=macOS' test`
+Run: `xcodebuild -project Verbaine.xcodeproj -scheme Verbaine -destination 'platform=macOS' test`
 Expected: PASS. If every Keychain call returns `errSecMissingEntitlement` (-34018), the test bundle is not signed with a Keychain-access group; run the app target once from Xcode and re-run. If it persists, note it in `docs/TESTING.md` as a device-only check rather than weakening the store.
 
 - [ ] **Step 10: Build the Settings tab**
 
-Create `Sources/Polish/Settings/ModelSettings.swift`. The Test-connection button calls the provider that does not exist until Task 3, so this step wires the button to a stub that Task 3 replaces — the stub is named in the source so it cannot be forgotten:
+Create `Sources/Verbaine/Settings/ModelSettings.swift`. The Test-connection button calls the provider that does not exist until Task 3, so this step wires the button to a stub that Task 3 replaces — the stub is named in the source so it cannot be forgotten:
 
 ```swift
 import SwiftUI
@@ -651,7 +651,7 @@ struct ModelSettings: View {
 
 - [ ] **Step 12: Add the tab**
 
-In `Sources/Polish/Settings/SettingsView.swift`, insert between the General and Apps tabs:
+In `Sources/Verbaine/Settings/SettingsView.swift`, insert between the General and Apps tabs:
 
 ```swift
             ModelSettings()
@@ -674,17 +674,17 @@ Append to `docs/TESTING.md`, under a `## T3.7 — Model settings` heading:
 - [ ] Picking "Custom endpoint" reveals Base URL, API key, Model and Context size.
 - [ ] Choosing a preset fills the Base URL field and leaves the other fields alone.
 - [ ] Typed values survive closing and reopening Settings.
-- [ ] The API key field is masked, and the key does not appear in `defaults read com.saswat.polish`.
+- [ ] The API key field is masked, and the key does not appear in `defaults read in.saswatsaubhagya.verbaine`.
 - [ ] Switching back to "Apple on-device" hides the fields but keeps the stored values.
 ```
 
 - [ ] **Step 15: Commit**
 
 ```bash
-git add Sources/Polish/Model/Remote/RemoteConfig.swift Sources/Polish/Model/Remote/APIKeyStore.swift \
-        Sources/Polish/Settings/ModelSettings.swift Sources/Polish/Settings/SettingsView.swift \
-        Sources/Polish/Settings/Preferences.swift Tests/PolishTests/RemoteConfigTests.swift \
-        Tests/PolishTests/APIKeyStoreTests.swift docs/TESTING.md
+git add Sources/Verbaine/Model/Remote/RemoteConfig.swift Sources/Verbaine/Model/Remote/APIKeyStore.swift \
+        Sources/Verbaine/Settings/ModelSettings.swift Sources/Verbaine/Settings/SettingsView.swift \
+        Sources/Verbaine/Settings/Preferences.swift Tests/VerbaineTests/RemoteConfigTests.swift \
+        Tests/VerbaineTests/APIKeyStoreTests.swift docs/TESTING.md
 git commit -m "feat: remote endpoint settings and Keychain key storage (T3.7)"
 ```
 
@@ -693,15 +693,15 @@ git commit -m "feat: remote endpoint settings and Keychain key storage (T3.7)"
 ### Task 3: The OpenAI-compatible provider
 
 **Files:**
-- Create: `Sources/Polish/Model/Remote/RemoteError.swift`
-- Create: `Sources/Polish/Model/Remote/SSEStream.swift`
-- Create: `Sources/Polish/Model/Remote/OpenAICompatibleProvider.swift`
-- Modify: `Sources/Polish/Model/Inference.swift` (resolve to the remote provider)
-- Modify: `Sources/Polish/UI/UserFacingError.swift` (map `RemoteError`, add the `.modelSettings` remedy)
-- Modify: `Sources/Polish/UI/PopoverView.swift:29-44`, `Sources/Polish/UI/PopoverPanel.swift:70-82` (handle the new remedy)
-- Modify: `Sources/Polish/Model/ContextRetry.swift:13-21` (recognise the remote context error)
-- Modify: `Sources/Polish/Settings/ModelSettings.swift` (`runTest` does a real round trip)
-- Test: `Tests/PolishTests/SSEStreamTests.swift`, `Tests/PolishTests/RemoteErrorTests.swift`, `Tests/PolishTests/RemoteBudgetTests.swift`
+- Create: `Sources/Verbaine/Model/Remote/RemoteError.swift`
+- Create: `Sources/Verbaine/Model/Remote/SSEStream.swift`
+- Create: `Sources/Verbaine/Model/Remote/OpenAICompatibleProvider.swift`
+- Modify: `Sources/Verbaine/Model/Inference.swift` (resolve to the remote provider)
+- Modify: `Sources/Verbaine/UI/UserFacingError.swift` (map `RemoteError`, add the `.modelSettings` remedy)
+- Modify: `Sources/Verbaine/UI/PopoverView.swift:29-44`, `Sources/Verbaine/UI/PopoverPanel.swift:70-82` (handle the new remedy)
+- Modify: `Sources/Verbaine/Model/ContextRetry.swift:13-21` (recognise the remote context error)
+- Modify: `Sources/Verbaine/Settings/ModelSettings.swift` (`runTest` does a real round trip)
+- Test: `Tests/VerbaineTests/SSEStreamTests.swift`, `Tests/VerbaineTests/RemoteErrorTests.swift`, `Tests/VerbaineTests/RemoteBudgetTests.swift`
 
 **Interfaces:**
 - Consumes: `RemoteConfig`, `APIKeyStore`, `Preferences.providerKind`, `Preferences.remoteConfig` from Task 2; `InferenceProvider` and `Inference` from Task 1.
@@ -713,12 +713,12 @@ git commit -m "feat: remote endpoint settings and Keychain key storage (T3.7)"
 
 - [ ] **Step 1: Write the failing SSE test**
 
-Create `Tests/PolishTests/SSEStreamTests.swift`:
+Create `Tests/VerbaineTests/SSEStreamTests.swift`:
 
 ```swift
 import Foundation
 import Testing
-@testable import Polish
+@testable import Verbaine
 
 /// Replays a fixed list of lines, as `URLSession.bytes(for:).lines` would deliver them.
 private struct StubLines: AsyncSequence, Sendable {
@@ -786,12 +786,12 @@ func snapshotsSurviveMissingTerminator() async throws {
 
 - [ ] **Step 2: Run it to verify it fails**
 
-Run: `xcodebuild -project Polish.xcodeproj -scheme Polish -destination 'platform=macOS' test`
+Run: `xcodebuild -project Verbaine.xcodeproj -scheme Verbaine -destination 'platform=macOS' test`
 Expected: FAIL to compile — "cannot find 'SSEStream' in scope".
 
 - [ ] **Step 3: Write `SSEStream`**
 
-Create `Sources/Polish/Model/Remote/SSEStream.swift`:
+Create `Sources/Verbaine/Model/Remote/SSEStream.swift`:
 
 ```swift
 import Foundation
@@ -867,17 +867,17 @@ If the compiler rejects the `S.AsyncIterator: Sendable` constraint against `URLS
 
 - [ ] **Step 4: Run the SSE tests**
 
-Run: `xcodebuild -project Polish.xcodeproj -scheme Polish -destination 'platform=macOS' test`
+Run: `xcodebuild -project Verbaine.xcodeproj -scheme Verbaine -destination 'platform=macOS' test`
 Expected: PASS, all six SSE tests green.
 
 - [ ] **Step 5: Write the failing error-mapping test**
 
-Create `Tests/PolishTests/RemoteErrorTests.swift`:
+Create `Tests/VerbaineTests/RemoteErrorTests.swift`:
 
 ```swift
 import Foundation
 import Testing
-@testable import Polish
+@testable import Verbaine
 
 @Test("every HTTP status the endpoints actually return maps to its own failure", arguments: [
     (401, RemoteError.unauthorized),
@@ -940,12 +940,12 @@ func mapsURLError() {
 
 - [ ] **Step 6: Run it to verify it fails**
 
-Run: `xcodebuild -project Polish.xcodeproj -scheme Polish -destination 'platform=macOS' test`
+Run: `xcodebuild -project Verbaine.xcodeproj -scheme Verbaine -destination 'platform=macOS' test`
 Expected: FAIL to compile — "cannot find 'RemoteError' in scope".
 
 - [ ] **Step 7: Write `RemoteError`**
 
-Create `Sources/Polish/Model/Remote/RemoteError.swift`:
+Create `Sources/Verbaine/Model/Remote/RemoteError.swift`:
 
 ```swift
 import Foundation
@@ -998,7 +998,7 @@ enum RemoteError: Error, Equatable {
 
 `ModelAvailability` today only describes ways Apple Intelligence can be missing, so an
 unconfigured endpoint would tell the user their Mac cannot run Apple Intelligence — wrong, and
-un-actionable. Add a case in `Sources/Polish/Model/ModelAvailability.swift`:
+un-actionable. Add a case in `Sources/Verbaine/Model/ModelAvailability.swift`:
 
 ```swift
     /// A custom endpoint is selected but its URL, model name or key is missing. Only a remote
@@ -1008,7 +1008,7 @@ un-actionable. Add a case in `Sources/Polish/Model/ModelAvailability.swift`:
 ```
 
 `init(_ availability: SystemLanguageModel.Availability)` stays exactly as it is — nothing maps to
-the new case. Then extend the availability mapping in `Sources/Polish/UI/UserFacingError.swift`:
+the new case. Then extend the availability mapping in `Sources/Verbaine/UI/UserFacingError.swift`:
 
 ```swift
         case .remoteNotConfigured:
@@ -1018,13 +1018,13 @@ the new case. Then extend the availability mapping in `Sources/Polish/UI/UserFac
             )
 ```
 
-If `Sources/Polish/App/DebugErrors.swift:52` enumerates availability cases for the debug menu, add
+If `Sources/Verbaine/App/DebugErrors.swift:52` enumerates availability cases for the debug menu, add
 `("Remote not configured", ModelAvailability.remoteNotConfigured)` to that list so the debug menu
 stays exhaustive.
 
 - [ ] **Step 9: Map `RemoteError` to `UserFacingError`**
 
-In `Sources/Polish/UI/UserFacingError.swift`, add the remedy case alongside the existing ones:
+In `Sources/Verbaine/UI/UserFacingError.swift`, add the remedy case alongside the existing ones:
 
 ```swift
         /// The endpoint the user configured needs fixing — open Settings at the Model tab.
@@ -1080,25 +1080,25 @@ And add the mapping initialiser next to the existing per-domain ones:
             )
         case .unreachable:
             self.init(
-                message: "Polish could not reach your endpoint. Check your connection and the base URL.",
+                message: "Verbaine could not reach your endpoint. Check your connection and the base URL.",
                 remedy: .modelSettings
             )
         case .contextLengthExceeded:
             self = Self.tooLong
         case .malformedResponse:
             self.init(
-                message: "Your endpoint sent a reply Polish could not read.",
+                message: "Your endpoint sent a reply Verbaine could not read.",
                 remedy: .retry
             )
         }
     }
 ```
 
-Add `openPolishSettings` to the `SettingsPane` enum at the bottom of the same file:
+Add `openVerbaineSettings` to the `SettingsPane` enum at the bottom of the same file:
 
 ```swift
-    /// Polish's own Settings window, for the remedies that point at the Model tab.
-    static func openPolishSettings() {
+    /// Verbaine's own Settings window, for the remedies that point at the Model tab.
+    static func openVerbaineSettings() {
         NSApp.activate(ignoringOtherApps: true)
         NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
     }
@@ -1108,24 +1108,24 @@ Add `openPolishSettings` to the `SettingsPane` enum at the bottom of the same fi
 
 Both switches over `Remedy` are exhaustive and will now fail to compile — that is the point.
 
-In `Sources/Polish/UI/PopoverView.swift`, inside `apply(_:)`:
+In `Sources/Verbaine/UI/PopoverView.swift`, inside `apply(_:)`:
 
 ```swift
         case .modelSettings:
-            SettingsPane.openPolishSettings()
+            SettingsPane.openVerbaineSettings()
             model.onClose()
 ```
 
-In `Sources/Polish/UI/PopoverPanel.swift`, inside the `perform:` closure:
+In `Sources/Verbaine/UI/PopoverPanel.swift`, inside the `perform:` closure:
 
 ```swift
                 case .modelSettings:
-                    SettingsPane.openPolishSettings()
+                    SettingsPane.openVerbaineSettings()
 ```
 
 - [ ] **Step 11: Teach `ContextRetry` the third vocabulary**
 
-In `Sources/Polish/Model/ContextRetry.swift`, add to `isContextSizeExceeded(_:)`, before `return false`:
+In `Sources/Verbaine/Model/ContextRetry.swift`, add to `isContextSizeExceeded(_:)`, before `return false`:
 
 ```swift
         if let error = error as? RemoteError, error == .contextLengthExceeded { return true }
@@ -1135,17 +1135,17 @@ Update that function's doc comment: "in any of the three vocabularies `UserFacin
 
 - [ ] **Step 12: Run the error tests**
 
-Run: `xcodebuild -project Polish.xcodeproj -scheme Polish -destination 'platform=macOS' test`
+Run: `xcodebuild -project Verbaine.xcodeproj -scheme Verbaine -destination 'platform=macOS' test`
 Expected: PASS, all error-mapping tests green, and the existing `UserFacingErrorTests` and `ContextRetryTests` still green.
 
 - [ ] **Step 13: Write the failing budget test**
 
-Create `Tests/PolishTests/RemoteBudgetTests.swift`:
+Create `Tests/VerbaineTests/RemoteBudgetTests.swift`:
 
 ```swift
 import Foundation
 import Testing
-@testable import Polish
+@testable import Verbaine
 
 private func provider(contextSize: Int = 128_000) -> OpenAICompatibleProvider {
     OpenAICompatibleProvider(
@@ -1195,12 +1195,12 @@ func remoteProviderIdentifiesItself() {
 
 - [ ] **Step 14: Run it to verify it fails**
 
-Run: `xcodebuild -project Polish.xcodeproj -scheme Polish -destination 'platform=macOS' test`
+Run: `xcodebuild -project Verbaine.xcodeproj -scheme Verbaine -destination 'platform=macOS' test`
 Expected: FAIL to compile — "cannot find 'OpenAICompatibleProvider' in scope".
 
 - [ ] **Step 15: Write the provider**
 
-Create `Sources/Polish/Model/Remote/OpenAICompatibleProvider.swift`:
+Create `Sources/Verbaine/Model/Remote/OpenAICompatibleProvider.swift`:
 
 ```swift
 import Foundation
@@ -1216,7 +1216,7 @@ struct OpenAICompatibleProvider: InferenceProvider {
     private let config: RemoteConfig
     private let apiKey: String
     private let session: URLSession
-    private let log = Logger(subsystem: "com.saswat.polish", category: "RemoteProvider")
+    private let log = Logger(subsystem: "in.saswatsaubhagya.verbaine", category: "RemoteProvider")
 
     init(config: RemoteConfig, apiKey: String, session: URLSession = .shared) {
         self.config = config
@@ -1314,7 +1314,7 @@ struct OpenAICompatibleProvider: InferenceProvider {
 
 - [ ] **Step 16: Resolve to it**
 
-Replace the body of `Inference.current` in `Sources/Polish/Model/Inference.swift`:
+Replace the body of `Inference.current` in `Sources/Verbaine/Model/Inference.swift`:
 
 ```swift
 enum Inference {
@@ -1337,12 +1337,12 @@ enum Inference {
 
 - [ ] **Step 17: Run the budget tests**
 
-Run: `xcodebuild -project Polish.xcodeproj -scheme Polish -destination 'platform=macOS' test`
+Run: `xcodebuild -project Verbaine.xcodeproj -scheme Verbaine -destination 'platform=macOS' test`
 Expected: PASS. No test in this task opens a socket — `OpenAICompatibleProvider` is exercised only through `tokenCount`, `availability`, `displayName` and `TokenBudget`.
 
 - [ ] **Step 18: Wire up Test connection**
 
-In `Sources/Polish/Settings/ModelSettings.swift`, replace `runTest()`:
+In `Sources/Verbaine/Settings/ModelSettings.swift`, replace `runTest()`:
 
 ```swift
     private func runTest() {
@@ -1372,13 +1372,13 @@ Then, with a real key: Settings → Model → Custom endpoint, fill in a base UR
 - [ ] **Step 20: Commit**
 
 ```bash
-git add Sources/Polish/Model/Remote/RemoteError.swift Sources/Polish/Model/Remote/SSEStream.swift \
-        Sources/Polish/Model/Remote/OpenAICompatibleProvider.swift Sources/Polish/Model/Inference.swift \
-        Sources/Polish/Model/ContextRetry.swift Sources/Polish/Model/ModelAvailability.swift \
-        Sources/Polish/UI/UserFacingError.swift Sources/Polish/App/DebugErrors.swift \
-        Sources/Polish/UI/PopoverView.swift Sources/Polish/UI/PopoverPanel.swift \
-        Sources/Polish/Settings/ModelSettings.swift Tests/PolishTests/SSEStreamTests.swift \
-        Tests/PolishTests/RemoteErrorTests.swift Tests/PolishTests/RemoteBudgetTests.swift
+git add Sources/Verbaine/Model/Remote/RemoteError.swift Sources/Verbaine/Model/Remote/SSEStream.swift \
+        Sources/Verbaine/Model/Remote/OpenAICompatibleProvider.swift Sources/Verbaine/Model/Inference.swift \
+        Sources/Verbaine/Model/ContextRetry.swift Sources/Verbaine/Model/ModelAvailability.swift \
+        Sources/Verbaine/UI/UserFacingError.swift Sources/Verbaine/App/DebugErrors.swift \
+        Sources/Verbaine/UI/PopoverView.swift Sources/Verbaine/UI/PopoverPanel.swift \
+        Sources/Verbaine/Settings/ModelSettings.swift Tests/VerbaineTests/SSEStreamTests.swift \
+        Tests/VerbaineTests/RemoteErrorTests.swift Tests/VerbaineTests/RemoteBudgetTests.swift
 git commit -m "feat: OpenAI-compatible remote provider with SSE streaming (T3.8)"
 ```
 
@@ -1389,10 +1389,10 @@ git commit -m "feat: OpenAI-compatible remote provider with SSE streaming (T3.8)
 Nothing sends anything off the Mac until this task lands the entitlement — until now the requests fail inside the sandbox. That is deliberate: the visibility work and the permission to send arrive together.
 
 **Files:**
-- Modify: `Polish.entitlements`
-- Modify: `Sources/Polish/Resources/PrivacyInfo.xcprivacy`
-- Modify: `Sources/Polish/App/PolishApp.swift:9`
-- Modify: `Sources/Polish/UI/PopoverView.swift` (badge under the action grid)
+- Modify: `Verbaine.entitlements`
+- Modify: `Sources/Verbaine/Resources/PrivacyInfo.xcprivacy`
+- Modify: `Sources/Verbaine/App/VerbaineApp.swift:9`
+- Modify: `Sources/Verbaine/UI/PopoverView.swift` (badge under the action grid)
 - Modify: `docs/PRD.md` (goal 3, the Network permission row, the Privacy posture bullet)
 - Modify: `docs/TESTING.md`, `docs/TASKS.md`, `CLAUDE.md`
 
@@ -1402,7 +1402,7 @@ Nothing sends anything off the Mac until this task lands the entitlement — unt
 
 - [ ] **Step 1: Add the network entitlement**
 
-In `Polish.entitlements`, inside the `<dict>`:
+In `Verbaine.entitlements`, inside the `<dict>`:
 
 ```xml
 	<key>com.apple.security.network.client</key>
@@ -1413,25 +1413,25 @@ Outgoing connections only. Do not add `network.server`.
 
 - [ ] **Step 2: Swap the menu-bar symbol when remote is active**
 
-In `Sources/Polish/App/PolishApp.swift`, add the stored preference and switch the symbol. `@AppStorage` is what makes this update the moment the radio changes, with no notification to wire up:
+In `Sources/Verbaine/App/VerbaineApp.swift`, add the stored preference and switch the symbol. `@AppStorage` is what makes this update the moment the radio changes, with no notification to wire up:
 
 ```swift
 @main
-struct PolishApp: App {
+struct VerbaineApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     /// Drives the menu-bar symbol. Reading the preference directly rather than
     /// `Inference.current.isRemote` keeps this a value SwiftUI can observe.
     @AppStorage(Preferences.providerKindKey) private var providerKind = InferenceProviderKind.apple
 
     var body: some Scene {
-        MenuBarExtra("Polish", systemImage: providerKind == .remote ? "wand.and.sparkles.inverse" : "wand.and.sparkles") {
+        MenuBarExtra("Verbaine", systemImage: providerKind == .remote ? "wand.and.sparkles.inverse" : "wand.and.sparkles") {
 ```
 
 A filled symbol rather than a tint: menu-bar labels are template-rendered, so a `foregroundStyle` would be ignored, and the two symbols are the same shape at a glance while being unmistakable side by side.
 
 - [ ] **Step 3: Badge the popover**
 
-In `Sources/Polish/UI/PopoverView.swift`, add the badge below `actionGrid` in the `.actions` case:
+In `Sources/Verbaine/UI/PopoverView.swift`, add the badge below `actionGrid` in the `.actions` case:
 
 ```swift
             case .actions:
@@ -1447,7 +1447,7 @@ It reads `Inference.current` fresh each time the popover is built, which is ever
 
 - [ ] **Step 4: Update the privacy manifest**
 
-In `Sources/Polish/Resources/PrivacyInfo.xcprivacy`, add a collected-data-type entry for other user content, linked to app functionality, not used for tracking:
+In `Sources/Verbaine/Resources/PrivacyInfo.xcprivacy`, add a collected-data-type entry for other user content, linked to app functionality, not used for tracking:
 
 ```xml
 	<key>NSPrivacyCollectedDataTypes</key>
@@ -1467,7 +1467,7 @@ In `Sources/Polish/Resources/PrivacyInfo.xcprivacy`, add a collected-data-type e
 	</array>
 ```
 
-Keep `NSPrivacyTracking` `false` and the existing tracking-domains array empty — Polish still tracks nothing. If the file already has an empty `NSPrivacyCollectedDataTypes` array, replace it rather than adding a second key.
+Keep `NSPrivacyTracking` `false` and the existing tracking-domains array empty — Verbaine still tracks nothing. If the file already has an empty `NSPrivacyCollectedDataTypes` array, replace it rather than adding a second key.
 
 - [ ] **Step 5: Amend the PRD**
 
@@ -1516,7 +1516,7 @@ In `docs/TASKS.md`, add the four tasks after T3.4 and mark each done with its co
 - Done when: build and test pass with the existing suite unchanged, and `Inference.current` returns the on-device model by default.
 
 **T3.7 Remote endpoint settings** — `RemoteConfig`, `APIKeyStore` (Keychain), Settings "Model" tab with presets and Test connection.
-- Done when: values round-trip through Settings, and the key is absent from `defaults read com.saswat.polish`.
+- Done when: values round-trip through Settings, and the key is absent from `defaults read in.saswatsaubhagya.verbaine`.
 
 **T3.8 OpenAI-compatible provider** — `OpenAICompatibleProvider`, `SSEStream`, `RemoteError` mapping, `ContextRetry` extension.
 - Done when: a real key streams a rewrite into the popover, and a wrong key, wrong model and offline machine each produce their own message.
@@ -1536,7 +1536,7 @@ Append to `docs/TESTING.md` under `## T3.9 — Remote visibility`:
 - [ ] A rewrite against the remote endpoint streams into the result pane, and the word-level diff highlights as it does on-device.
 - [ ] Replace still pastes into Slack, and ⌘Z in Slack still restores the original.
 - [ ] Switching back to Apple on-device takes effect on the very next action.
-- [ ] `codesign -d --entitlements - build/.../Polish.app` lists `com.apple.security.network.client` and no `network.server`.
+- [ ] `codesign -d --entitlements - build/.../Verbaine.app` lists `com.apple.security.network.client` and no `network.server`.
 ```
 
 - [ ] **Step 8: Build, test, and verify end to end**
@@ -1548,8 +1548,8 @@ Then run the app and work the T3.9 checklist above against a real endpoint. A re
 - [ ] **Step 9: Commit**
 
 ```bash
-git add Polish.entitlements Sources/Polish/Resources/PrivacyInfo.xcprivacy \
-        Sources/Polish/App/PolishApp.swift Sources/Polish/UI/PopoverView.swift \
+git add Verbaine.entitlements Sources/Verbaine/Resources/PrivacyInfo.xcprivacy \
+        Sources/Verbaine/App/VerbaineApp.swift Sources/Verbaine/UI/PopoverView.swift \
         docs/PRD.md docs/TASKS.md docs/TESTING.md CLAUDE.md
 git commit -m "feat: show when inference is remote, and allow it to be (T3.9)"
 ```

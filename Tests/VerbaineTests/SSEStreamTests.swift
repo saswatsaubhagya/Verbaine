@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-@testable import Polish
+@testable import Verbaine
 
 /// Replays a fixed list of lines, as `URLSession.bytes(for:).lines` would deliver them.
 private struct StubLines: AsyncSequence, Sendable {

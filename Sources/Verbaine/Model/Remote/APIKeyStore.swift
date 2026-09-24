@@ -3,11 +3,11 @@ import Security
 
 /// The API key, and only the API key, in the Keychain.
 ///
-/// Filed per endpoint host: pointing Polish at a different provider must not silently send the old
+/// Filed per endpoint host: pointing Verbaine at a different provider must not silently send the old
 /// provider's key to the new one. Nothing here ever returns the key inside an error, and no call
 /// site logs the value.
 enum APIKeyStore {
-    static let service = "com.saswat.polish.apikey"
+    static let service = "in.saswatsaubhagya.verbaine.apikey"
 
     enum StoreError: Error, Equatable {
         /// The Keychain refused, with its own status code. The code is safe to show; the key is not.

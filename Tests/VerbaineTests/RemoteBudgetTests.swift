@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-@testable import Polish
+@testable import Verbaine
 
 private func provider(contextSize: Int = 128_000) -> OpenAICompatibleProvider {
     OpenAICompatibleProvider(

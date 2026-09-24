@@ -1,11 +1,11 @@
 import Carbon.HIToolbox
 import Foundation
 import Testing
-@testable import Polish
+@testable import Verbaine
 
 /// A defaults domain of its own per test, so nothing touches the real preferences.
 private func scratchDefaults() -> UserDefaults {
-    let defaults = UserDefaults(suiteName: "polish.tests.\(UUID().uuidString)")!
+    let defaults = UserDefaults(suiteName: "verbaine.tests.\(UUID().uuidString)")!
     return defaults
 }
 

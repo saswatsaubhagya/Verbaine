@@ -2,21 +2,42 @@ import AppKit
 import ServiceManagement
 import SwiftUI
 
+/// Settings, 640 × 430 and tabbed, as the board draws it (row 6): General, Actions, Apps, About.
+///
+/// The Model tab is not on the board — bring-your-own-endpoint (T3.6–T3.9) landed after it was
+/// drawn — so it sits between Apps and About rather than displacing a board tab.
 struct SettingsView: View {
     var body: some View {
         TabView {
             GeneralSettings()
                 .tabItem { Label("General", systemImage: "gearshape") }
-            ModelSettings()
-                .tabItem { Label("Model", systemImage: "cpu") }
-            AppsSettings()
-                .tabItem { Label("Apps", systemImage: "app.badge") }
             CustomActionsSettings()
                 .tabItem { Label("Actions", systemImage: "wand.and.stars") }
+            AppsSettings()
+                .tabItem { Label("Apps", systemImage: "app.badge") }
+            ModelSettings()
+                .tabItem { Label("Model", systemImage: "cpu") }
             AboutSettings()
                 .tabItem { Label("About", systemImage: "info.circle") }
         }
-        .frame(width: 460, height: 420)
+        .frame(width: Tokens.Size.settings.width, height: Tokens.Size.settings.height)
+    }
+}
+
+/// A settings row the board's way: a right-aligned label in a fixed gutter, control beside it.
+private struct SettingRow<Content: View>: View {
+    let label: String
+    @ViewBuilder let content: Content
+
+    var body: some View {
+        HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.m) {
+            Text(label)
+                .font(Tokens.Face.body)
+                .foregroundStyle(Tokens.Ink.secondary)
+                .frame(width: 140, alignment: .trailing)
+            VStack(alignment: .leading, spacing: Tokens.Space.xs) { content }
+            Spacer(minLength: 0)
+        }
     }
 }
 
@@ -27,27 +48,36 @@ private struct GeneralSettings: View {
     @AppStorage(Preferences.summaryStyleKey) private var summaryStyle = SummaryStyle.bullets
 
     var body: some View {
-        Form {
-            LabeledContent("Shortcut") {
+        VStack(alignment: .leading, spacing: Tokens.Space.l) {
+            SettingRow(label: "Verbaine shortcut:") {
                 HotkeyRecorder(hotkey: Binding(get: { hotkey }, set: { hotkey = $0 ?? .standard }))
             }
 
-            Picker("Summarize as", selection: $summaryStyle) {
-                ForEach(SummaryStyle.allCases) { Text($0.title).tag($0) }
-            }
-            .pickerStyle(.radioGroup)
-
-            Section {
-                Toggle("Launch Polish at login", isOn: $launchAtLogin)
+            SettingRow(label: "Startup:") {
+                Toggle("Launch at login", isOn: $launchAtLogin)
                     .onChange(of: launchAtLogin, setLoginItem)
                 if let loginItemError {
                     Text(loginItemError)
-                        .font(.caption)
-                        .foregroundStyle(.red)
+                        .font(Tokens.Face.footerMeta)
+                        .foregroundStyle(Tokens.Palette.removed)
                 }
             }
+
+            SettingRow(label: "Summary style:") {
+                Picker("", selection: $summaryStyle) {
+                    ForEach(SummaryStyle.allCases) { Text($0.title).tag($0) }
+                }
+                .labelsHidden()
+                .pickerStyle(.segmented)
+                .frame(width: 240)
+                Text("Applies to Summarize and to long-text results.")
+                    .font(Tokens.Face.footerMeta)
+                    .foregroundStyle(Tokens.Ink.tertiary)
+            }
+
+            Spacer()
         }
-        .formStyle(.grouped)
+        .padding(Tokens.Space.window)
     }
 
     /// `SMAppService` is the store of record here, so on failure the toggle snaps back to it
@@ -76,15 +106,36 @@ private struct AppsSettings: View {
     @State private var toneSelection: String?
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("These apps do not expose their selection to macOS, so Polish copies it with ⌘C instead. Your clipboard is restored afterwards.")
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .fixedSize(horizontal: false, vertical: true)
+        VStack(alignment: .leading, spacing: Tokens.Space.m) {
+            Text("Default tone per app").paneHeaderStyle()
 
-            List(apps, id: \.self, selection: $selection) { Text($0) }
-                .border(.separator)
-                .frame(height: 80)
+            List(tones.keys.sorted(), id: \.self, selection: $toneSelection) { bundleID in
+                HStack {
+                    Text(bundleID).font(Tokens.Face.body)
+                    Spacer()
+                    Picker("", selection: toneBinding(bundleID)) {
+                        ForEach(Tone.allCases) { Text($0.title).tag($0) }
+                    }
+                    .labelsHidden()
+                    .frame(width: 130)
+                }
+            }
+            .border(Tokens.Palette.hairline)
+            .frame(height: 96)
+
+            HStack {
+                Button("Add…", action: addToneFromChooser)
+                Button("Remove") { removeTone(toneSelection) }
+                    .disabled(toneSelection == nil)
+                Spacer()
+                Button("Reset") { saveTones(Preferences.builtInDefaultTones) }
+            }
+
+            Text("Using clipboard fallback").paneHeaderStyle()
+
+            List(apps, id: \.self, selection: $selection) { Text($0).font(Tokens.Face.body) }
+                .border(Tokens.Palette.hairline)
+                .frame(height: 96)
 
             HStack {
                 Button("Add…", action: addFromChooser)
@@ -94,35 +145,12 @@ private struct AppsSettings: View {
                 Button("Reset") { save(Preferences.defaultFallbackApps) }
             }
 
-            Divider()
-
-            Text("Change tone offers this tone first in these apps.")
-                .font(.caption)
-                .foregroundStyle(.secondary)
-
-            List(tones.keys.sorted(), id: \.self, selection: $toneSelection) { bundleID in
-                HStack {
-                    Text(bundleID)
-                    Spacer()
-                    Picker("", selection: toneBinding(bundleID)) {
-                        ForEach(Tone.allCases) { Text($0.title).tag($0) }
-                    }
-                    .labelsHidden()
-                    .frame(width: 130)
-                }
-            }
-            .border(.separator)
-            .frame(height: 80)
-
-            HStack {
-                Button("Add…", action: addToneFromChooser)
-                Button("Remove") { removeTone(toneSelection) }
-                    .disabled(toneSelection == nil)
-                Spacer()
-                Button("Reset") { saveTones(Preferences.builtInDefaultTones) }
-            }
+            Text("These apps don't expose an editable text field to Accessibility. Verbaine copies the selection with ⌘C and puts the result on the clipboard; your clipboard is restored afterwards.")
+                .font(Tokens.Face.footerMeta)
+                .foregroundStyle(Tokens.Ink.tertiary)
+                .fixedSize(horizontal: false, vertical: true)
         }
-        .padding(20)
+        .padding(Tokens.Space.window)
     }
 
     /// Writes straight through on every change — there is no Save button in this window.
@@ -193,33 +221,45 @@ private struct AboutSettings: View {
     }
 
     var body: some View {
-        VStack(spacing: 8) {
-            Image(systemName: "wand.and.sparkles")
-                .font(.system(size: 44))
-                .foregroundStyle(.tint)
-            Text("Polish").font(.title2).bold()
-            Text(version).font(.caption).foregroundStyle(.secondary)
-            Text("Rewrites the text you select, in any app, using Apple's on-device model. Nothing you write leaves your Mac.")
-                .font(.callout)
+        VStack(spacing: Tokens.Space.s) {
+            Image(nsImage: NSApp.applicationIconImage)
+                .resizable()
+                .frame(width: 96, height: 96)
+            Text("Verbaine")
+                .font(Tokens.Face.headline)
+                .foregroundStyle(Tokens.Ink.primary)
+            Text(version)
+                .font(Tokens.Face.footerMeta)
+                .foregroundStyle(Tokens.Ink.tertiary)
+                .monospacedDigit()
+            Text("macOS 26 or later · Apple silicon")
+                .font(Tokens.Face.footerMeta)
+                .foregroundStyle(Tokens.Ink.tertiary)
+            Text("Verbaine rewrites selected text using Apple's Foundation Models, built into macOS. Every rewrite runs on this Mac. No account, no servers, no telemetry.")
+                .font(Tokens.Face.body)
                 .multilineTextAlignment(.center)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(Tokens.Ink.secondary)
                 .fixedSize(horizontal: false, vertical: true)
-            Button("Show onboarding again") { OnboardingWindow.show() }
-                .padding(.top, 4)
+                .padding(.horizontal, Tokens.Space.windowWide)
+            Button("Reset onboarding") { OnboardingWindow.show() }
+                .padding(.top, Tokens.Space.xxs)
         }
-        .padding(30)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .padding(Tokens.Space.window)
     }
 }
 
-/// Settings → Actions: the user's own actions, each a name, an instruction and how it finishes.
-/// Edits write straight through, like the other tabs — there is no Save button in this window.
+/// Settings → Actions: every action in one table — the built-ins with the button they finish on
+/// and their shortcut, then the user's own actions, which are editable (T3.1).
 private struct CustomActionsSettings: View {
     @State private var actions = Preferences.customActions()
     @State private var selection: CustomAction.ID?
+    @State private var editing: CustomAction.ID?
     @State private var error: String?
+    @State private var hotkeys = Preferences.actionHotkeys()
 
     private var selected: Binding<CustomAction>? {
-        guard let index = actions.firstIndex(where: { $0.id == selection }) else { return nil }
+        guard let index = actions.firstIndex(where: { $0.id == editing }) else { return nil }
         return Binding(get: { actions[index] }, set: { edited in
             var updated = actions
             updated[index] = edited
@@ -228,76 +268,163 @@ private struct CustomActionsSettings: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            BuiltInActionHotkeys()
+        VStack(alignment: .leading, spacing: Tokens.Space.m) {
+            header
 
-            Divider()
+            ScrollView {
+                VStack(alignment: .leading, spacing: Tokens.Space.xs) {
+                    ForEach(Action.grid) { action in
+                        row(
+                            title: action.title,
+                            defaultButton: action.defaultButton.title,
+                            hotkey: builtInBinding(for: action)
+                        )
+                    }
 
-            Text("Your own actions appear in the popover after the built-in ones.")
-                .font(.caption)
-                .foregroundStyle(.secondary)
+                    Text("Custom").paneHeaderStyle().padding(.top, Tokens.Space.s)
 
-            List(actions, selection: $selection) { action in
-                HStack {
-                    Text(action.name.isEmpty ? "Untitled" : action.name)
-                    Spacer()
-                    if let hotkey = action.hotkey {
-                        Text(hotkey.displayString).foregroundStyle(.secondary)
+                    ForEach(actions) { action in
+                        row(
+                            title: action.name.isEmpty ? "Untitled" : action.name,
+                            defaultButton: action.defaultButton.title,
+                            hotkey: customBinding(for: action),
+                            isSelected: selection == action.id
+                        )
+                        .contentShape(.rect)
+                        .onTapGesture { selection = action.id }
+                        .onTapGesture(count: 2) { editing = action.id }
                     }
                 }
-                .tag(action.id)
             }
-            .border(.separator)
-            .frame(height: 100)
 
             HStack {
                 Button("Add", action: add)
+                Button("Edit") { editing = selection }
+                    .disabled(selection == nil)
                 Button("Remove") { remove(selection) }
                     .disabled(selection == nil)
-            }
-
-            if let selected {
-                editor(selected)
-            } else {
                 Spacer()
+                Text("A shortcut runs its action straight away and replaces the selection — no popover unless something goes wrong.")
+                    .font(Tokens.Face.footerMeta)
+                    .foregroundStyle(Tokens.Ink.tertiary)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .frame(maxWidth: 300, alignment: .trailing)
             }
         }
-        .padding(20)
+        .padding(Tokens.Space.window)
+        .sheet(isPresented: Binding(get: { editing != nil }, set: { if !$0 { editing = nil } })) {
+            if let selected { editor(selected) }
+        }
     }
 
+    private var header: some View {
+        HStack {
+            Text("Action").paneHeaderStyle().frame(maxWidth: .infinity, alignment: .leading)
+            Text("Default button").paneHeaderStyle().frame(width: 120, alignment: .leading)
+            Text("Hotkey").paneHeaderStyle().frame(width: 150, alignment: .leading)
+        }
+    }
+
+    private func row(
+        title: String,
+        defaultButton: String,
+        hotkey: Binding<Hotkey?>,
+        isSelected: Bool = false
+    ) -> some View {
+        HStack {
+            Text(title)
+                .font(Tokens.Face.body)
+                .foregroundStyle(Tokens.Ink.primary)
+                .frame(maxWidth: .infinity, alignment: .leading)
+            Text(defaultButton)
+                .font(Tokens.Face.body)
+                .foregroundStyle(Tokens.Ink.secondary)
+                .frame(width: 120, alignment: .leading)
+            HotkeyRecorder(hotkey: hotkey, reset: nil, register: { _ in true })
+                .frame(width: 150, alignment: .leading)
+        }
+        .padding(.horizontal, Tokens.Space.xs)
+        .padding(.vertical, Tokens.Space.xxs)
+        .background(
+            isSelected ? Tokens.Palette.accent.opacity(0.13) : .clear,
+            in: .rect(cornerRadius: Tokens.Radius.menuItem)
+        )
+    }
+
+    /// The edit sheet from the board: name, instruction, default button, hotkey, Cancel / Save.
     @ViewBuilder
     private func editor(_ action: Binding<CustomAction>) -> some View {
-        Divider()
+        VStack(alignment: .leading, spacing: Tokens.Space.m) {
+            Text("Edit action")
+                .font(Tokens.Face.windowTitle)
+                .foregroundStyle(Tokens.Ink.primary)
 
-        Form {
-            TextField("Name", text: action.name)
+            SettingRow(label: "Name:") {
+                TextField("", text: action.name).frame(width: 260)
+            }
 
-            VStack(alignment: .leading, spacing: 4) {
-                Text("Instruction").font(.caption).foregroundStyle(.secondary)
+            SettingRow(label: "Instruction:") {
                 TextEditor(text: action.instruction)
-                    .font(.callout)
-                    .frame(height: 64)
-                    .border(.separator)
+                    .font(Tokens.Face.body)
+                    .frame(width: 320, height: 80)
+                    .border(Tokens.Palette.hairline)
                 Text("What the model should do with the selected text, e.g. “Rewrite this as a release note.” Up to \(CustomAction.maxInstructionTokens) tokens.")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .font(Tokens.Face.footerMeta)
+                    .foregroundStyle(Tokens.Ink.tertiary)
+                    .frame(width: 320, alignment: .leading)
                     .fixedSize(horizontal: false, vertical: true)
             }
 
-            Picker("Default button", selection: action.defaultButton) {
-                ForEach(CustomAction.DefaultButton.allCases) { Text($0.title).tag($0) }
+            SettingRow(label: "Default button:") {
+                Picker("", selection: action.defaultButton) {
+                    ForEach(CustomAction.DefaultButton.allCases) { Text($0.title).tag($0) }
+                }
+                .labelsHidden()
+                .pickerStyle(.segmented)
+                .frame(width: 200)
             }
-            .pickerStyle(.segmented)
 
-            LabeledContent("Shortcut") {
+            SettingRow(label: "Hotkey:") {
                 HotkeyRecorder(hotkey: action.hotkey, reset: nil, register: { _ in true })
             }
 
             if let error {
-                Text(error).font(.caption).foregroundStyle(.red)
+                Text(error)
+                    .font(Tokens.Face.footerMeta)
+                    .foregroundStyle(Tokens.Palette.removed)
+            }
+
+            HStack {
+                Spacer()
+                Button("Done") { editing = nil }
+                    .keyboardShortcut(.defaultAction)
             }
         }
-        .formStyle(.grouped)
+        .padding(Tokens.Space.window)
+        .frame(width: 520)
+    }
+
+    private func builtInBinding(for action: Action) -> Binding<Hotkey?> {
+        Binding(
+            get: { hotkeys[action.id] },
+            set: { hotkey in
+                hotkeys[action.id] = hotkey
+                Preferences.setActionHotkeys(hotkeys)
+                AppDelegate.registerActionHotkeys()
+            }
+        )
+    }
+
+    private func customBinding(for action: CustomAction) -> Binding<Hotkey?> {
+        Binding(
+            get: { action.hotkey },
+            set: { hotkey in
+                guard let index = actions.firstIndex(where: { $0.id == action.id }) else { return }
+                var updated = actions
+                updated[index].hotkey = hotkey
+                save(updated)
+            }
+        )
     }
 
     private func add() {
@@ -306,6 +433,7 @@ private struct CustomActionsSettings: View {
         updated.append(new)
         save(updated)
         selection = new.id
+        editing = new.id
     }
 
     private func remove(_ id: CustomAction.ID?) {
@@ -321,7 +449,7 @@ private struct CustomActionsSettings: View {
         actions = Preferences.customActions()
         AppDelegate.registerActionHotkeys()
 
-        guard let edited = updated.first(where: { $0.id == selection }) else {
+        guard let edited = updated.first(where: { $0.id == editing }) else {
             error = nil
             return
         }
@@ -329,38 +457,5 @@ private struct CustomActionsSettings: View {
             let tokens = await CustomAction.tokenCount(of: edited.instruction)
             error = CustomAction.validationError(name: edited.name, instruction: edited.instruction, tokens: tokens)
         }
-    }
-}
-
-/// Settings → Actions: a shortcut per built-in action (T3.2). Firing one runs the action and
-/// replaces the selection with no popover, so this list is what turns a built-in into a one-key
-/// operation.
-private struct BuiltInActionHotkeys: View {
-    @State private var hotkeys = Preferences.actionHotkeys()
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("A shortcut runs its action straight away and replaces the selection — no popover unless something goes wrong or the text is too long for one pass.")
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .fixedSize(horizontal: false, vertical: true)
-
-            ForEach(Action.grid) { action in
-                LabeledContent(action.title) {
-                    HotkeyRecorder(hotkey: binding(for: action), reset: nil, register: { _ in true })
-                }
-            }
-        }
-    }
-
-    private func binding(for action: Action) -> Binding<Hotkey?> {
-        Binding(
-            get: { hotkeys[action.id] },
-            set: { hotkey in
-                hotkeys[action.id] = hotkey
-                Preferences.setActionHotkeys(hotkeys)
-                AppDelegate.registerActionHotkeys()
-            }
-        )
     }
 }

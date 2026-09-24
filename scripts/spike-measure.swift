@@ -2,7 +2,7 @@
 // T0.6 spike measurement: token counts and per-action latency against the on-device model.
 // Run: xcrun swift scripts/spike-measure.swift
 // Deliberately standalone (no app target) so it can run headless; the app's real prompts
-// land in Sources/Polish/Model/Prompts.swift in T1.2.
+// land in Sources/Verbaine/Model/Prompts.swift in T1.2.
 import Foundation
 import FoundationModels
 

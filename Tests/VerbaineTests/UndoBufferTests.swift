@@ -1,5 +1,5 @@
 import Testing
-@testable import Polish
+@testable import Verbaine
 
 @MainActor
 private func selection(_ text: String) -> Selection {

@@ -1,7 +1,7 @@
 import Carbon.HIToolbox
 import Foundation
 import Testing
-@testable import Polish
+@testable import Verbaine
 
 private func makeDefaults(_ name: String = UUID().uuidString) -> UserDefaults {
     UserDefaults(suiteName: name)!

@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-@testable import Polish
+@testable import Verbaine
 
 /// One token per word: deterministic, and close enough in shape to the real tokenizer that the
 /// packing arithmetic is what the tests actually exercise.

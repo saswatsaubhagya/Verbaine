@@ -1,6 +1,6 @@
 # Design reference
 
-Source: claude.ai design project "Polish macOS grammar app" (`ed7b1c70-ddfe-4c1e-9095-c22dc10ce104`), board `Polish UI Board.dc.html`. A copy is committed at [`docs/design/Polish-UI-Board.html`](design/Polish-UI-Board.html) — open it in a browser to see every state rendered. Target look: macOS 26 Tahoe, Liquid Glass, light + dark.
+Source: claude.ai design project "Verbaine macOS grammar app" (`ed7b1c70-ddfe-4c1e-9095-c22dc10ce104`), board `Verbaine UI Board.dc.html`. A copy is committed at [`docs/design/Verbaine-UI-Board.html`](design/Verbaine-UI-Board.html) — open it in a browser to see every state rendered. Target look: macOS 26 Tahoe, Liquid Glass, light + dark.
 
 Re-pull with the `DesignSync` tool (`/design-login` first) if the board changes. Do not hand-edit the committed copy.
 
@@ -76,3 +76,19 @@ Glass surfaces: backdrop blur 30, saturation 180%.
 **Undo toast** (T1.5) — height 30, radius 15, padding 0 6 0 12, gap 8. Glass `#F7F7F9` 80% light / `#2C2C2E` 82% dark, shadow 0 8 24 black 20% (40% dark). Label 12 regular, "Undo" 12 medium accent, "⌘Z" in SF Mono. Lives 4 s with a hairline countdown that pauses on hover.
 
 **Progress row** (T2.2, T2.4) — full-bleed 2 px track, black 10% light / white 14% dark, accent fill that advances one step per completed part. Title 12 semibold, counter 10.5 regular at black 45%. Copy reads "Part 3 of 8".
+
+## In code
+
+`Sources/Verbaine/UI/DesignTokens.swift` is the single place these numbers live — `Tokens.Radius`,
+`Tokens.Space`, `Tokens.Size`, `Tokens.Ink`, `Tokens.Palette`, `Tokens.Face`. Views read tokens;
+no view hard-codes a hex value or a point size. `View.glassSurface(cornerRadius:)` (in
+`PopoverPanel.swift`) draws the blurred fill, hairline edge and shadow the popover, toast and
+error pane share. `docs/TESTING.md` → "Design parity" is the checklist that proves a build
+matches this file.
+
+## Where the code deviates, and why
+
+- **Settings has a fifth tab, Model.** Bring-your-own-endpoint (T3.6–T3.9) landed after the board was drawn. It sits between Apps and Model's neighbours rather than replacing a board tab.
+- **Built-in actions show Replace in the Actions table's "Default button" column.** The board shows Summarize finishing on Copy, but only custom actions carry a per-action default button today; making it editable for built-ins is a preference change, not a design one.
+- **Menu-bar shortcuts are shown as a help tag, not a right-aligned column.** A SwiftUI `MenuBarExtra` cannot draw the column; matching the board needs a hand-built `NSMenu`.
+- **Not built at all:** "Menu-bar shortcut" and "Show icon in menu bar only when active" (General), and the clipboard history in the menu (T4.6, already excluded from v1 above). These are features the board drew, not styling.

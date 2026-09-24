@@ -8,7 +8,7 @@ import os
 /// `kAXSelectedTextAttribute`), and any app that answers with nothing.
 @MainActor
 enum SelectionCapture {
-    private static let log = Logger(subsystem: "com.saswat.polish", category: "SelectionCapture")
+    private static let log = Logger(subsystem: "in.saswatsaubhagya.verbaine", category: "SelectionCapture")
 
     /// Reads the current selection, choosing the capture path per app.
     static func capture() async throws(CaptureError) -> Selection {

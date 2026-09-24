@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Release builds for Polish.
+# Release builds for Verbaine.
 #
 #   scripts/release.sh testflight   archive, export a signed pkg, upload to App Store Connect
 #   scripts/release.sh direct       archive, export a notarized+stapled zip for direct download
@@ -29,17 +29,17 @@ cd "$(dirname "$0")/.."
 : "${TEAM_ID:?set TEAM_ID to your Apple Developer team id}"
 
 BUILD=$(git rev-list --count HEAD)
-VERSION=$(sed -n 's/.*MARKETING_VERSION = \([^;]*\);.*/\1/p' Polish.xcodeproj/project.pbxproj | head -1)
+VERSION=$(sed -n 's/.*MARKETING_VERSION = \([^;]*\);.*/\1/p' Verbaine.xcodeproj/project.pbxproj | head -1)
 OUT="build/release"
-ARCHIVE="$OUT/Polish.xcarchive"
+ARCHIVE="$OUT/Verbaine.xcarchive"
 
 rm -rf "$OUT"
 mkdir -p "$OUT"
 
-echo "==> Archiving Polish $VERSION ($BUILD)"
+echo "==> Archiving Verbaine $VERSION ($BUILD)"
 xcodebuild archive \
-	-project Polish.xcodeproj \
-	-scheme Polish \
+	-project Verbaine.xcodeproj \
+	-scheme Verbaine \
 	-configuration Release \
 	-destination 'generic/platform=macOS' \
 	-archivePath "$ARCHIVE" \
@@ -96,13 +96,13 @@ EOF
 		-allowProvisioningUpdates
 
 	: "${NOTARY_PROFILE:?set NOTARY_PROFILE (see: xcrun notarytool store-credentials)}"
-	ZIP="$OUT/Polish-$VERSION-$BUILD.zip"
-	ditto -c -k --keepParent "$OUT/export/Polish.app" "$ZIP"
+	ZIP="$OUT/Verbaine-$VERSION-$BUILD.zip"
+	ditto -c -k --keepParent "$OUT/export/Verbaine.app" "$ZIP"
 	echo "==> Notarizing $ZIP"
 	xcrun notarytool submit "$ZIP" --keychain-profile "$NOTARY_PROFILE" --wait
-	xcrun stapler staple "$OUT/export/Polish.app"
-	spctl --assess --type execute --verbose "$OUT/export/Polish.app"
+	xcrun stapler staple "$OUT/export/Verbaine.app"
+	spctl --assess --type execute --verbose "$OUT/export/Verbaine.app"
 	rm "$ZIP"
-	ditto -c -k --keepParent "$OUT/export/Polish.app" "$ZIP"
+	ditto -c -k --keepParent "$OUT/export/Verbaine.app" "$ZIP"
 	echo "==> Notarized and stapled: $ZIP"
 fi

@@ -1,4 +1,4 @@
-# Claude Code task list — Polish
+# Claude Code task list — Verbaine
 
 Execute in order. Each task is one Claude Code session or prompt; commit at the end of every task. Do not start a task until the previous task's **Done when** passes. Reference `PRD.md` for product decisions; do not invent features not listed there.
 
@@ -8,14 +8,14 @@ Execute in order. Each task is one Claude Code session or prompt; commit at the 
 - No third-party dependencies unless a task names one.
 - Every task adds or updates unit tests where logic exists; UI-only tasks add a manual test checklist to `docs/TESTING.md`.
 - Never hard-code 4096; always read `SystemLanguageModel.default.contextSize`. It reports 4096 on the current test Mac, but that is a measurement, not a constant.
-- All prompts live in `Sources/Polish/Model/Prompts.swift`, one static string per action.
+- All prompts live in `Sources/Verbaine/Model/Prompts.swift`, one static string per action.
 - Run both `xcodebuild` commands from `README.md` (build and test) before declaring a task done.
 
 ## Phase 0 — Spike (prove the risky parts first)
 
 **T0.1 Project scaffold** — ✅ done (`1ab6464`)
 
-- Create an Xcode project `Polish`, macOS app, SwiftUI lifecycle, bundle id `com.saswat.polish`.
+- Create an Xcode project `Verbaine`, macOS app, SwiftUI lifecycle, bundle id `in.saswatsaubhagya.verbaine`.
 - Set `LSUIElement = YES` (menu bar only, no Dock icon).
 - Add a `MenuBarExtra` with a placeholder menu: "Improve selection", "Settings…", "Quit".
 - Folder layout: `App/`, `Capture/`, `Model/`, `UI/`, `WriteBack/`, `Settings/`, `Tests/`.
@@ -99,7 +99,7 @@ Execute in order. Each task is one Claude Code session or prompt; commit at the 
 
 **T1.7 Onboarding** — ✅ done (`3ca8eb0`; build + test pass, 48 tests; manual checklist in `docs/TESTING.md` still to run on a clean account)
 
-- First-launch window: 3 steps — what Polish does; enable Apple Intelligence (with availability status live); grant Accessibility (with Test button that reads current selection).
+- First-launch window: 3 steps — what Verbaine does; enable Apple Intelligence (with availability status live); grant Accessibility (with Test button that reads current selection).
 - Done when: fresh install on a clean user account completes onboarding and hotkey works.
 
 **T1.8 Settings window** — ✅ done (`ad28bcc`; build + test pass, 56 tests; manual checklist in `docs/TESTING.md`)
@@ -163,13 +163,13 @@ Execute in order. Each task is one Claude Code session or prompt; commit at the 
 **T3.4 Services menu integration** — ✅ done (`c75efaa`; build + test pass; TextEdit checklist in `docs/TESTING.md` still to run on device)
 
 - Register `NSServices` entries for Improve and Summarize with `NSStringPboardType`.
-- Done when: right-click → Services → Polish: Improve works in TextEdit.
+- Done when: right-click → Services → Verbaine: Improve works in TextEdit.
 
 **T3.6 Inference provider seam** — ✅ done (`772b3da`; build + test pass) — `InferenceProvider` protocol, `Inference.current` resolver, all call sites moved. Pure refactor.
 - Done when: build and test pass with the existing suite unchanged, and `Inference.current` returns the on-device model by default.
 
 **T3.7 Remote endpoint settings** — ✅ done (`6490cf8`; build + test pass) — `RemoteConfig`, `APIKeyStore` (Keychain), Settings "Model" tab with presets and Test connection.
-- Done when: values round-trip through Settings, and the key is absent from `defaults read com.saswat.polish`.
+- Done when: values round-trip through Settings, and the key is absent from `defaults read in.saswatsaubhagya.verbaine`.
 
 **T3.8 OpenAI-compatible provider** — ✅ done (`c27639e`; build + test pass) — `OpenAICompatibleProvider`, `SSEStream`, `RemoteError` mapping, `ContextRetry` extension.
 - Done when: a real key streams a rewrite into the popover, and a wrong key, wrong model and offline machine each produce their own message.
@@ -180,7 +180,7 @@ Execute in order. Each task is one Claude Code session or prompt; commit at the 
 
 **T3.5 Direct-download release**
 
-The App Store is not a route for this project: submission requires the paid Apple Developer Program, and Polish is signed ad-hoc. Ship it as a download instead.
+The App Store is not a route for this project: submission requires the paid Apple Developer Program, and Verbaine is signed ad-hoc. Ship it as a download instead.
 
 - Write `docs/RELEASE.md`: how to produce a Release build, zip it, and version it.
 - Landing copy emphasizing on-device-by-default privacy and cross-app support, and stating plainly that a custom endpoint sends text to that endpoint.

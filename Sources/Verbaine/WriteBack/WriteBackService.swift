@@ -10,7 +10,7 @@ import os
 /// typing it, so ⌘Z in the source app restores the original.
 @MainActor
 enum WriteBackService {
-    private static let log = Logger(subsystem: "com.saswat.polish", category: "WriteBackService")
+    private static let log = Logger(subsystem: "in.saswatsaubhagya.verbaine", category: "WriteBackService")
 
     /// How long to leave the result on the clipboard before restoring the user's own contents.
     /// The paste is asynchronous — the app reads the pasteboard on its own event loop — so the
@@ -63,14 +63,13 @@ enum WriteBackService {
         SyntheticKeystroke.postCommandZ()
     }
 
-    /// Brings the source app back to the front if Polish (or its popover) took focus, and waits
-    /// for the switch to land — ⌘V posted mid-switch goes to whoever is frontmost at that
-    /// instant, which may still be us.
+    /// Hands the keyboard back to the source app and waits for the switch to land.
+    ///
+    /// `frontmostApplication` is not enough: the popover is a non-activating panel, but it is
+    /// still the key window, and a synthetic ⌘V goes to whoever is key — us, so Slack hears
+    /// nothing but a beep. Yield activation and confirm we are out of the way before pasting.
     private static func activateSourceAppIfNeeded(_ selection: Selection) async throws(WriteBackError) {
         guard let bundleID = selection.appBundleID else { throw .focusChanged }
-        let frontmost = NSWorkspace.shared.frontmostApplication
-        guard frontmost?.bundleIdentifier != bundleID else { return }
-
         guard let app = NSRunningApplication
             .runningApplications(withBundleIdentifier: bundleID)
             .first(where: { !$0.isTerminated })
@@ -78,16 +77,26 @@ enum WriteBackService {
             throw .sourceAppGone
         }
 
+        guard NSApp.isActive || NSApp.keyWindow != nil
+            || NSWorkspace.shared.frontmostApplication?.bundleIdentifier != bundleID
+        else { return }
+
+        NSApp.yieldActivation(to: app)
+        NSApp.deactivate()
         app.activate()
 
         // Poll rather than trust `activate()`'s return value: it reports that the request was
         // made, not that the app is frontmost yet.
         let deadline = ContinuousClock.now + Duration.milliseconds(500)
         while ContinuousClock.now < deadline {
-            if NSWorkspace.shared.frontmostApplication?.bundleIdentifier == bundleID { return }
+            if NSWorkspace.shared.frontmostApplication?.bundleIdentifier == bundleID,
+               !NSApp.isActive, NSApp.keyWindow == nil
+            {
+                return
+            }
             try? await Task.sleep(for: .milliseconds(10))
         }
-        log.error("\(bundleID) did not come to the front")
+        log.error("\(bundleID) did not take the keyboard back")
         throw .focusChanged
     }
 

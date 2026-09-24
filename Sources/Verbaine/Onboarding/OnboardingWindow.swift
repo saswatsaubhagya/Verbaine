@@ -27,14 +27,14 @@ enum OnboardingWindow {
             backing: .buffered,
             defer: false
         )
-        panel.title = "Welcome to Polish"
+        panel.title = "Welcome to Verbaine"
         panel.titlebarAppearsTransparent = true
         panel.isFloatingPanel = true
         panel.level = .floating
         panel.hidesOnDeactivate = false
         panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
         panel.contentView = NSHostingView(rootView: OnboardingView(model: model))
-        panel.setContentSize(panel.contentView?.fittingSize ?? NSSize(width: 460, height: 320))
+        panel.setContentSize(NSSize(width: Tokens.Size.onboarding.width, height: Tokens.Size.onboarding.height))
         panel.center()
         panel.makeKeyAndOrderFront(nil)
 

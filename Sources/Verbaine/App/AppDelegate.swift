@@ -3,7 +3,7 @@ import os
 
 /// Owns the app-lifetime wiring the SwiftUI `Scene` has no place for: the global hotkey.
 final class AppDelegate: NSObject, NSApplicationDelegate {
-    private static let log = Logger(subsystem: "com.saswat.polish", category: "App")
+    private static let log = Logger(subsystem: "in.saswatsaubhagya.verbaine", category: "App")
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         HotkeyManager.shared.start { Task { await AppDelegate.trigger() } }

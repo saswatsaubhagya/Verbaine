@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-@testable import Polish
+@testable import Verbaine
 
 /// M3: a declared context window too small for the chunkers used to produce an empty "result"
 /// that `Replace` would paste over the user's selection. Two ends are covered here: the floor
@@ -79,7 +79,7 @@ func oneUnderTheFloorCollapses() async throws {
 
 @Test("a context size typed as 128 — meaning 128k — is floored, not stored as 128")
 func settingsFloorsAnUnusableContextSize() {
-    let defaults = UserDefaults(suiteName: "polish.tests.\(UUID().uuidString)")!
+    let defaults = UserDefaults(suiteName: "verbaine.tests.\(UUID().uuidString)")!
     Preferences.setRemoteConfig(
         RemoteConfig(baseURL: "https://api.example.com/v1", model: "m", contextSize: 128),
         defaults
@@ -90,7 +90,7 @@ func settingsFloorsAnUnusableContextSize() {
 @Test("zero and negative context sizes are floored too")
 func settingsFloorsNonPositiveContextSizes() {
     for typed in [0, -1, 1] {
-        let defaults = UserDefaults(suiteName: "polish.tests.\(UUID().uuidString)")!
+        let defaults = UserDefaults(suiteName: "verbaine.tests.\(UUID().uuidString)")!
         Preferences.setRemoteConfig(
             RemoteConfig(baseURL: "https://api.example.com/v1", model: "m", contextSize: typed),
             defaults
@@ -101,7 +101,7 @@ func settingsFloorsNonPositiveContextSizes() {
 
 @Test("a real window is stored exactly as typed")
 func settingsKeepsAUsableContextSize() {
-    let defaults = UserDefaults(suiteName: "polish.tests.\(UUID().uuidString)")!
+    let defaults = UserDefaults(suiteName: "verbaine.tests.\(UUID().uuidString)")!
     Preferences.setRemoteConfig(
         RemoteConfig(baseURL: "https://api.example.com/v1", model: "m", contextSize: 128_000),
         defaults
@@ -111,7 +111,7 @@ func settingsKeepsAUsableContextSize() {
 
 @Test("a sub-floor value already sitting in defaults is floored on the way out")
 func alreadyStoredSubFloorValueIsFloored() {
-    let defaults = UserDefaults(suiteName: "polish.tests.\(UUID().uuidString)")!
+    let defaults = UserDefaults(suiteName: "verbaine.tests.\(UUID().uuidString)")!
     defaults.set(128, forKey: Preferences.remoteContextSizeKey)
     #expect(Preferences.remoteConfig(defaults).contextSize == TokenBudget.minimumViableContextSize)
 }

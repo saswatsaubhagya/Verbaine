@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-@testable import Polish
+@testable import Verbaine
 
 /// One token per word, as in `TextChunkerTests`: deterministic, and the packing arithmetic stays
 /// the only variable.

@@ -1,6 +1,6 @@
 import Foundation
 
-/// The three first-launch steps, in order: what Polish is, then the two things it cannot work
+/// The three first-launch steps, in order: what Verbaine is, then the two things it cannot work
 /// without — Apple Intelligence and Accessibility.
 enum OnboardingStep: Int, CaseIterable, Sendable {
     case welcome
@@ -12,9 +12,9 @@ enum OnboardingStep: Int, CaseIterable, Sendable {
 
     var title: String {
         switch self {
-        case .welcome: "Polish rewrites the text you select"
-        case .intelligence: "Turn on Apple Intelligence"
-        case .accessibility: "Let Polish read your selection"
+        case .welcome: "Welcome to Verbaine"
+        case .intelligence: "Enable Apple Intelligence"
+        case .accessibility: "Grant Accessibility access"
         }
     }
 

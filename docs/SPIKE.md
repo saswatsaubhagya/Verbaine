@@ -1,6 +1,6 @@
 # Phase 0 spike report
 
-**Test Mac:** MacBook Pro, Apple M1 Pro, 16 GB, macOS 27.0 (26A428), Xcode 27.0. Apple Intelligence enabled, Accessibility granted to `Polish.app`.
+**Test Mac:** MacBook Pro, Apple M1 Pro, 16 GB, macOS 27.0 (26A428), Xcode 27.0. Apple Intelligence enabled, Accessibility granted to `Verbaine.app`.
 **Date:** 2026-09-18.
 
 Model numbers come from `scripts/spike-measure.swift` (`xcrun swift scripts/spike-measure.swift`), run headless against `SystemLanguageModel.default`. App-level results come from the checklists in `docs/TESTING.md`, run by hand on the same machine.
@@ -73,5 +73,5 @@ The fallback list is doing the work it was added for: every Electron/Chromium ap
 ## Open items carried into Phase 1
 
 - `DebugMenu.swift` is spike scaffolding and gets deleted when T1.4 lands a real popover.
-- `scripts/spike-measure.swift` uses provisional instruction strings; T1.2 moves the real ones to `Sources/Polish/Model/Prompts.swift`.
+- `scripts/spike-measure.swift` uses provisional instruction strings; T1.2 moves the real ones to `Sources/Verbaine/Model/Prompts.swift`.
 - Latency here is non-streaming, whole-response. T1.4 should re-measure time-to-first-token, which is what the user actually perceives.

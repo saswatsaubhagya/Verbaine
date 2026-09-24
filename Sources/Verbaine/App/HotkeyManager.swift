@@ -9,7 +9,7 @@ struct Hotkey: Hashable, Codable, Sendable {
     /// `controlKey`, `optionKey`, `cmdKey`, `shiftKey` OR'd together.
     var modifiers: UInt32
 
-    /// ⌃⌥P — free in macOS and in the apps Polish targets.
+    /// ⌃⌥P — free in macOS and in the apps Verbaine targets.
     static let standard = Hotkey(keyCode: UInt32(kVK_ANSI_P), modifiers: UInt32(controlKey | optionKey))
 
     private static let keyCodeKey = "hotkey.keyCode"
@@ -78,7 +78,7 @@ struct Hotkey: Hashable, Codable, Sendable {
 final class HotkeyManager {
     static let shared = HotkeyManager()
 
-    private static let log = Logger(subsystem: "com.saswat.polish", category: "Hotkey")
+    private static let log = Logger(subsystem: "in.saswatsaubhagya.verbaine", category: "Hotkey")
     private static let signature: OSType = 0x504C5348  // 'PLSH'
 
     private var hotKeyRef: EventHotKeyRef?

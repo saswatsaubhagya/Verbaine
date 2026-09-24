@@ -1,7 +1,7 @@
 import AppKit
 import ApplicationServices
 
-/// Whether Polish is allowed to read other apps' selections, and how to ask.
+/// Whether Verbaine is allowed to read other apps' selections, and how to ask.
 ///
 /// Every AX call in `AXSelectionReader` silently returns `kAXErrorAPIDisabled` without this, so
 /// the UI checks here first and says "grant Accessibility" rather than "no text selected".
@@ -11,7 +11,7 @@ enum AccessibilityPermission {
         AXIsProcessTrusted()
     }
 
-    /// Shows the system's "allow Polish to control this computer" alert, once per app install.
+    /// Shows the system's "allow Verbaine to control this computer" alert, once per app install.
     /// Returns the trust state as of right now — granting it happens later, in System Settings.
     @discardableResult
     static func requestTrust() -> Bool {

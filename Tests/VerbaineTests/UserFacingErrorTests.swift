@@ -1,7 +1,7 @@
 import Foundation
 import FoundationModels
 import Testing
-@testable import Polish
+@testable import Verbaine
 
 @Test("capture errors get their own sentence and remedy", arguments: [
     (CaptureError.accessibilityNotTrusted, UserFacingError.Remedy.accessibilitySettings),

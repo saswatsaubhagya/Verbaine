@@ -6,9 +6,9 @@ Tasks: T3.6–T3.9 in `docs/TASKS.md`
 
 ## Problem
 
-Polish runs every action on Apple's on-device Foundation Model. That model is ~3B parameters with
+Verbaine runs every action on Apple's on-device Foundation Model. That model is ~3B parameters with
 a 4096-token window, which caps both quality and input size. Users who already pay for a frontier
-model want to point Polish at it for the actions where the small model falls short, without giving
+model want to point Verbaine at it for the actions where the small model falls short, without giving
 up on-device as the default.
 
 ## Non-goal: reusing an existing subscription
@@ -79,7 +79,7 @@ and the direct `ModelService.shared` references in `PopoverModel`, `CustomAction
 `OnboardingModel` keeps `ModelService.shared`, because onboarding is specifically about getting
 Apple Intelligence turned on and must not be satisfied by a configured remote key.
 
-### Remote provider — `Sources/Polish/Model/Remote/`
+### Remote provider — `Sources/Verbaine/Model/Remote/`
 
 **`RemoteConfig.swift`** — `struct RemoteConfig: Codable, Sendable` holding `baseURL: URL`,
 `model: String`, `contextSize: Int` (default 128_000). Persisted in `UserDefaults` under
@@ -87,7 +87,7 @@ Apple Intelligence turned on and must not be satisfied by a configured remote ke
 The API key is *not* in here.
 
 **`APIKeyStore.swift`** — Keychain wrapper over `kSecClassGenericPassword`, service
-`com.saswat.polish.apikey`, account = the base URL's host, so switching endpoints does not silently
+`in.saswatsaubhagya.verbaine.apikey`, account = the base URL's host, so switching endpoints does not silently
 reuse another endpoint's key. `save`, `load`, `delete`. Security.framework only, no dependency. The
 key is never written to `UserDefaults`, never logged, and is redacted from every error path.
 
@@ -140,7 +140,7 @@ selected text is sent to that endpoint.
 
 - Menu-bar icon renders in a distinct tint whenever `Inference.current.isRemote`.
 - The action popover shows `via <model> · cloud` under the action grid on the same condition.
-- `Polish.entitlements` gains `com.apple.security.network.client`.
+- `Verbaine.entitlements` gains `com.apple.security.network.client`.
 - `PrivacyInfo.xcprivacy` gains a data-collection entry for user content sent to a third party,
   conditional on user configuration.
 - `docs/PRD.md` amended: goal 3 becomes "On-device by default. Text leaves the Mac only when the

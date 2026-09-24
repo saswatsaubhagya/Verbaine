@@ -1,7 +1,7 @@
 #!/usr/bin/env swift
 
-// Renders the app icon from docs/DESIGN.md row 7 into
-// Sources/Polish/Resources/Assets.xcassets/AppIcon.appiconset.
+// Renders the app icon and the menu-bar template image from docs/DESIGN.md row 7 into
+// Sources/Verbaine/Resources/Assets.xcassets.
 // Run: swift scripts/make-icon.swift
 
 import CoreGraphics
@@ -61,7 +61,7 @@ func render(px: Int) -> CGImage {
 }
 
 let root = URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
-let set = root.appending(path: "Sources/Polish/Resources/Assets.xcassets/AppIcon.appiconset")
+let set = root.appending(path: "Sources/Verbaine/Resources/Assets.xcassets/AppIcon.appiconset")
 try FileManager.default.createDirectory(at: set, withIntermediateDirectories: true)
 
 // macOS app icon: 16/32/128/256/512 pt at 1× and 2×.
@@ -98,3 +98,81 @@ let contents = """
 """
 try contents.write(to: set.appending(path: "Contents.json"), atomically: true, encoding: .utf8)
 print("wrote \(sizes.count) icon images to \(set.path)")
+
+// Menu-bar template: two lines and a solid sparkle, no plate, drawn in opaque black so macOS
+// can tint it for light, dark and the highlighted state. 16 pt at 1×, 2× and 3×.
+func renderMenuBar(px: Int) -> CGImage {
+    let ctx = CGContext(
+        data: nil, width: px, height: px, bitsPerComponent: 8, bytesPerRow: 0,
+        space: CGColorSpace(name: CGColorSpace.sRGB)!,
+        bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
+    )!
+    // Design space is 16 units with y down, matching the board's 16 pt proof.
+    let s = CGFloat(px) / 16
+    ctx.translateBy(x: 0, y: CGFloat(px))
+    ctx.scaleBy(x: s, y: -s)
+    ctx.setAllowsAntialiasing(true)
+
+    ctx.setStrokeColor(CGColor(gray: 0, alpha: 1))
+    ctx.setLineCap(.round)
+    ctx.setLineWidth(1.5)
+    for (y, xEnd) in [(CGFloat(9.5), CGFloat(11.5)), (CGFloat(13), CGFloat(8.5))] {
+        ctx.move(to: CGPoint(x: 2.5, y: y))
+        ctx.addLine(to: CGPoint(x: xEnd, y: y))
+        ctx.strokePath()
+    }
+
+    // The sparkle, same eight-point star as the app icon scaled into the top-right.
+    let centre = CGPoint(x: 11, y: 5)
+    let long: CGFloat = 4.2
+    let short: CGFloat = 1.55
+    var points: [CGPoint] = []
+    for step in 0..<8 {
+        let radius = step.isMultiple(of: 2) ? long : short
+        let angle = CGFloat(step) * .pi / 4 - .pi / 2
+        points.append(CGPoint(x: centre.x + cos(angle) * radius, y: centre.y + sin(angle) * radius))
+    }
+    ctx.setFillColor(CGColor(gray: 0, alpha: 1))
+    ctx.addLines(between: points)
+    ctx.closePath()
+    ctx.fillPath()
+
+    return ctx.makeImage()!
+}
+
+let menuSet = root.appending(path: "Sources/Verbaine/Resources/Assets.xcassets/MenuBarIcon.imageset")
+try FileManager.default.createDirectory(at: menuSet, withIntermediateDirectories: true)
+
+var menuEntries: [String] = []
+for scale in 1...3 {
+    let name = "menubar_\(scale)x.png"
+    let url = menuSet.appending(path: name)
+    let dest = CGImageDestinationCreateWithURL(url as CFURL, UTType.png.identifier as CFString, 1, nil)!
+    CGImageDestinationAddImage(dest, renderMenuBar(px: 16 * scale), nil)
+    guard CGImageDestinationFinalize(dest) else { fatalError("failed writing \(name)") }
+    menuEntries.append("""
+        {
+          "filename" : "\(name)",
+          "idiom" : "mac",
+          "scale" : "\(scale)x"
+        }
+    """)
+}
+
+let menuContents = """
+{
+  "images" : [
+\(menuEntries.joined(separator: ",\n"))
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  },
+  "properties" : {
+    "template-rendering-intent" : "template"
+  }
+}
+
+"""
+try menuContents.write(to: menuSet.appending(path: "Contents.json"), atomically: true, encoding: .utf8)
+print("wrote 3 menu-bar template images to \(menuSet.path)")

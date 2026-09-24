@@ -10,12 +10,12 @@
 			<key>NSMenuItem</key>
 			<dict>
 				<key>default</key>
-				<string>Polish: Improve</string>
+				<string>Verbaine: Improve</string>
 			</dict>
 			<key>NSMessage</key>
 			<string>improveSelection</string>
 			<key>NSPortName</key>
-			<string>Polish</string>
+			<string>Verbaine</string>
 			<key>NSSendTypes</key>
 			<array>
 				<string>NSStringPboardType</string>
@@ -29,12 +29,12 @@
 			<key>NSMenuItem</key>
 			<dict>
 				<key>default</key>
-				<string>Polish: Summarize</string>
+				<string>Verbaine: Summarize</string>
 			</dict>
 			<key>NSMessage</key>
 			<string>summarizeSelection</string>
 			<key>NSPortName</key>
-			<string>Polish</string>
+			<string>Verbaine</string>
 			<key>NSSendTypes</key>
 			<array>
 				<string>NSStringPboardType</string>

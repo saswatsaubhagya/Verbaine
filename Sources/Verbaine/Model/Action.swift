@@ -57,6 +57,19 @@ enum Action: Hashable, Sendable, Identifiable {
         }
     }
 
+    /// The tile glyph in the popover's action grid (design board row 8, "Action tile").
+    var symbol: String {
+        switch self {
+        case .fixGrammar: "checkmark.circle"
+        case .improve: "wand.and.sparkles"
+        case .summarize: "list.bullet"
+        case .shorten: "arrow.down.right.and.arrow.up.left"
+        case .changeTone: "slider.horizontal.3"
+        case .expand: "arrow.up.left.and.arrow.down.right"
+        case .custom: "star"
+        }
+    }
+
     /// Rewrites return text the same size as the input; the other two shrink it. `TokenBudget`
     /// (T1.3) sizes the output reserve from this.
     var isRewrite: Bool {

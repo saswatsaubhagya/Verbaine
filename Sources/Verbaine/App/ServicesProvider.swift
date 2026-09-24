@@ -1,9 +1,9 @@
 import AppKit
 import os
 
-/// Right-click → Services → "Polish: Improve" / "Polish: Summarize" in any app.
+/// Right-click → Services → "Verbaine: Improve" / "Verbaine: Summarize" in any app.
 ///
-/// The entries live in `Polish-Info.plist` (`NSServices`); `NSMessage` names the selectors below.
+/// The entries live in `Verbaine-Info.plist` (`NSServices`); `NSMessage` names the selectors below.
 /// A Services handler replaces the selection by writing the result back onto the pasteboard it was
 /// handed, and the replacement happens when the method *returns* — so the model call cannot be
 /// left running in the background, and this blocks the calling thread until it finishes. Blocking
@@ -13,7 +13,7 @@ final class ServicesProvider: NSObject {
     /// Set on `NSApp.servicesProvider` at launch, which only ever happens on the main actor.
     @MainActor static let shared = ServicesProvider()
 
-    private static let log = Logger(subsystem: "com.saswat.polish", category: "Services")
+    private static let log = Logger(subsystem: "in.saswatsaubhagya.verbaine", category: "Services")
 
     /// A single-pass call is ~1 s; past this the model is hung, and a Services item has no way to
     /// show progress or let the user cancel.

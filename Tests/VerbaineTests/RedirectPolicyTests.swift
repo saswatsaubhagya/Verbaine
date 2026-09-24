@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-@testable import Polish
+@testable import Verbaine
 
 /// F3/F6: `URLSession` follows both the `Authorization` header and the request body — the
 /// user's selected text — across a redirect, including a cross-host one. `RedirectPolicy`

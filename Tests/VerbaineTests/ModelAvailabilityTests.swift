@@ -1,6 +1,6 @@
 import FoundationModels
 import Testing
-@testable import Polish
+@testable import Verbaine
 
 @Test("every framework availability case maps to a user-facing case", arguments: [
     (SystemLanguageModel.Availability.available, ModelAvailability.ready),
