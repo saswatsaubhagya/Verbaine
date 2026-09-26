@@ -9,6 +9,8 @@ struct PopoverView: View {
     @Bindable var model: PopoverModel
     /// Read once when the popover opens; Settings is not open at the same time.
     @State private var customActions = Preferences.customActions()
+    /// nil until the user toggles it; until then long selections open expanded.
+    @State private var expandedOverride: Bool?
     var body: some View {
         VStack(alignment: .leading, spacing: Tokens.Space.m) {
             switch model.phase {
@@ -21,9 +23,34 @@ struct PopoverView: View {
             }
         }
         .padding(Tokens.Space.m)
-        .frame(width: isResult ? Tokens.Size.popoverResult : Tokens.Size.popoverStep1, alignment: .topLeading)
-        .frame(maxHeight: Tokens.Size.popoverMaxHeight, alignment: .topLeading)
+        .frame(width: width, alignment: .topLeading)
+        .frame(maxHeight: maxHeight, alignment: .topLeading)
         .task { await model.loadEstimate() }
+    }
+
+    private var isExpanded: Bool {
+        // ponytail: word-count threshold, tune if 150 feels wrong in practice
+        isResult && (expandedOverride ?? (model.selection.text.wordCount > 150))
+    }
+
+    private var width: CGFloat {
+        isExpanded ? Tokens.Size.popoverExpanded
+            : isResult ? Tokens.Size.popoverResult : Tokens.Size.popoverStep1
+    }
+
+    private var maxHeight: CGFloat {
+        isExpanded ? .infinity : Tokens.Size.popoverMaxHeight
+    }
+
+    /// Expanded panes get a real height (a ScrollView alone sizes to almost nothing): enough for
+    /// the longer side of the diff, capped so header and footer stay on screen.
+    /// ponytail: ~12 words per 22 pt line at 430 pt pane width; measure text if this drifts.
+    private var expandedPaneHeight: CGFloat {
+        let words = max(model.selection.text.wordCount, model.output.wordCount)
+        let wanted = CGFloat(words) / 12 * 22
+        let screen = NSScreen.main?.visibleFrame.height ?? 800
+        let cap = screen * 0.85 - 160
+        return min(max(wanted, Tokens.Size.popoverMaxHeight), cap)
     }
 
     private var isResult: Bool {
@@ -242,6 +269,26 @@ struct PopoverView: View {
                     }
                 }
             }
+
+            Button {
+                expandedOverride = !isExpanded
+            } label: {
+                Image(systemName: isExpanded
+                    ? "arrow.down.right.and.arrow.up.left"
+                    : "arrow.up.left.and.arrow.down.right")
+            }
+            .buttonStyle(.plain)
+            .foregroundStyle(Tokens.Ink.secondary)
+            .help(isExpanded ? "Smaller window" : "Bigger window")
+            .accessibilityLabel(isExpanded ? "Smaller window" : "Bigger window")
+
+            Button(action: model.onClose) {
+                Image(systemName: "xmark")
+            }
+            .buttonStyle(.plain)
+            .foregroundStyle(Tokens.Ink.secondary)
+            .help("Close (esc)")
+            .accessibilityLabel("Close")
         }
     }
 
@@ -290,7 +337,8 @@ struct PopoverView: View {
                 }
             }
         }
-        .frame(maxHeight: Tokens.Size.popoverMaxHeight)
+        .frame(height: isExpanded ? expandedPaneHeight : nil)
+        .frame(maxHeight: maxHeight)
     }
 
     private func pane<Content: View>(title: String, @ViewBuilder content: () -> Content) -> some View {

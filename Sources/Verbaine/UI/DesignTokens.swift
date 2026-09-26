@@ -37,6 +37,8 @@ enum Tokens {
         static let popoverStep1: CGFloat = 320
         static let popoverResult: CGFloat = 560
         static let popoverMaxHeight: CGFloat = 400
+        /// Expanded result for long text; its height grows with the text up to most of the screen.
+        static let popoverExpanded: CGFloat = 900
         static let menu: CGFloat = 262
         static let onboarding = CGSize(width: 520, height: 420)
         static let settings = CGSize(width: 640, height: 430)
